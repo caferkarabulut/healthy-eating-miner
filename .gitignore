@@ -1,0 +1,16 @@
+# Sanal ortam
+venv/
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Jupyter checkpoint
+.ipynb_checkpoints/
+
+# VS Code ayarları
+.vscode/
+
+# Streamlit cache
+.streamlit/
