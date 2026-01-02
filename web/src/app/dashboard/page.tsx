@@ -13,6 +13,8 @@ import WeeklySummary from '@/components/WeeklySummary';
 import ProgressCards from '@/components/ProgressCards';
 import SmartComments from '@/components/SmartComments';
 import GoalsEditor from '@/components/GoalsEditor';
+import ProfileSetup from '@/components/ProfileSetup';
+import ActivityLogger from '@/components/ActivityLogger';
 
 interface Meal {
     meal_id: number;
@@ -89,6 +91,16 @@ export default function DashboardPage() {
     const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([]);
     const [progressData, setProgressData] = useState<ProgressData | null>(null);
 
+    // Profile & Activity states
+    const [hasProfile, setHasProfile] = useState(true);
+    const [profileStats, setProfileStats] = useState<{
+        bmr: number;
+        tdee: number;
+        target_calories: number;
+        steps: number;
+        activity_level: string;
+    } | null>(null);
+
     const fetchData = useCallback(async () => {
         // Fetch meals
         const mealsRes = await apiRequest('/meals');
@@ -135,6 +147,24 @@ export default function DashboardPage() {
         if (progressRes.ok) {
             const data = await progressRes.json();
             if (!data.error) setProgressData(data);
+        }
+
+        // Fetch profile stats
+        const profileRes = await apiRequest('/profile/stats');
+        if (profileRes.ok) {
+            const pData = await profileRes.json();
+            if (pData.has_profile) {
+                setHasProfile(true);
+                setProfileStats({
+                    bmr: pData.calculations.bmr,
+                    tdee: pData.calculations.tdee,
+                    target_calories: pData.calculations.target_calories,
+                    steps: pData.activity.steps,
+                    activity_level: pData.activity.level,
+                });
+            } else {
+                setHasProfile(false);
+            }
         }
 
         setLoading(false);
@@ -238,6 +268,17 @@ export default function DashboardPage() {
                 </div>
             </header>
 
+            {/* Profile Setup Modal */}
+            {!hasProfile && (
+                <ProfileSetup
+                    isModal={true}
+                    onComplete={() => {
+                        setHasProfile(true);
+                        fetchData();
+                    }}
+                />
+            )}
+
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
 
@@ -246,6 +287,18 @@ export default function DashboardPage() {
                     <h2 className="text-3xl font-bold text-white">📊 Dashboard</h2>
                     <DatePicker selectedDate={selectedDate} onChange={setSelectedDate} />
                 </div>
+
+                {/* Activity Logger */}
+                {profileStats && (
+                    <ActivityLogger
+                        currentSteps={profileStats.steps}
+                        currentLevel={profileStats.activity_level}
+                        bmr={profileStats.bmr}
+                        tdee={profileStats.tdee}
+                        targetCalories={profileStats.target_calories}
+                        onUpdate={fetchData}
+                    />
+                )}
 
                 {/* Goals Editor */}
                 {goals && (

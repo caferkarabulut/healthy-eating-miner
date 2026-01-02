@@ -94,3 +94,26 @@ class UserGoals(Base):
     daily_protein_target: Mapped[int] = mapped_column(Integer, default=100)
     goal_type: Mapped[str] = mapped_column(String(50), default="koruma")  # kilo_verme, kilo_alma, koruma
     updated_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+
+
+class UserProfile(Base):
+    __tablename__ = "user_profiles"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    height_cm: Mapped[int] = mapped_column(Integer, nullable=False)  # 120-230
+    weight_kg: Mapped[float] = mapped_column(Float, nullable=False)  # 30-250
+    gender: Mapped[str] = mapped_column(String(10), nullable=False)  # male, female
+    birth_year: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+
+
+class DailyActivity(Base):
+    __tablename__ = "daily_activities"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    activity_date: Mapped[date] = mapped_column(Date, nullable=False)
+    steps: Mapped[int] = mapped_column(Integer, default=0)
+    activity_level: Mapped[str] = mapped_column(String(20), default="sedentary")  # sedentary, light, moderate, active
+

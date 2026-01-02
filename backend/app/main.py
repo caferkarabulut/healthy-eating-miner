@@ -10,6 +10,7 @@ from app.routers.meals import router as meals_router
 from app.routers.ai import router as ai_router
 from app.routers.user import router as user_router
 from app.routers.analysis import router as analysis_router
+from app.routers.profile import router as profile_router
 
 app = FastAPI(title="Healthy Eating API")
 
@@ -32,6 +33,7 @@ app.include_router(meals_router)
 app.include_router(ai_router)
 app.include_router(user_router)
 app.include_router(analysis_router)
+app.include_router(profile_router)
 
 @app.get("/")
 def root():
