@@ -473,6 +473,9 @@ if st.session_state.token:
     
     df = pd.DataFrame(weekly_data)
     
+    # Tarihe göre sırala
+    df = df.sort_values("Gun").reset_index(drop=True)
+    
     if df["Kalori"].sum() > 0:
         st.line_chart(df.set_index("Tarih")["Kalori"])
         
