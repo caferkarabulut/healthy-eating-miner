@@ -26,3 +26,23 @@ def list_favorites(
     return db.query(FavoriteMeal).filter(
         FavoriteMeal.user_id == user_id
     ).all()
+
+
+@router.delete("/{meal_id}")
+def remove_favorite(
+    meal_id: int,
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """Favoriyi kaldır"""
+    fav = db.query(FavoriteMeal).filter(
+        FavoriteMeal.user_id == user_id,
+        FavoriteMeal.meal_id == meal_id
+    ).first()
+    
+    if fav:
+        db.delete(fav)
+        db.commit()
+        return {"ok": True}
+    
+    return {"ok": False, "error": "Favori bulunamadı"}

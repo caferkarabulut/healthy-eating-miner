@@ -38,3 +38,23 @@ def get_logs(
     ).all()
 
     return logs
+
+
+@router.delete("/{log_id}")
+def delete_log(
+    log_id: int,
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """Öğün kaydını sil"""
+    log = db.query(MealLog).filter(
+        MealLog.id == log_id,
+        MealLog.user_id == user_id
+    ).first()
+    
+    if log:
+        db.delete(log)
+        db.commit()
+        return {"ok": True}
+    
+    return {"ok": False, "error": "Log bulunamadı"}

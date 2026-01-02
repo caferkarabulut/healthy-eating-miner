@@ -148,10 +148,19 @@ if st.session_state.token:
                 total_carbs += carbs
                 total_fat += fat
                 
-                st.write(
-                    f"- **{meal['meal_name']}** | Porsiyon: {portion} | "
-                    f"{cal:.0f} kcal | 💪 {protein:.1f}g | 🍞 {carbs:.1f}g | 🧈 {fat:.1f}g"
-                )
+                col1, col2 = st.columns([5, 1])
+                with col1:
+                    st.write(
+                        f"- **{meal['meal_name']}** | Porsiyon: {portion} | "
+                        f"{cal:.0f} kcal | 💪 {protein:.1f}g | 🍞 {carbs:.1f}g | 🧈 {fat:.1f}g"
+                    )
+                with col2:
+                    if st.button("🗑️", key=f"del_log_{log['id']}"):
+                        requests.delete(
+                            f"{API_BASE}/logs/{log['id']}",
+                            headers=headers
+                        )
+                        st.rerun()
 
     # --------- GÜNLÜK TOPLAM METRIC CARD'LAR ---------
     st.divider()
@@ -301,7 +310,7 @@ if st.session_state.token:
         for i, fav in enumerate(favorites):
             fav_meal = meal_dict.get(fav["meal_id"])
             if fav_meal:
-                col1, col2 = st.columns([3, 1])
+                col1, col2, col3 = st.columns([3, 1, 1])
                 
                 with col1:
                     st.write(
@@ -327,6 +336,14 @@ if st.session_state.token:
                             st.rerun()
                         else:
                             st.error("Eklenirken hata oluştu.")
+                
+                with col3:
+                    if st.button("🗑️", key=f"del_fav_{i}"):
+                        requests.delete(
+                            f"{API_BASE}/favorites/{fav['meal_id']}",
+                            headers=headers
+                        )
+                        st.rerun()
 
     # --------- HAFTALIK ÖZET ---------
     st.divider()
@@ -443,43 +460,45 @@ if st.session_state.token:
     if "ai_response" not in st.session_state:
         st.session_state.ai_response = None
     
-    user_message = st.text_input(
-        "Ne yemek istiyorsun?",
-        placeholder="Örn: 60g protein içeren bir öğün öner..."
-    )
-    
-    if st.button("🚀 Sor"):
-        if user_message.strip():
-            with st.spinner("AI düşünüyor..."):
-                # Haftalık verileri hazırla
-                weekly_cal = [d["Kalori"] for d in weekly_data]
-                weekly_prot = [d["Protein"] for d in weekly_data]
-                
-                # Favorileri al
-                fav_names = []
-                for fav in favorites:
-                    fav_meal = meal_dict.get(fav["meal_id"])
-                    if fav_meal:
-                        fav_names.append(fav_meal["meal_name"])
-                
-                # AI endpoint'e gönder
-                ai_resp = requests.post(
-                    f"{API_BASE}/ai/chat",
-                    json={
-                        "user_message": user_message,
-                        "weekly_calories": weekly_cal,
-                        "weekly_protein": weekly_prot,
-                        "favorites": fav_names
-                    },
-                    headers=headers
-                )
-                
-                if ai_resp.status_code == 200:
-                    st.session_state.ai_response = ai_resp.json()
-                else:
-                    st.session_state.ai_response = {"error": "AI servisi şu anda kullanılamıyor."}
-        else:
-            st.warning("Lütfen bir soru yazın.")
+    with st.form("ai_chat_form"):
+        user_message = st.text_input(
+            "Ne yemek istiyorsun?",
+            placeholder="Örn: 60g protein içeren bir öğün öner..."
+        )
+        submitted = st.form_submit_button("🚀 Sor")
+        
+        if submitted:
+            if user_message.strip():
+                with st.spinner("AI düşünüyor..."):
+                    # Haftalık verileri hazırla
+                    weekly_cal = [d["Kalori"] for d in weekly_data]
+                    weekly_prot = [d["Protein"] for d in weekly_data]
+                    
+                    # Favorileri al
+                    fav_names = []
+                    for fav in favorites:
+                        fav_meal = meal_dict.get(fav["meal_id"])
+                        if fav_meal:
+                            fav_names.append(fav_meal["meal_name"])
+                    
+                    # AI endpoint'e gönder
+                    ai_resp = requests.post(
+                        f"{API_BASE}/ai/chat",
+                        json={
+                            "user_message": user_message,
+                            "weekly_calories": weekly_cal,
+                            "weekly_protein": weekly_prot,
+                            "favorites": fav_names
+                        },
+                        headers=headers
+                    )
+                    
+                    if ai_resp.status_code == 200:
+                        st.session_state.ai_response = ai_resp.json()
+                    else:
+                        st.session_state.ai_response = {"error": "AI servisi şu anda kullanılamıyor."}
+            else:
+                st.warning("Lütfen bir soru yazın.")
     
     # AI yanıtını göster (session_state'den)
     if st.session_state.ai_response:
@@ -561,28 +580,32 @@ tab_login, tab_register = st.tabs(["Giriş Yap", "Kayıt Ol"])
 
 with tab_login:
     st.subheader("Giriş Yap")
-    email = st.text_input("E-posta", key="login_email")
-    password = st.text_input("Şifre", type="password", key="login_password")
-
-    if st.button("Giriş"):
-        result = api_login(email, password)
-        if result:
-            st.session_state.token = result["access_token"]
-            st.session_state.user_email = email
-            st.rerun()
-        else:
-            st.error("E-posta veya şifre yanlış")
+    with st.form("login_form"):
+        email = st.text_input("E-posta")
+        password = st.text_input("Şifre", type="password")
+        submitted = st.form_submit_button("Giriş")
+        
+        if submitted:
+            result = api_login(email, password)
+            if result:
+                st.session_state.token = result["access_token"]
+                st.session_state.user_email = email
+                st.rerun()
+            else:
+                st.error("E-posta veya şifre yanlış")
 
 with tab_register:
     st.subheader("Kayıt Ol")
-    email_r = st.text_input("E-posta", key="reg_email")
-    password_r = st.text_input("Şifre", type="password", key="reg_password")
-
-    if st.button("Kayıt Ol"):
-        r = api_register(email_r, password_r)
-        if r.status_code == 200:
-            st.success("Kayıt başarılı. Giriş yapabilirsin.")
-        elif r.status_code == 400:
-            st.warning("Bu e-posta zaten kayıtlı.")
-        else:
-            st.error("Bir hata oluştu.")
+    with st.form("register_form"):
+        email_r = st.text_input("E-posta")
+        password_r = st.text_input("Şifre", type="password")
+        submitted_r = st.form_submit_button("Kayıt Ol")
+        
+        if submitted_r:
+            r = api_register(email_r, password_r)
+            if r.status_code == 200:
+                st.success("Kayıt başarılı. Giriş yapabilirsin.")
+            elif r.status_code == 400:
+                st.warning("Bu e-posta zaten kayıtlı.")
+            else:
+                st.error("Bir hata oluştu.")
