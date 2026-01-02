@@ -53,22 +53,29 @@ export default function SettingsPage() {
         setSaving(true);
         setMessage('');
 
-        const res = await apiRequest('/profile', {
-            method: 'POST',
-            body: JSON.stringify({
-                height_cm: heightCm,
-                weight_kg: weightKg,
-                gender,
-                birth_year: birthYear,
-            }),
-        });
+        try {
+            const res = await apiRequest('/profile', {
+                method: 'POST',
+                body: JSON.stringify({
+                    height_cm: heightCm,
+                    weight_kg: weightKg,
+                    gender,
+                    birth_year: birthYear,
+                }),
+            });
 
-        if (res.ok) {
-            const data = await res.json();
-            setProfile(data);
-            setMessage('✅ Profil güncellendi!');
-        } else {
-            setMessage('❌ Kaydetme hatası.');
+            if (res.ok) {
+                const data = await res.json();
+                setProfile(data);
+                setMessage('✅ Profil güncellendi!');
+            } else {
+                const errorData = await res.text();
+                console.error('Profile save error:', res.status, errorData);
+                setMessage(`❌ Kaydetme hatası: ${res.status}`);
+            }
+        } catch (err) {
+            console.error('Profile save exception:', err);
+            setMessage('❌ Bağlantı hatası.');
         }
         setSaving(false);
     };
@@ -129,8 +136,8 @@ export default function SettingsPage() {
                                     type="button"
                                     onClick={() => setGender('male')}
                                     className={`py-3 rounded-lg border transition ${gender === 'male'
-                                            ? 'border-blue-500 bg-blue-500/20 text-blue-400'
-                                            : 'border-gray-600 bg-gray-700/50 text-gray-300'
+                                        ? 'border-blue-500 bg-blue-500/20 text-blue-400'
+                                        : 'border-gray-600 bg-gray-700/50 text-gray-300'
                                         }`}
                                 >
                                     👨 Erkek
@@ -139,8 +146,8 @@ export default function SettingsPage() {
                                     type="button"
                                     onClick={() => setGender('female')}
                                     className={`py-3 rounded-lg border transition ${gender === 'female'
-                                            ? 'border-pink-500 bg-pink-500/20 text-pink-400'
-                                            : 'border-gray-600 bg-gray-700/50 text-gray-300'
+                                        ? 'border-pink-500 bg-pink-500/20 text-pink-400'
+                                        : 'border-gray-600 bg-gray-700/50 text-gray-300'
                                         }`}
                                 >
                                     👩 Kadın
@@ -212,8 +219,8 @@ export default function SettingsPage() {
                     {/* Message & Save Button */}
                     {message && (
                         <div className={`mt-4 px-4 py-2 rounded-lg text-sm ${message.includes('✅')
-                                ? 'bg-green-500/20 text-green-400'
-                                : 'bg-red-500/20 text-red-400'
+                            ? 'bg-green-500/20 text-green-400'
+                            : 'bg-red-500/20 text-red-400'
                             }`}>
                             {message}
                         </div>

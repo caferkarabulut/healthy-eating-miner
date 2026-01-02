@@ -13,8 +13,6 @@ import WeeklySummary from '@/components/WeeklySummary';
 import ProgressCards from '@/components/ProgressCards';
 import SmartComments from '@/components/SmartComments';
 import GoalsEditor from '@/components/GoalsEditor';
-import ProfileSetup from '@/components/ProfileSetup';
-import ActivityLogger from '@/components/ActivityLogger';
 
 interface Meal {
     meal_id: number;
@@ -91,80 +89,60 @@ export default function DashboardPage() {
     const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([]);
     const [progressData, setProgressData] = useState<ProgressData | null>(null);
 
-    // Profile & Activity states
-    const [hasProfile, setHasProfile] = useState(true);
-    const [profileStats, setProfileStats] = useState<{
-        bmr: number;
-        tdee: number;
-        target_calories: number;
-        steps: number;
-        activity_level: string;
-    } | null>(null);
-
     const fetchData = useCallback(async () => {
-        // Fetch meals
-        const mealsRes = await apiRequest('/meals');
-        const mealsData = mealsRes.ok ? await mealsRes.json() : [];
-        setMeals(mealsData);
+        try {
+            // Fetch meals
+            const mealsRes = await apiRequest('/meals');
+            const mealsData = mealsRes.ok ? await mealsRes.json() : [];
+            setMeals(mealsData);
 
-        // Fetch logs for selected date
-        const logsRes = await apiRequest(`/logs?log_date=${selectedDate}`);
-        if (logsRes.ok) setLogs(await logsRes.json());
+            // Fetch logs for selected date
+            const logsRes = await apiRequest(`/logs?log_date=${selectedDate}`);
+            if (logsRes.ok) setLogs(await logsRes.json());
 
-        // Fetch favorites
-        const favsRes = await apiRequest('/favorites');
-        if (favsRes.ok) setFavorites(await favsRes.json());
+            // Fetch favorites
+            const favsRes = await apiRequest('/favorites');
+            if (favsRes.ok) setFavorites(await favsRes.json());
 
-        // Fetch goals
-        const goalsRes = await apiRequest('/user/goals');
-        if (goalsRes.ok) setGoals(await goalsRes.json());
+            // Fetch goals
+            const goalsRes = await apiRequest('/user/goals');
+            if (goalsRes.ok) setGoals(await goalsRes.json());
 
-        // Fetch weekly data (son 7 gün)
-        const weekly: WeeklyData[] = [];
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date(selectedDate);
-            date.setDate(date.getDate() - i);
-            const dateStr = date.toISOString().split('T')[0];
+            // Fetch weekly data (son 7 gün)
+            const weekly: WeeklyData[] = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(selectedDate);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
 
-            const dayLogsRes = await apiRequest(`/logs?log_date=${dateStr}`);
-            const dayLogs = dayLogsRes.ok ? await dayLogsRes.json() : [];
+                const dayLogsRes = await apiRequest(`/logs?log_date=${dateStr}`);
+                const dayLogs = dayLogsRes.ok ? await dayLogsRes.json() : [];
 
-            let dayCal = 0, dayProtein = 0;
-            for (const log of dayLogs) {
-                const meal = mealsData.find((m: Meal) => m.meal_id === log.meal_id);
-                if (meal) {
-                    dayCal += meal.calories * log.portion;
-                    dayProtein += meal.protein_g * log.portion;
+                let dayCal = 0, dayProtein = 0;
+                for (const log of dayLogs) {
+                    const meal = mealsData.find((m: Meal) => m.meal_id === log.meal_id);
+                    if (meal) {
+                        dayCal += meal.calories * log.portion;
+                        dayProtein += meal.protein_g * log.portion;
+                    }
                 }
+
+                weekly.push({ date: dateStr, calories: dayCal, protein: dayProtein });
             }
+            setWeeklyData(weekly);
 
-            weekly.push({ date: dateStr, calories: dayCal, protein: dayProtein });
-        }
-        setWeeklyData(weekly);
-
-        // Fetch progress analysis
-        const progressRes = await apiRequest('/analysis/progress');
-        if (progressRes.ok) {
-            const data = await progressRes.json();
-            if (!data.error) setProgressData(data);
-        }
-
-        // Fetch profile stats
-        const profileRes = await apiRequest('/profile/stats');
-        if (profileRes.ok) {
-            const pData = await profileRes.json();
-            if (pData.has_profile) {
-                setHasProfile(true);
-                setProfileStats({
-                    bmr: pData.calculations.bmr,
-                    tdee: pData.calculations.tdee,
-                    target_calories: pData.calculations.target_calories,
-                    steps: pData.activity.steps,
-                    activity_level: pData.activity.level,
-                });
-            } else {
-                setHasProfile(false);
+            // Fetch progress analysis
+            try {
+                const progressRes = await apiRequest('/analysis/progress');
+                if (progressRes.ok) {
+                    const data = await progressRes.json();
+                    if (!data.error) setProgressData(data);
+                }
+            } catch {
+                // Progress analysis failed, continue
             }
+        } catch (err) {
+            console.error('Dashboard fetch error:', err);
         }
 
         setLoading(false);
@@ -231,12 +209,6 @@ export default function DashboardPage() {
         router.push('/login');
     };
 
-    const goalLabels: Record<string, string> = {
-        'kilo_verme': '⚖️ Kilo Verme',
-        'kilo_alma': '💪 Kilo Alma',
-        'koruma': '🔄 Koruma',
-    };
-
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-900">
@@ -259,12 +231,6 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-4">
                         <span className="text-gray-400 hidden sm:block">{email}</span>
                         <button
-                            onClick={() => router.push('/settings')}
-                            className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition"
-                        >
-                            ⚙️ Ayarlar
-                        </button>
-                        <button
                             onClick={handleLogout}
                             className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition"
                         >
@@ -274,17 +240,6 @@ export default function DashboardPage() {
                 </div>
             </header>
 
-            {/* Profile Setup Modal */}
-            {!hasProfile && (
-                <ProfileSetup
-                    isModal={true}
-                    onComplete={() => {
-                        setHasProfile(true);
-                        fetchData();
-                    }}
-                />
-            )}
-
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
 
@@ -293,18 +248,6 @@ export default function DashboardPage() {
                     <h2 className="text-3xl font-bold text-white">📊 Dashboard</h2>
                     <DatePicker selectedDate={selectedDate} onChange={setSelectedDate} />
                 </div>
-
-                {/* Activity Logger */}
-                {profileStats && (
-                    <ActivityLogger
-                        currentSteps={profileStats.steps}
-                        currentLevel={profileStats.activity_level}
-                        bmr={profileStats.bmr}
-                        tdee={profileStats.tdee}
-                        targetCalories={profileStats.target_calories}
-                        onUpdate={fetchData}
-                    />
-                )}
 
                 {/* Goals Editor */}
                 {goals && (
