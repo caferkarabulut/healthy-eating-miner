@@ -57,6 +57,50 @@ if st.session_state.token:
         value=datetime.date.today()
     )
 
+    # --------- HEDEFLERİM ---------
+    st.divider()
+    st.markdown("### 🧭 Hedeflerim")
+    
+    # Hedefleri çek
+    goals_resp = requests.get(
+        f"{API_BASE}/user/goals",
+        headers=headers
+    )
+    
+    if goals_resp.status_code == 200:
+        user_goals = goals_resp.json()
+    else:
+        user_goals = {"daily_calorie_target": 2000, "daily_protein_target": 100, "goal_type": "koruma"}
+    
+    goal_labels = {"kilo_verme": "⚖️ Kilo Verme", "kilo_alma": "💪 Kilo Alma", "koruma": "🔄 Koruma"}
+    
+    col1, col2, col3 = st.columns(3)
+    col1.metric("🎯 Kalori Hedefi", f"{user_goals['daily_calorie_target']} kcal")
+    col2.metric("💪 Protein Hedefi", f"{user_goals['daily_protein_target']} g")
+    col3.metric("Amaç", goal_labels.get(user_goals['goal_type'], user_goals['goal_type']))
+    
+    # Hedef düzenleme expander
+    with st.expander("✏️ Hedeflerimi Düzenle"):
+        new_cal = st.number_input("Günlük Kalori Hedefi", min_value=1000, max_value=5000, value=user_goals['daily_calorie_target'])
+        new_prot = st.number_input("Günlük Protein Hedefi (g)", min_value=30, max_value=300, value=user_goals['daily_protein_target'])
+        new_goal = st.selectbox("Amaç", options=["koruma", "kilo_verme", "kilo_alma"], index=["koruma", "kilo_verme", "kilo_alma"].index(user_goals['goal_type']))
+        
+        if st.button("💾 Kaydet"):
+            save_resp = requests.post(
+                f"{API_BASE}/user/goals",
+                json={
+                    "daily_calorie_target": new_cal,
+                    "daily_protein_target": new_prot,
+                    "goal_type": new_goal
+                },
+                headers=headers
+            )
+            if save_resp.status_code == 200:
+                st.success("Hedefler güncellendi!")
+                st.rerun()
+            else:
+                st.error("Hedefler kaydedilemedi.")
+
     # --------- ÖĞÜN VERİSİNİ ÇEK ---------
     meals_resp = requests.get(
         f"{API_BASE}/meals",
@@ -341,42 +385,49 @@ if st.session_state.token:
         
         # --------- OTOMATİK YORUMLAR ---------
         st.divider()
-        st.markdown("### 🧠 Otomatik Yorumlar")
+        st.markdown("### 🧠 Akıllı Yorumlar")
         
         yorumlar = []
         
-        # Kural 1: Son 3 günde protein düşük mü?
+        # Hedef bazlı yorumlar
+        cal_target = user_goals['daily_calorie_target']
+        prot_target = user_goals['daily_protein_target']
+        
+        # Bugünün kalori/protein yüzdesi
+        today_cal_pct = (total_cal / cal_target * 100) if cal_target > 0 else 0
+        today_prot_pct = (total_protein / prot_target * 100) if prot_target > 0 else 0
+        
+        # Kural 1: Günlük protein hedefi
+        if total_protein > 0:
+            if today_prot_pct < 50:
+                yorumlar.append(f"⚠️ Protein hedefinin %{today_prot_pct:.0f}'indesin ({total_protein:.0f}g / {prot_target}g). Akşam için yüksek proteinli öğün önerilir.")
+            elif today_prot_pct >= 100:
+                yorumlar.append(f"💪 Protein hedefini tutturdun! (%{today_prot_pct:.0f})")
+        
+        # Kural 2: Günlük kalori hedefi
+        if total_cal > 0:
+            if today_cal_pct > 120:
+                yorumlar.append(f"🔥 Kalori hedefini aştın (%{today_cal_pct:.0f}). Yarın daha hafif öğünler deneyebilirsin.")
+            elif today_cal_pct >= 90 and today_cal_pct <= 110:
+                yorumlar.append(f"✅ Kalori hedefine ulaştın (%{today_cal_pct:.0f}). Harika gidiyorsun!")
+        
+        # Kural 3: Son 3 günde protein düşük mü?
         son_3_gun_protein = df["Protein"].tail(3).mean()
-        if son_3_gun_protein < 70:
-            yorumlar.append("⚠️ Son 3 günde protein alımın düşük (ort. {:.0f}g < 70g).".format(son_3_gun_protein))
+        protein_pct_avg = (son_3_gun_protein / prot_target * 100) if prot_target > 0 else 0
+        if protein_pct_avg < 70:
+            yorumlar.append(f"📉 Son 3 günde protein alımın hedefin %{protein_pct_avg:.0f}'i (ort. {son_3_gun_protein:.0f}g).")
         
-        # Kural 2: Kalori dalgalanması yüksek mi?
-        kalori_max = df["Kalori"].max()
-        kalori_min = df["Kalori"].min()
-        kalori_fark = kalori_max - kalori_min
-        if kalori_fark > 600:
-            yorumlar.append("📉 Günler arası kalori dalgalanması yüksek ({:.0f} kcal fark).".format(kalori_fark))
+        # Kural 4: Haftalık kalori ortalaması vs hedef
+        if avg_cal > 0:
+            weekly_cal_pct = (avg_cal / cal_target * 100) if cal_target > 0 else 0
+            if user_goals['goal_type'] == 'kilo_verme' and weekly_cal_pct > 100:
+                yorumlar.append(f"⚖️ Kilo vermek istiyorsun ama haftalık ortalaması hedefin üzerinde (%{weekly_cal_pct:.0f}).")
+            elif user_goals['goal_type'] == 'kilo_alma' and weekly_cal_pct < 100:
+                yorumlar.append(f"💪 Kilo almak istiyorsun ama haftalık ortalaman hedefin altında (%{weekly_cal_pct:.0f}).")
         
-        # Kural 3: Hafta sonu artışı var mı?
-        hafta_sonu_cal = []
-        hafta_ici_cal = []
-        
-        for _, row in df.iterrows():
-            if row["Gun"].weekday() >= 5:  # Cumartesi=5, Pazar=6
-                hafta_sonu_cal.append(row["Kalori"])
-            else:
-                hafta_ici_cal.append(row["Kalori"])
-        
-        if hafta_sonu_cal and hafta_ici_cal:
-            hs_avg = sum(hafta_sonu_cal) / len(hafta_sonu_cal)
-            hi_avg = sum(hafta_ici_cal) / len(hafta_ici_cal)
-            
-            if hi_avg > 0 and hs_avg > hi_avg * 1.15:
-                yorumlar.append("🍕 Hafta sonu kalori artışı gözlemlendi (+{:.0f}%).".format((hs_avg/hi_avg - 1) * 100))
-        
-        # Kural 4: Dengeli mi?
+        # Kural 5: Dengeli mi?
         if len(yorumlar) == 0:
-            yorumlar.append("✅ Beslenme düzenin son hafta genel olarak dengeli.")
+            yorumlar.append("✅ Hedeflerine uygun ilerliyorsun. Devam et!")
         
         # Yorumları göster
         for yorum in yorumlar:

@@ -63,17 +63,33 @@ def ai_chat(
         if meal:
             accepted_meals.append(f"{meal.meal_name} ({count} kez)")
     
+    # Kullanıcı hedeflerini al
+    from app.db.models import UserGoals
+    user_goals = db.query(UserGoals).filter(UserGoals.user_id == user_id).first()
+    
+    if user_goals:
+        goal_info = f"""
+Kullanıcı hedefleri:
+- Günlük kalori hedefi: {user_goals.daily_calorie_target} kcal
+- Günlük protein hedefi: {user_goals.daily_protein_target}g
+- Amaç: {user_goals.goal_type}"""
+    else:
+        goal_info = "Kullanıcı henüz hedef belirlememiş."
+    
     # System prompt
     system_prompt = """You are a Turkish nutrition assistant. 
 Use the given data to suggest meals logically.
 Always respond in Turkish.
 Do not invent nutritional values - only use meals from the provided list.
 If suggesting meals, include exact meal names from the list.
-Prioritize meals similar to what the user has accepted before."""
+Prioritize meals similar to what the user has accepted before.
+Consider the user's goals (weight loss, gain, or maintenance) when suggesting meals."""
 
     # User context
     user_context = f"""
 Kullanıcı mesajı: {req.user_message}
+
+{goal_info}
 
 Son 7 gün kalori: {req.weekly_calories}
 Son 7 gün protein: {req.weekly_protein}

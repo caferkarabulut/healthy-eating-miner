@@ -84,3 +84,13 @@ class AIAcceptance(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     meal_id: Mapped[int] = mapped_column(ForeignKey("meals.meal_id"), nullable=False)
     accepted_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+
+
+class UserGoals(Base):
+    __tablename__ = "user_goals"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    daily_calorie_target: Mapped[int] = mapped_column(Integer, default=2000)
+    daily_protein_target: Mapped[int] = mapped_column(Integer, default=100)
+    goal_type: Mapped[str] = mapped_column(String(50), default="koruma")  # kilo_verme, kilo_alma, koruma
+    updated_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
