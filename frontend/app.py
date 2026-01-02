@@ -270,15 +270,27 @@ if st.session_state.token:
                 if progress["ai_effect"]:
                     accepted = progress["ai_effect"].get("accepted_days_protein", 0)
                     other = progress["ai_effect"].get("other_days_protein", 0)
+                    acc_count = progress["ai_effect"].get("accepted_count", 0)
+                    other_count = progress["ai_effect"].get("other_count", 0)
                     
                     st.metric(
-                        "AI Kabul Günleri",
+                        f"AI Kabul Günleri ({acc_count})",
                         f"%{int(accepted * 100)}"
                     )
                     st.metric(
-                        "Diğer Günler",
+                        f"Diğer Günler ({other_count})",
                         f"%{int(other * 100)}"
                     )
+            
+            # Metadata bilgisi
+            if progress.get("metadata"):
+                meta = progress["metadata"]
+                st.caption(
+                    f"📊 AI başlangıç: {meta.get('ai_start_date', 'N/A')} | "
+                    f"Öncesi: {meta.get('before_days', 0)} gün | "
+                    f"Sonrası: {meta.get('after_days', 0)} gün | "
+                    f"Min. gerekli: {meta.get('min_days_required', 3)} gün"
+                )
     else:
         st.warning("Gelişim verileri yüklenemedi.")
 
