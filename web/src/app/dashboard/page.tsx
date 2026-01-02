@@ -13,6 +13,8 @@ import WeeklySummary from '@/components/WeeklySummary';
 import ProgressCards from '@/components/ProgressCards';
 import SmartComments from '@/components/SmartComments';
 import GoalsEditor from '@/components/GoalsEditor';
+import ProfileSetup from '@/components/ProfileSetup';
+import ActivityLogger from '@/components/ActivityLogger';
 
 interface Meal {
     meal_id: number;
@@ -76,6 +78,7 @@ export default function DashboardPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [email, setEmail] = useState('');
+    const [showProfileSetup, setShowProfileSetup] = useState(false);
 
     const [selectedDate, setSelectedDate] = useState(() => {
         const today = new Date();
@@ -89,8 +92,47 @@ export default function DashboardPage() {
     const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([]);
     const [progressData, setProgressData] = useState<ProgressData | null>(null);
 
+    // Profile & Activity stats
+    const [profileStats, setProfileStats] = useState<{
+        bmr: number;
+        tdee: number;
+        target_calories: number;
+        steps: number;
+        activity_level: string;
+    } | null>(null);
+
     const fetchData = useCallback(async () => {
         try {
+            // Check profile first
+            try {
+                const profileRes = await apiRequest('/profile');
+                if (profileRes.ok) {
+                    const pData = await profileRes.json();
+                    setShowProfileSetup(!pData.has_profile);
+                }
+            } catch {
+                // Profile check failed, continue anyway
+            }
+
+            // Fetch profile stats (BMR, TDEE, Activity)
+            try {
+                const statsRes = await apiRequest('/profile/stats');
+                if (statsRes.ok) {
+                    const statsData = await statsRes.json();
+                    if (statsData.has_profile) {
+                        setProfileStats({
+                            bmr: statsData.calculations.bmr,
+                            tdee: statsData.calculations.tdee,
+                            target_calories: statsData.calculations.target_calories,
+                            steps: statsData.activity.steps,
+                            activity_level: statsData.activity.level,
+                        });
+                    }
+                }
+            } catch {
+                // Stats fetch failed
+            }
+
             // Fetch meals
             const mealsRes = await apiRequest('/meals');
             const mealsData = mealsRes.ok ? await mealsRes.json() : [];
@@ -248,6 +290,29 @@ export default function DashboardPage() {
                     <h2 className="text-3xl font-bold text-white">📊 Dashboard</h2>
                     <DatePicker selectedDate={selectedDate} onChange={setSelectedDate} />
                 </div>
+
+                {/* Profile Setup Modal */}
+                {showProfileSetup && (
+                    <ProfileSetup
+                        isModal={true}
+                        onComplete={() => {
+                            setShowProfileSetup(false);
+                            fetchData();
+                        }}
+                    />
+                )}
+
+                {/* Activity Logger */}
+                {profileStats && (
+                    <ActivityLogger
+                        currentSteps={profileStats.steps}
+                        currentLevel={profileStats.activity_level}
+                        bmr={profileStats.bmr}
+                        tdee={profileStats.tdee}
+                        targetCalories={profileStats.target_calories}
+                        onUpdate={fetchData}
+                    />
+                )}
 
                 {/* Goals Editor */}
                 {goals && (

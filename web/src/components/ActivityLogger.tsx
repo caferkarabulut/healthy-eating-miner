@@ -31,7 +31,8 @@ export default function ActivityLogger({
     };
 
     const activityInfo = getActivityLevel(steps);
-    const estimatedTdee = bmr * activityInfo.multiplier;
+    // Use backend TDEE if available (single source of truth), otherwise estimate for immediate feedback
+    const displayTdee = tdee > 0 ? tdee : bmr * activityInfo.multiplier;
 
     const handleSave = async () => {
         setSaving(true);
@@ -75,8 +76,8 @@ export default function ActivityLogger({
                             <div
                                 key={level}
                                 className={`h-2 rounded-full ${['sedentary', 'light', 'moderate', 'active'].indexOf(activityInfo.level) >= i
-                                        ? 'bg-green-500'
-                                        : 'bg-gray-600'
+                                    ? 'bg-green-500'
+                                    : 'bg-gray-600'
                                     }`}
                             />
                         ))}
@@ -94,7 +95,7 @@ export default function ActivityLogger({
                     </div>
                     <div className="bg-gray-700/50 rounded-xl p-3">
                         <p className="text-gray-500 text-xs">TDEE</p>
-                        <p className="text-lg font-bold text-blue-400">{estimatedTdee.toFixed(0)}</p>
+                        <p className="text-lg font-bold text-blue-400">{displayTdee.toFixed(0)}</p>
                     </div>
                     <div className="bg-gray-700/50 rounded-xl p-3">
                         <p className="text-gray-500 text-xs">Hedef</p>

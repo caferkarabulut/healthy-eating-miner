@@ -64,8 +64,70 @@ def ai_chat(
             accepted_meals.append(f"{meal.meal_name} ({count} kez)")
     
     # Kullanıcı hedeflerini al
-    from app.db.models import UserGoals
+    from app.db.models import UserGoals, UserProfile, DailyActivity
+    from app.services.metabolism import get_full_calculations
+    from datetime import date
+    
     user_goals = db.query(UserGoals).filter(UserGoals.user_id == user_id).first()
+    user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
+    
+    # Bugünkü aktivite ve TDEE
+    today = date.today()
+    today_activity = db.query(DailyActivity).filter(
+        DailyActivity.user_id == user_id,
+        DailyActivity.activity_date == today
+    ).first()
+    
+    # Profile context oluştur
+    profile_context = ""
+    if user_profile:
+        steps = today_activity.steps if today_activity else 0
+        goal_type = user_goals.goal_type if user_goals else "koruma"
+        
+        calcs = get_full_calculations(
+            weight_kg=user_profile.weight_kg,
+            height_cm=user_profile.height_cm,
+            birth_year=user_profile.birth_year,
+            gender=user_profile.gender,
+            steps=steps,
+            goal_type=goal_type
+        )
+        
+        # Bugünkü kalori tüketimi hesapla
+        from app.db.models import MealLog, Meal as MealModel
+        today_logs = db.query(MealLog).filter(
+            MealLog.user_id == user_id,
+            MealLog.log_date == today
+        ).all()
+        
+        today_calories = 0
+        for log in today_logs:
+            meal = db.query(MealModel).filter(MealModel.meal_id == log.meal_id).first()
+            if meal:
+                today_calories += meal.calories * log.portion
+        
+        remaining_calories = calcs["target_calories"] - today_calories
+        remaining_pct = (remaining_calories / calcs["target_calories"] * 100) if calcs["target_calories"] > 0 else 0
+        
+        profile_context = f"""
+📋 Kullanıcı Profili:
+- Boy: {user_profile.height_cm} cm
+- Kilo: {user_profile.weight_kg} kg
+- Yaş: {2026 - user_profile.birth_year}
+- Cinsiyet: {'Erkek' if user_profile.gender == 'male' else 'Kadın'}
+
+🔥 Metabolizma:
+- BMR: {calcs['bmr']} kcal/gün
+- Bugünkü adım: {steps}
+- Aktivite seviyesi: {calcs['activity_level']}
+- TDEE: {calcs['tdee']} kcal/gün
+- Günlük hedef: {calcs['target_calories']} kcal
+
+📊 Bugünkü Durum:
+- Tüketilen: {today_calories} kcal
+- Kalan: {remaining_calories} kcal (%{remaining_pct:.0f})
+- Protein hedefi: {calcs['target_protein']}g
+"""
     
     # AI Context Engine: Son günlerin analizi
     context_insights = []
@@ -139,6 +201,8 @@ If the user is above calorie target and wants to lose weight, suggest lower calo
     # User context
     user_context = f"""
 Kullanıcı mesajı: {req.user_message}
+
+{profile_context}
 
 {goal_info}
 
