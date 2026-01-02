@@ -61,3 +61,26 @@ class FavoriteMeal(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     meal_id: Mapped[int] = mapped_column(ForeignKey("meals.meal_id"), nullable=False)
+
+
+from sqlalchemy import Text
+
+class AIInteraction(Base):
+    __tablename__ = "ai_interactions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    prompt_text: Mapped[str] = mapped_column(Text, nullable=False)
+    response_text: Mapped[str] = mapped_column(Text, nullable=False)
+    suggested_meal_ids: Mapped[str] = mapped_column(Text)  # JSON string: "[1, 2, 3]"
+    created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+
+
+class AIAcceptance(Base):
+    __tablename__ = "ai_acceptances"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    ai_interaction_id: Mapped[int] = mapped_column(ForeignKey("ai_interactions.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    meal_id: Mapped[int] = mapped_column(ForeignKey("meals.meal_id"), nullable=False)
+    accepted_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now(), nullable=False)

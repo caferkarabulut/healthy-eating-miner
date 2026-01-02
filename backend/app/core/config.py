@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     JWT_SECRET: str
     JWT_ALG: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MIN: int = 60
+    
+    OPENAI_API_KEY: str = ""
 
     class Config:
         env_file = ".env"
