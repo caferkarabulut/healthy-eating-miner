@@ -210,6 +210,78 @@ if st.session_state.token:
     else:
         st.info("Henüz AI etkileşimi yok.")
 
+    # --------- GELİŞİM ANALİZİ ---------
+    st.divider()
+    st.markdown("### 📈 Gelişim")
+    
+    progress_resp = requests.get(
+        f"{API_BASE}/analysis/progress",
+        headers=headers
+    )
+    
+    if progress_resp.status_code == 200:
+        progress = progress_resp.json()
+        
+        if "error" in progress:
+            st.info(progress["error"])
+        else:
+            col1, col2, col3 = st.columns(3)
+            
+            # Protein Uyumu
+            with col1:
+                st.markdown("**💪 Protein Hedef Uyumu**")
+                if progress["protein"]:
+                    before = progress["protein"].get("before", 0)
+                    after = progress["protein"].get("after", 0)
+                    change = progress["protein"].get("change_pct", "0%")
+                    
+                    st.metric(
+                        "AI Öncesi",
+                        f"%{int(before * 100)}"
+                    )
+                    st.metric(
+                        "AI Sonrası",
+                        f"%{int(after * 100)}",
+                        delta=change
+                    )
+            
+            # Kalori Stabilitesi
+            with col2:
+                st.markdown("**🎯 Kalori Stabilitesi**")
+                if progress["calorie_stability"]:
+                    before = progress["calorie_stability"].get("before", 0)
+                    after = progress["calorie_stability"].get("after", 0)
+                    improvement = progress["calorie_stability"].get("improvement", 0)
+                    
+                    st.metric(
+                        "AI Öncesi Sapma",
+                        f"{before} kcal"
+                    )
+                    st.metric(
+                        "AI Sonrası Sapma",
+                        f"{after} kcal",
+                        delta=f"-{improvement} kcal" if improvement > 0 else f"+{abs(improvement)} kcal",
+                        delta_color="inverse"
+                    )
+            
+            # AI Etkisi
+            with col3:
+                st.markdown("**🤖 AI Öneri Etkisi**")
+                if progress["ai_effect"]:
+                    accepted = progress["ai_effect"].get("accepted_days_protein", 0)
+                    other = progress["ai_effect"].get("other_days_protein", 0)
+                    
+                    st.metric(
+                        "AI Kabul Günleri",
+                        f"%{int(accepted * 100)}"
+                    )
+                    st.metric(
+                        "Diğer Günler",
+                        f"%{int(other * 100)}"
+                    )
+    else:
+        st.warning("Gelişim verileri yüklenemedi.")
+
     # --------- ÖĞÜN EKLE ---------
     st.divider()
     st.markdown("### ➕ Öğün Ekle")
