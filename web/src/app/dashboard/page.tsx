@@ -8,6 +8,10 @@ import MacroCards from '@/components/MacroCards';
 import DailySummary from '@/components/DailySummary';
 import AddMealForm from '@/components/AddMealForm';
 import FavoritesList from '@/components/FavoritesList';
+import NutritionAssistant from '@/components/NutritionAssistant';
+import WeeklySummary from '@/components/WeeklySummary';
+import ProgressCards from '@/components/ProgressCards';
+import SmartComments from '@/components/SmartComments';
 
 interface Meal {
     meal_id: number;
@@ -35,6 +39,38 @@ interface UserGoals {
     goal_type: string;
 }
 
+interface WeeklyData {
+    date: string;
+    calories: number;
+    protein: number;
+}
+
+interface ProgressData {
+    protein: {
+        before: number;
+        after: number;
+        delta: number;
+        change_pct: string;
+    };
+    calorie_stability: {
+        before: number;
+        after: number;
+        improvement: number;
+    };
+    ai_effect: {
+        accepted_days_protein: number;
+        other_days_protein: number;
+        accepted_count: number;
+        other_count: number;
+    };
+    metadata?: {
+        ai_start_date: string;
+        before_days: number;
+        after_days: number;
+        min_days_required: number;
+    };
+}
+
 export default function DashboardPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
@@ -49,11 +85,14 @@ export default function DashboardPage() {
     const [logs, setLogs] = useState<Log[]>([]);
     const [favorites, setFavorites] = useState<Favorite[]>([]);
     const [goals, setGoals] = useState<UserGoals | null>(null);
+    const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([]);
+    const [progressData, setProgressData] = useState<ProgressData | null>(null);
 
     const fetchData = useCallback(async () => {
         // Fetch meals
         const mealsRes = await apiRequest('/meals');
-        if (mealsRes.ok) setMeals(await mealsRes.json());
+        const mealsData = mealsRes.ok ? await mealsRes.json() : [];
+        setMeals(mealsData);
 
         // Fetch logs for selected date
         const logsRes = await apiRequest(`/logs?log_date=${selectedDate}`);
@@ -66,6 +105,36 @@ export default function DashboardPage() {
         // Fetch goals
         const goalsRes = await apiRequest('/user/goals');
         if (goalsRes.ok) setGoals(await goalsRes.json());
+
+        // Fetch weekly data (son 7 gün)
+        const weekly: WeeklyData[] = [];
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(selectedDate);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+
+            const dayLogsRes = await apiRequest(`/logs?log_date=${dateStr}`);
+            const dayLogs = dayLogsRes.ok ? await dayLogsRes.json() : [];
+
+            let dayCal = 0, dayProtein = 0;
+            for (const log of dayLogs) {
+                const meal = mealsData.find((m: Meal) => m.meal_id === log.meal_id);
+                if (meal) {
+                    dayCal += meal.calories * log.portion;
+                    dayProtein += meal.protein_g * log.portion;
+                }
+            }
+
+            weekly.push({ date: dateStr, calories: dayCal, protein: dayProtein });
+        }
+        setWeeklyData(weekly);
+
+        // Fetch progress analysis
+        const progressRes = await apiRequest('/analysis/progress');
+        if (progressRes.ok) {
+            const data = await progressRes.json();
+            if (!data.error) setProgressData(data);
+        }
 
         setLoading(false);
     }, [selectedDate]);
@@ -146,6 +215,9 @@ export default function DashboardPage() {
     }
 
     const macros = calculateMacros();
+    const favoriteNames = favorites
+        .map(f => meals.find(m => m.meal_id === f.meal_id)?.meal_name)
+        .filter(Boolean) as string[];
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -195,6 +267,13 @@ export default function DashboardPage() {
                     </div>
                 )}
 
+                {/* Smart Comments */}
+                <SmartComments
+                    todayMacros={macros}
+                    weeklyData={weeklyData}
+                    goals={goals}
+                />
+
                 {/* Daily Summary */}
                 <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
                     <h3 className="text-xl font-semibold text-white mb-4">🍽️ Bugün Yediklerim</h3>
@@ -220,6 +299,28 @@ export default function DashboardPage() {
                         onRemove={handleRemoveFavorite}
                     />
                 </div>
+
+                {/* Weekly Summary */}
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
+                    <h3 className="text-xl font-semibold text-white mb-4">📅 Haftalık Özet</h3>
+                    <WeeklySummary data={weeklyData} />
+                </div>
+
+                {/* Progress Analysis */}
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
+                    <h3 className="text-xl font-semibold text-white mb-4">📈 Gelişim Analizi</h3>
+                    <ProgressCards data={progressData} />
+                </div>
+
+                {/* AI Nutrition Assistant */}
+                <NutritionAssistant
+                    meals={meals}
+                    favorites={favoriteNames}
+                    weeklyCalories={weeklyData.map(d => d.calories)}
+                    weeklyProtein={weeklyData.map(d => d.protein)}
+                    selectedDate={selectedDate}
+                    onRefresh={fetchData}
+                />
 
             </main>
         </div>
