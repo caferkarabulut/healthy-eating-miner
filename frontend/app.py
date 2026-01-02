@@ -119,6 +119,44 @@ if st.session_state.token:
     col3.metric("🍞 Karbonhidrat", f"{total_carbs:.1f} g")
     col4.metric("🧈 Yağ", f"{total_fat:.1f} g")
 
+    # --------- AI ETKİSİ ---------
+    st.divider()
+    st.markdown("### 🧠 AI Etkisi")
+    
+    # AI istatistiklerini çek
+    ai_stats_resp = requests.get(
+        f"{API_BASE}/ai/stats",
+        headers=headers
+    )
+    
+    if ai_stats_resp.status_code == 200:
+        ai_stats = ai_stats_resp.json()
+        
+        col1, col2 = st.columns(2)
+        col1.metric(
+            "📊 Öneri Kabul Oranı",
+            f"%{int(ai_stats['acceptance_rate'] * 100)}"
+        )
+        col2.metric(
+            "💬 Toplam AI Etkileşimi",
+            f"{ai_stats['total_interactions']}"
+        )
+        
+        # En çok kabul edilen öğünler
+        top_meals_resp = requests.get(
+            f"{API_BASE}/ai/top-meals",
+            headers=headers
+        )
+        
+        if top_meals_resp.status_code == 200:
+            top_meals_data = top_meals_resp.json()
+            if top_meals_data:
+                st.markdown("**🏆 AI'nin En Çok Kabul Edilen Önerileri:**")
+                for tm in top_meals_data[:3]:
+                    st.write(f"• {tm['meal_name']} ({tm['count']} kez)")
+    else:
+        st.info("Henüz AI etkileşimi yok.")
+
     # --------- ÖĞÜN EKLE ---------
     st.divider()
     st.markdown("### ➕ Öğün Ekle")

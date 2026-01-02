@@ -44,12 +44,32 @@ def ai_chat(
         for m in meals
     ])
     
+    # Geçmiş kabul edilen öğünleri al (geri besleme)
+    from sqlalchemy import func
+    past_acceptances = db.query(
+        AIAcceptance.meal_id,
+        func.count(AIAcceptance.id).label("count")
+    ).filter(
+        AIAcceptance.user_id == user_id
+    ).group_by(
+        AIAcceptance.meal_id
+    ).order_by(
+        func.count(AIAcceptance.id).desc()
+    ).limit(5).all()
+    
+    accepted_meals = []
+    for meal_id, count in past_acceptances:
+        meal = db.query(Meal).filter(Meal.meal_id == meal_id).first()
+        if meal:
+            accepted_meals.append(f"{meal.meal_name} ({count} kez)")
+    
     # System prompt
     system_prompt = """You are a Turkish nutrition assistant. 
 Use the given data to suggest meals logically.
 Always respond in Turkish.
 Do not invent nutritional values - only use meals from the provided list.
-If suggesting meals, include exact meal names from the list."""
+If suggesting meals, include exact meal names from the list.
+Prioritize meals similar to what the user has accepted before."""
 
     # User context
     user_context = f"""
@@ -58,6 +78,7 @@ Kullanıcı mesajı: {req.user_message}
 Son 7 gün kalori: {req.weekly_calories}
 Son 7 gün protein: {req.weekly_protein}
 Favori öğünler: {', '.join(req.favorites) if req.favorites else 'Yok'}
+Geçmişte kabul ettiği AI önerileri: {', '.join(accepted_meals) if accepted_meals else 'Henüz yok'}
 
 Mevcut öğün listesi:
 {meals_summary}
@@ -132,3 +153,64 @@ def accept_suggestion(
     db.commit()
     
     return {"ok": True}
+
+
+@router.get("/stats")
+def get_ai_stats(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """AI kabul oranı istatistikleri"""
+    from sqlalchemy import func
+    
+    # Toplam AI etkileşimi
+    total_interactions = db.query(func.count(AIInteraction.id)).filter(
+        AIInteraction.user_id == user_id
+    ).scalar() or 0
+    
+    # Kabul edilen öneri sayısı
+    accepted_count = db.query(func.count(AIAcceptance.id)).filter(
+        AIAcceptance.user_id == user_id
+    ).scalar() or 0
+    
+    # Kabul oranı
+    acceptance_rate = accepted_count / total_interactions if total_interactions > 0 else 0
+    
+    return {
+        "total_interactions": total_interactions,
+        "accepted_count": accepted_count,
+        "acceptance_rate": round(acceptance_rate, 2)
+    }
+
+
+@router.get("/top-meals")
+def get_top_ai_meals(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """En çok kabul edilen AI öğünleri"""
+    from sqlalchemy import func
+    
+    # meal_id bazında gruplayıp say
+    results = db.query(
+        AIAcceptance.meal_id,
+        func.count(AIAcceptance.id).label("count")
+    ).filter(
+        AIAcceptance.user_id == user_id
+    ).group_by(
+        AIAcceptance.meal_id
+    ).order_by(
+        func.count(AIAcceptance.id).desc()
+    ).limit(5).all()
+    
+    # Öğün isimlerini al
+    top_meals = []
+    for meal_id, count in results:
+        meal = db.query(Meal).filter(Meal.meal_id == meal_id).first()
+        if meal:
+            top_meals.append({
+                "meal_name": meal.meal_name,
+                "count": count
+            })
+    
+    return top_meals
