@@ -473,11 +473,14 @@ if st.session_state.token:
     
     df = pd.DataFrame(weekly_data)
     
-    # Tarihe göre sırala
+    # Tarihe göre sırala ve Gun'u index olarak kullan
     df = df.sort_values("Gun").reset_index(drop=True)
+    df["GunIndex"] = df["Gun"].astype(str)  # Tarih formatında index
     
     if df["Kalori"].sum() > 0:
-        st.line_chart(df.set_index("Tarih")["Kalori"])
+        # Sıralı index ile çiz
+        chart_data = df.set_index("GunIndex")["Kalori"]
+        st.line_chart(chart_data)
         
         # Haftalık ortalama
         avg_cal = df["Kalori"].mean()
