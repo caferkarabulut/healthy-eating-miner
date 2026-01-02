@@ -12,6 +12,7 @@ import NutritionAssistant from '@/components/NutritionAssistant';
 import WeeklySummary from '@/components/WeeklySummary';
 import ProgressCards from '@/components/ProgressCards';
 import SmartComments from '@/components/SmartComments';
+import GoalsEditor from '@/components/GoalsEditor';
 
 interface Meal {
     meal_id: number;
@@ -246,25 +247,9 @@ export default function DashboardPage() {
                     <DatePicker selectedDate={selectedDate} onChange={setSelectedDate} />
                 </div>
 
-                {/* Goals Card */}
+                {/* Goals Editor */}
                 {goals && (
-                    <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
-                        <h3 className="text-xl font-semibold text-white mb-4">🧭 Hedeflerim</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="bg-gray-700/50 rounded-xl p-4">
-                                <p className="text-gray-400 text-sm">Günlük Kalori</p>
-                                <p className="text-2xl font-bold text-white">{goals.daily_calorie_target} kcal</p>
-                            </div>
-                            <div className="bg-gray-700/50 rounded-xl p-4">
-                                <p className="text-gray-400 text-sm">Günlük Protein</p>
-                                <p className="text-2xl font-bold text-white">{goals.daily_protein_target} g</p>
-                            </div>
-                            <div className="bg-gray-700/50 rounded-xl p-4">
-                                <p className="text-gray-400 text-sm">Amaç</p>
-                                <p className="text-2xl font-bold text-white">{goalLabels[goals.goal_type] || goals.goal_type}</p>
-                            </div>
-                        </div>
-                    </div>
+                    <GoalsEditor goals={goals} onSave={fetchData} />
                 )}
 
                 {/* Smart Comments */}
