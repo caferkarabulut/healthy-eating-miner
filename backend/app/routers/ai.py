@@ -67,29 +67,83 @@ def ai_chat(
     from app.db.models import UserGoals
     user_goals = db.query(UserGoals).filter(UserGoals.user_id == user_id).first()
     
+    # AI Context Engine: Son günlerin analizi
+    context_insights = []
+    
     if user_goals:
         goal_info = f"""
 Kullanıcı hedefleri:
 - Günlük kalori hedefi: {user_goals.daily_calorie_target} kcal
 - Günlük protein hedefi: {user_goals.daily_protein_target}g
 - Amaç: {user_goals.goal_type}"""
+        
+        # Son 7 gün kalori/protein analizi
+        weekly_cal = req.weekly_calories or []
+        weekly_prot = req.weekly_protein or []
+        
+        if weekly_cal:
+            avg_cal = sum(weekly_cal) / len([c for c in weekly_cal if c > 0]) if any(c > 0 for c in weekly_cal) else 0
+            avg_prot = sum(weekly_prot) / len([p for p in weekly_prot if p > 0]) if any(p > 0 for p in weekly_prot) else 0
+            
+            # Kalori hedef karşılaştırması
+            cal_ratio = avg_cal / user_goals.daily_calorie_target if user_goals.daily_calorie_target > 0 else 0
+            prot_ratio = avg_prot / user_goals.daily_protein_target if user_goals.daily_protein_target > 0 else 0
+            
+            if cal_ratio > 1.1:
+                context_insights.append(f"Kullanıcı son günlerde kalori hedefini %{int((cal_ratio-1)*100)} aşıyor.")
+            elif cal_ratio < 0.8 and avg_cal > 0:
+                context_insights.append(f"Kullanıcı kalori hedefinin altında, %{int(cal_ratio*100)} oranında.")
+            
+            if prot_ratio < 0.7 and avg_prot > 0:
+                context_insights.append(f"Kullanıcı son günlerde protein hedefinin ALTINDA (%{int(prot_ratio*100)}). Protein önerisi önemli!")
+            elif prot_ratio >= 0.9:
+                context_insights.append("Proteine ulaşma başarılı.")
+        
+        # Hedefe göre özel yönlendirme
+        if user_goals.goal_type == "kilo_verme":
+            context_insights.append("Kullanıcı kilo vermek istiyor. Düşük kalorili ama protein açısından zengin öğünler öner.")
+        elif user_goals.goal_type == "kilo_alma":
+            context_insights.append("Kullanıcı kilo almak istiyor. Yüksek kalorili ve proteinli öğünler öner.")
+        else:
+            context_insights.append("Kullanıcı kilosunu korumak istiyor. Dengeli öğünler öner.")
     else:
         goal_info = "Kullanıcı henüz hedef belirlememiş."
     
+    # AI kabul oranı
+    total_interactions = db.query(func.count(AIInteraction.id)).filter(
+        AIInteraction.user_id == user_id
+    ).scalar() or 0
+    
+    accepted_count = db.query(func.count(AIAcceptance.id)).filter(
+        AIAcceptance.user_id == user_id
+    ).scalar() or 0
+    
+    if total_interactions > 0:
+        acceptance_rate = accepted_count / total_interactions
+        if acceptance_rate > 0.6:
+            context_insights.append(f"Kullanıcı AI önerilerini genellikle kabul ediyor (%{int(acceptance_rate*100)}). Benzer öğünler öner.")
+    
+    insights_text = "\n".join([f"- {i}" for i in context_insights]) if context_insights else "Yeterli veri yok."
+    
     # System prompt
-    system_prompt = """You are a Turkish nutrition assistant. 
-Use the given data to suggest meals logically.
+    system_prompt = """You are a Turkish nutrition assistant with deep knowledge of the user.
+Use the given data and user insights to suggest personalized meals.
 Always respond in Turkish.
 Do not invent nutritional values - only use meals from the provided list.
 If suggesting meals, include exact meal names from the list.
 Prioritize meals similar to what the user has accepted before.
-Consider the user's goals (weight loss, gain, or maintenance) when suggesting meals."""
+Consider the user's goals and recent performance when suggesting meals.
+If the user is below protein target, prioritize high-protein meals.
+If the user is above calorie target and wants to lose weight, suggest lower calorie options."""
 
     # User context
     user_context = f"""
 Kullanıcı mesajı: {req.user_message}
 
 {goal_info}
+
+📊 Kullanıcı Analizi:
+{insights_text}
 
 Son 7 gün kalori: {req.weekly_calories}
 Son 7 gün protein: {req.weekly_protein}
