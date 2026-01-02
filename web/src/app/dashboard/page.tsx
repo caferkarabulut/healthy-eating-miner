@@ -259,6 +259,12 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-4">
                         <span className="text-gray-400 hidden sm:block">{email}</span>
                         <button
+                            onClick={() => router.push('/settings')}
+                            className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition"
+                        >
+                            ⚙️ Ayarlar
+                        </button>
+                        <button
                             onClick={handleLogout}
                             className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition"
                         >

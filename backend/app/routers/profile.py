@@ -6,6 +6,14 @@ from datetime import date, datetime
 from app.db.session import get_db
 from app.db.models import UserProfile, DailyActivity, UserGoals
 from app.core.security import get_current_user_id
+from app.services.metabolism import (
+    calculate_bmr,
+    calculate_activity_multiplier,
+    calculate_tdee,
+    calculate_daily_target,
+    calculate_protein_target,
+    get_full_calculations
+)
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
@@ -17,70 +25,9 @@ class ProfileRequest(BaseModel):
     birth_year: int = Field(..., ge=1940, le=2010)
 
 
-class ProfileResponse(BaseModel):
-    height_cm: int
-    weight_kg: float
-    gender: str
-    birth_year: int
-    age: int
-    bmr: float
-    has_profile: bool = True
-
-
 class ActivityRequest(BaseModel):
     steps: int = Field(..., ge=0, le=100000)
     activity_date: date = None
-
-
-class ActivityResponse(BaseModel):
-    steps: int
-    activity_level: str
-    activity_multiplier: float
-    tdee: float
-    target_calories: int
-
-
-def calculate_bmr(profile: UserProfile) -> float:
-    """Mifflin-St Jeor formülü ile BMR hesapla"""
-    current_year = datetime.now().year
-    age = current_year - profile.birth_year
-    
-    if profile.gender == "male":
-        # Erkek: 10*w + 6.25*h - 5*a + 5
-        bmr = 10 * profile.weight_kg + 6.25 * profile.height_cm - 5 * age + 5
-    else:
-        # Kadın: 10*w + 6.25*h - 5*a - 161
-        bmr = 10 * profile.weight_kg + 6.25 * profile.height_cm - 5 * age - 161
-    
-    return round(bmr, 1)
-
-
-def get_activity_level(steps: int) -> tuple[str, float]:
-    """Adım sayısına göre aktivite seviyesi ve TDEE çarpanı"""
-    if steps < 5000:
-        return "sedentary", 1.2
-    elif steps < 8000:
-        return "light", 1.375
-    elif steps < 12000:
-        return "moderate", 1.55
-    else:
-        return "active", 1.725
-
-
-def calculate_tdee(bmr: float, activity_multiplier: float) -> float:
-    """TDEE = BMR × aktivite çarpanı"""
-    return round(bmr * activity_multiplier, 1)
-
-
-def calculate_target_calories(tdee: float, goal_type: str) -> int:
-    """Hedefe göre günlük kalori hedefi"""
-    adjustments = {
-        "kilo_verme": -400,
-        "koruma": 0,
-        "kilo_alma": +400
-    }
-    adjustment = adjustments.get(goal_type, 0)
-    return int(tdee + adjustment)
 
 
 @router.get("")
@@ -96,7 +43,7 @@ def get_profile(
     
     current_year = datetime.now().year
     age = current_year - profile.birth_year
-    bmr = calculate_bmr(profile)
+    bmr = calculate_bmr(profile.weight_kg, profile.height_cm, profile.birth_year, profile.gender)
     
     return {
         "has_profile": True,
@@ -137,7 +84,7 @@ def create_or_update_profile(
     
     current_year = datetime.now().year
     age = current_year - req.birth_year
-    bmr = calculate_bmr(profile)
+    bmr = calculate_bmr(req.weight_kg, req.height_cm, req.birth_year, req.gender)
     
     return {
         "ok": True,
@@ -156,9 +103,8 @@ def log_activity(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db)
 ):
-    """Günlük aktivite kaydet"""
+    """Günlük aktivite kaydet ve BMR/TDEE/hedefi DB'ye kaydet"""
     activity_date = req.activity_date or date.today()
-    activity_level, activity_multiplier = get_activity_level(req.steps)
     
     # Profili al
     profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
@@ -169,6 +115,16 @@ def log_activity(
     goals = db.query(UserGoals).filter(UserGoals.user_id == user_id).first()
     goal_type = goals.goal_type if goals else "koruma"
     
+    # Tüm hesapları tek seferde yap (metabolism service)
+    calcs = get_full_calculations(
+        weight_kg=profile.weight_kg,
+        height_cm=profile.height_cm,
+        birth_year=profile.birth_year,
+        gender=profile.gender,
+        steps=req.steps,
+        goal_type=goal_type
+    )
+    
     # Mevcut kaydı güncelle veya yeni kayıt
     activity = db.query(DailyActivity).filter(
         DailyActivity.user_id == user_id,
@@ -177,30 +133,33 @@ def log_activity(
     
     if activity:
         activity.steps = req.steps
-        activity.activity_level = activity_level
+        activity.activity_level = calcs["activity_level"]
+        activity.bmr = calcs["bmr"]
+        activity.tdee = calcs["tdee"]
+        activity.target_kcal = calcs["target_calories"]
     else:
         activity = DailyActivity(
             user_id=user_id,
             activity_date=activity_date,
             steps=req.steps,
-            activity_level=activity_level
+            activity_level=calcs["activity_level"],
+            bmr=calcs["bmr"],
+            tdee=calcs["tdee"],
+            target_kcal=calcs["target_calories"]
         )
         db.add(activity)
     
     db.commit()
     
-    bmr = calculate_bmr(profile)
-    tdee = calculate_tdee(bmr, activity_multiplier)
-    target_calories = calculate_target_calories(tdee, goal_type)
-    
     return {
         "ok": True,
         "steps": req.steps,
-        "activity_level": activity_level,
-        "activity_multiplier": activity_multiplier,
-        "bmr": bmr,
-        "tdee": tdee,
-        "target_calories": target_calories
+        "activity_level": calcs["activity_level"],
+        "activity_multiplier": calcs["activity_multiplier"],
+        "bmr": calcs["bmr"],
+        "tdee": calcs["tdee"],
+        "target_calories": calcs["target_calories"],
+        "target_protein": calcs["target_protein"]
     }
 
 
@@ -210,7 +169,7 @@ def get_activity(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db)
 ):
-    """Günlük aktivite getir"""
+    """Günlük aktivite getir (önce DB'den, yoksa hesapla)"""
     activity_date = activity_date or date.today()
     
     profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
@@ -225,26 +184,39 @@ def get_activity(
         DailyActivity.activity_date == activity_date
     ).first()
     
-    if activity:
-        steps = activity.steps
-        activity_level = activity.activity_level
-    else:
-        steps = 0
-        activity_level = "sedentary"
+    # DB'de kayıtlı değerler varsa onları döndür (historical accuracy)
+    if activity and activity.bmr and activity.tdee:
+        return {
+            "steps": activity.steps,
+            "activity_level": activity.activity_level,
+            "activity_multiplier": 1.55,  # geçmişte kesin bilinmez
+            "bmr": activity.bmr,
+            "tdee": activity.tdee,
+            "target_calories": activity.target_kcal,
+            "goal_type": goal_type,
+            "from_db": True
+        }
     
-    _, activity_multiplier = get_activity_level(steps)
-    bmr = calculate_bmr(profile)
-    tdee = calculate_tdee(bmr, activity_multiplier)
-    target_calories = calculate_target_calories(tdee, goal_type)
+    # Yoksa runtime hesapla
+    steps = activity.steps if activity else 0
+    calcs = get_full_calculations(
+        weight_kg=profile.weight_kg,
+        height_cm=profile.height_cm,
+        birth_year=profile.birth_year,
+        gender=profile.gender,
+        steps=steps,
+        goal_type=goal_type
+    )
     
     return {
         "steps": steps,
-        "activity_level": activity_level,
-        "activity_multiplier": activity_multiplier,
-        "bmr": bmr,
-        "tdee": tdee,
-        "target_calories": target_calories,
-        "goal_type": goal_type
+        "activity_level": calcs["activity_level"],
+        "activity_multiplier": calcs["activity_multiplier"],
+        "bmr": calcs["bmr"],
+        "tdee": calcs["tdee"],
+        "target_calories": calcs["target_calories"],
+        "goal_type": goal_type,
+        "from_db": False
     }
 
 
@@ -268,13 +240,18 @@ def get_full_stats(
     ).first()
     
     steps = activity.steps if activity else 0
-    activity_level, activity_multiplier = get_activity_level(steps)
     
     current_year = datetime.now().year
     age = current_year - profile.birth_year
-    bmr = calculate_bmr(profile)
-    tdee = calculate_tdee(bmr, activity_multiplier)
-    target_calories = calculate_target_calories(tdee, goal_type)
+    
+    calcs = get_full_calculations(
+        weight_kg=profile.weight_kg,
+        height_cm=profile.height_cm,
+        birth_year=profile.birth_year,
+        gender=profile.gender,
+        steps=steps,
+        goal_type=goal_type
+    )
     
     return {
         "has_profile": True,
@@ -286,13 +263,14 @@ def get_full_stats(
         },
         "activity": {
             "steps": steps,
-            "level": activity_level,
-            "multiplier": activity_multiplier
+            "level": calcs["activity_level"],
+            "multiplier": calcs["activity_multiplier"]
         },
         "calculations": {
-            "bmr": bmr,
-            "tdee": tdee,
-            "target_calories": target_calories,
+            "bmr": calcs["bmr"],
+            "tdee": calcs["tdee"],
+            "target_calories": calcs["target_calories"],
+            "target_protein": calcs["target_protein"],
             "goal_type": goal_type
         }
     }

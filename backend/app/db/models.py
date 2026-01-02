@@ -115,5 +115,11 @@ class DailyActivity(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     activity_date: Mapped[date] = mapped_column(Date, nullable=False)
     steps: Mapped[int] = mapped_column(Integer, default=0)
-    activity_level: Mapped[str] = mapped_column(String(20), default="sedentary")  # sedentary, light, moderate, active
+    activity_level: Mapped[str] = mapped_column(String(20), default="sedentary")
+    
+    # Kalıcı hesaplamalar (o günün değerleri)
+    bmr: Mapped[int] = mapped_column(Integer, nullable=True)
+    tdee: Mapped[int] = mapped_column(Integer, nullable=True)
+    target_kcal: Mapped[int] = mapped_column(Integer, nullable=True)
+
 
