@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
@@ -9,6 +9,7 @@ from app.db.session import get_db
 from app.db.models import Meal, MealLog, FavoriteMeal, AIInteraction, AIAcceptance
 from app.core.security import get_current_user_id
 from app.core.config import settings
+from app.core.rate_limiter import ai_rate_limiter
 from app.services.ai_context import build_ai_context, format_context_for_prompt
 
 router = APIRouter(prefix="/ai", tags=["ai"])
@@ -94,6 +95,18 @@ def ai_chat(
     Backend = matematik, AI = koç
     """
     from sqlalchemy import func
+    
+    # 🔒 Rate limit kontrolü
+    is_allowed, rate_limit_message = ai_rate_limiter.check_rate_limit(user_id)
+    if not is_allowed:
+        return StructuredAIResponse(
+            summary=rate_limit_message,
+            warnings=["AI servisi geçici olarak kullanılamıyor."],
+            meal_suggestions=[],
+            tips=["Birkaç dakika bekleyip tekrar deneyin."],
+            interaction_id=None,
+            raw_context=None
+        )
     
     today = date.today()
     
@@ -364,6 +377,20 @@ def get_weekly_coach(
     """
     from app.services.weekly_coach import get_weekly_summary, format_weekly_summary_for_ai
     
+    # 🔒 Rate limit kontrolü
+    is_allowed, rate_limit_message = ai_rate_limiter.check_rate_limit(user_id)
+    if not is_allowed:
+        # Summary yine de döndür ama AI yorumu yapma
+        today = date.today()
+        summary = get_weekly_summary(user_id, today, db)
+        return WeeklyCoachResponse(
+            praise="AI limiti aşıldı - biraz bekleyin.",
+            critique=rate_limit_message,
+            next_week_goal="Daha sonra tekrar deneyin.",
+            motivation="Sabır da bir erdemdir! 😊",
+            weekly_summary=summary
+        )
+    
     today = date.today()
     summary = get_weekly_summary(user_id, today, db)
     summary_text = format_weekly_summary_for_ai(summary)
@@ -412,3 +439,14 @@ def get_weekly_coach(
             motivation="Her gün küçük bir adım!",
             weekly_summary=summary
         )
+
+
+# ===== RATE LIMIT STATUS ENDPOINT =====
+
+@router.get("/rate-limit-status")
+def get_rate_limit_status(
+    user_id: int = Depends(get_current_user_id)
+):
+    """Kullanıcının AI rate limit durumunu göster"""
+    return ai_rate_limiter.get_remaining(user_id)
+

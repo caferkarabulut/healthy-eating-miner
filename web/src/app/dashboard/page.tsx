@@ -17,6 +17,9 @@ import ProfileSetup from '@/components/ProfileSetup';
 import ActivityLogger from '@/components/ActivityLogger';
 import DailyFeedback from '@/components/DailyFeedback';
 import WeeklyCoach from '@/components/WeeklyCoach';
+import OnboardingBanner from '@/components/OnboardingBanner';
+import LoadingSpinner, { CardSkeleton } from '@/components/LoadingSpinner';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 interface Meal {
     meal_id: number;
@@ -304,6 +307,19 @@ export default function DashboardPage() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <h2 className="text-3xl font-bold text-white">📊 Dashboard</h2>
                     <DatePicker selectedDate={selectedDate} onChange={setSelectedDate} />
+                </div>
+
+                {/* Onboarding Banners - FAZ 2 */}
+                <div className="space-y-3">
+                    {showProfileSetup && (
+                        <OnboardingBanner type="profile" />
+                    )}
+                    {!showProfileSetup && profileStats && profileStats.steps === 0 && (
+                        <OnboardingBanner type="activity" />
+                    )}
+                    {logs.length === 0 && !showProfileSetup && (
+                        <OnboardingBanner type="meal" />
+                    )}
                 </div>
 
                 {/* Profile Setup Modal */}

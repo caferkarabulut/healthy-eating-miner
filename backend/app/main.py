@@ -1,7 +1,11 @@
 # FastAPI Main Application
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from app.db.session import engine
+from datetime import datetime
+import logging
+import time
+
+from app.db.session import engine, SessionLocal
 from app.db.base import Base
 from app.routers.auth import router as auth_router
 from app.routers.logs import router as logs_router
@@ -11,17 +15,47 @@ from app.routers.ai import router as ai_router
 from app.routers.user import router as user_router
 from app.routers.analysis import router as analysis_router
 from app.routers.profile import router as profile_router
+from app.core.config import settings
 
-app = FastAPI(title="Healthy Eating API")
+# Logging setup
+logging.basicConfig(
+    level=logging.DEBUG if settings.DEBUG else logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
-# CORS - Next.js frontend için
+app = FastAPI(
+    title="Healthy Eating API",
+    debug=settings.DEBUG
+)
+
+# CORS - config'den al
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=settings.allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Request logging middleware
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start_time = time.time()
+    
+    response = await call_next(request)
+    
+    process_time = time.time() - start_time
+    
+    # Log only in debug mode or for errors
+    if settings.DEBUG or response.status_code >= 400:
+        logger.info(
+            f"{request.method} {request.url.path} - {response.status_code} - {process_time:.3f}s"
+        )
+    
+    return response
+
 
 # tabloları oluştur (ilk çalıştırmada)
 Base.metadata.create_all(bind=engine)
@@ -35,6 +69,37 @@ app.include_router(user_router)
 app.include_router(analysis_router)
 app.include_router(profile_router)
 
+
 @app.get("/")
 def root():
     return {"ok": True, "service": "Healthy Eating API"}
+
+
+@app.get("/health")
+def health_check():
+    """
+    Health check endpoint.
+    Returns: ok / degraded based on DB connection.
+    """
+    status = "ok"
+    db_status = "ok"
+    
+    try:
+        db = SessionLocal()
+        db.execute("SELECT 1")
+        db.close()
+    except Exception as e:
+        db_status = "error"
+        status = "degraded"
+        logger.error(f"Health check DB error: {e}")
+    
+    return {
+        "status": status,
+        "timestamp": datetime.now().isoformat(),
+        "environment": settings.ENV,
+        "services": {
+            "database": db_status,
+            "api": "ok"
+        }
+    }
+
