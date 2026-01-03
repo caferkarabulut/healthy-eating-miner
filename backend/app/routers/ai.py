@@ -3,26 +3,37 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
 import json
+from datetime import date
 
 from app.db.session import get_db
 from app.db.models import Meal, MealLog, FavoriteMeal, AIInteraction, AIAcceptance
 from app.core.security import get_current_user_id
 from app.core.config import settings
+from app.services.ai_context import build_ai_context, format_context_for_prompt
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
 
+# ===== REQUEST/RESPONSE SCHEMAS =====
+
 class ChatRequest(BaseModel):
     user_message: str
-    weekly_calories: List[float] = []
-    weekly_protein: List[float] = []
-    favorites: List[str] = []
 
 
-class ChatResponse(BaseModel):
-    reply: str
-    suggested_meals: List[str] = []
+class MealSuggestion(BaseModel):
+    title: str
+    reason: str
+    meal_id: Optional[int] = None
+
+
+class StructuredAIResponse(BaseModel):
+    """FAZ 8.5.4: Structured AI Response - artık free text yok"""
+    summary: str
+    warnings: List[str] = []
+    meal_suggestions: List[MealSuggestion] = []
+    tips: List[str] = []
     interaction_id: Optional[int] = None
+    raw_context: Optional[dict] = None  # Debug için
 
 
 class AcceptRequest(BaseModel):
@@ -30,13 +41,67 @@ class AcceptRequest(BaseModel):
     meal_id: int
 
 
-@router.post("/chat", response_model=ChatResponse)
+# ===== AI SYSTEM PROMPT (FAZ 8.5.4 FELSEFESİ) =====
+
+SYSTEM_PROMPT = """Sen bir beslenme koçusun.
+Aşağıda verilen veriler backend tarafından hesaplanmıştır.
+Kesinlikle yeni sayı üretme.
+
+Yapabileceklerin:
+- Kullanıcının durumunu yorumla
+- Hatalı alışkanlıkları belirt
+- Uygulanabilir öneriler sun
+- Motive et ve destekle
+
+Yapamayacakların:
+- Kalori hesaplamak
+- Protein gramı önermek
+- Matematik yapmak
+- Verilen sayıları değiştirmek
+
+Yanıtını MUTLAKA aşağıdaki JSON formatında ver:
+{
+  "summary": "Bugünkü durumun hakkında 1-2 cümlelik yorum",
+  "warnings": ["Dikkat edilmesi gereken nokta 1", "Dikkat edilmesi gereken nokta 2"],
+  "meal_suggestions": [
+    {"title": "Öğün adı", "reason": "Bu öğünü neden önerdiğin"}
+  ],
+  "tips": ["Pratik ipucu 1", "Pratik ipucu 2"]
+}
+
+Önemli kurallar:
+- summary her zaman olmalı
+- warnings boş olabilir (her şey yolundaysa)
+- meal_suggestions en fazla 3 tane olsun
+- tips en fazla 3 tane olsun
+- Öğün önerilerinde MUTLAKA mevcut listeden seç
+- Türkçe yanıt ver"""
+
+
+# ===== MAIN CHAT ENDPOINT =====
+
+@router.post("/chat", response_model=StructuredAIResponse)
 def ai_chat(
     req: ChatRequest,
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db)
 ):
-    # Tüm öğünleri al
+    """
+    FAZ 8.5.4: AI Chat Endpoint
+    
+    AI hesap yapmaz, veriyi tekrar etmez.
+    AI yorumlar, yönlendirir, fark ettirir.
+    Backend = matematik, AI = koç
+    """
+    from sqlalchemy import func
+    
+    today = date.today()
+    
+    # 1️⃣ Build AI Context (tüm hesaplamalar burada)
+    context = build_ai_context(user_id, today, db)
+    context_text = format_context_for_prompt(context)
+    
+    # 2️⃣ Mevcut öğün listesini al (öneri için)
     meals = db.query(Meal).limit(50).all()
     meals_dict = {m.meal_name: m.meal_id for m in meals}
     meals_summary = "\n".join([
@@ -44,8 +109,7 @@ def ai_chat(
         for m in meals
     ])
     
-    # Geçmiş kabul edilen öğünleri al (geri besleme)
-    from sqlalchemy import func
+    # 3️⃣ Geçmişte kabul edilen öğünleri al
     past_acceptances = db.query(
         AIAcceptance.meal_id,
         func.count(AIAcceptance.id).label("count")
@@ -63,161 +127,19 @@ def ai_chat(
         if meal:
             accepted_meals.append(f"{meal.meal_name} ({count} kez)")
     
-    # Kullanıcı hedeflerini al
-    from app.db.models import UserGoals, UserProfile, DailyActivity
-    from app.services.metabolism import get_full_calculations
-    from datetime import date
-    
-    user_goals = db.query(UserGoals).filter(UserGoals.user_id == user_id).first()
-    user_profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
-    
-    # Bugünkü aktivite ve TDEE
-    today = date.today()
-    today_activity = db.query(DailyActivity).filter(
-        DailyActivity.user_id == user_id,
-        DailyActivity.activity_date == today
-    ).first()
-    
-    # Profile context oluştur
-    profile_context = ""
-    if user_profile:
-        steps = today_activity.steps if today_activity else 0
-        goal_type = user_goals.goal_type if user_goals else "koruma"
-        
-        calcs = get_full_calculations(
-            weight_kg=user_profile.weight_kg,
-            height_cm=user_profile.height_cm,
-            birth_year=user_profile.birth_year,
-            gender=user_profile.gender,
-            steps=steps,
-            goal_type=goal_type
-        )
-        
-        # Bugünkü kalori tüketimi hesapla
-        from app.db.models import MealLog, Meal as MealModel
-        today_logs = db.query(MealLog).filter(
-            MealLog.user_id == user_id,
-            MealLog.log_date == today
-        ).all()
-        
-        today_calories = 0
-        for log in today_logs:
-            meal = db.query(MealModel).filter(MealModel.meal_id == log.meal_id).first()
-            if meal:
-                today_calories += meal.calories * log.portion
-        
-        remaining_calories = calcs["target_calories"] - today_calories
-        remaining_pct = (remaining_calories / calcs["target_calories"] * 100) if calcs["target_calories"] > 0 else 0
-        
-        profile_context = f"""
-📋 Kullanıcı Profili:
-- Boy: {user_profile.height_cm} cm
-- Kilo: {user_profile.weight_kg} kg
-- Yaş: {2026 - user_profile.birth_year}
-- Cinsiyet: {'Erkek' if user_profile.gender == 'male' else 'Kadın'}
-
-🔥 Metabolizma:
-- BMR: {calcs['bmr']} kcal/gün
-- Bugünkü adım: {steps}
-- Aktivite seviyesi: {calcs['activity_level']}
-- TDEE: {calcs['tdee']} kcal/gün
-- Günlük hedef: {calcs['target_calories']} kcal
-
-📊 Bugünkü Durum:
-- Tüketilen: {today_calories} kcal
-- Kalan: {remaining_calories} kcal (%{remaining_pct:.0f})
-- Protein hedefi: {calcs['target_protein']}g
-"""
-    
-    # AI Context Engine: Son günlerin analizi
-    context_insights = []
-    
-    if user_goals:
-        goal_info = f"""
-Kullanıcı hedefleri:
-- Günlük kalori hedefi: {user_goals.daily_calorie_target} kcal
-- Günlük protein hedefi: {user_goals.daily_protein_target}g
-- Amaç: {user_goals.goal_type}"""
-        
-        # Son 7 gün kalori/protein analizi
-        weekly_cal = req.weekly_calories or []
-        weekly_prot = req.weekly_protein or []
-        
-        if weekly_cal:
-            avg_cal = sum(weekly_cal) / len([c for c in weekly_cal if c > 0]) if any(c > 0 for c in weekly_cal) else 0
-            avg_prot = sum(weekly_prot) / len([p for p in weekly_prot if p > 0]) if any(p > 0 for p in weekly_prot) else 0
-            
-            # Kalori hedef karşılaştırması
-            cal_ratio = avg_cal / user_goals.daily_calorie_target if user_goals.daily_calorie_target > 0 else 0
-            prot_ratio = avg_prot / user_goals.daily_protein_target if user_goals.daily_protein_target > 0 else 0
-            
-            if cal_ratio > 1.1:
-                context_insights.append(f"Kullanıcı son günlerde kalori hedefini %{int((cal_ratio-1)*100)} aşıyor.")
-            elif cal_ratio < 0.8 and avg_cal > 0:
-                context_insights.append(f"Kullanıcı kalori hedefinin altında, %{int(cal_ratio*100)} oranında.")
-            
-            if prot_ratio < 0.7 and avg_prot > 0:
-                context_insights.append(f"Kullanıcı son günlerde protein hedefinin ALTINDA (%{int(prot_ratio*100)}). Protein önerisi önemli!")
-            elif prot_ratio >= 0.9:
-                context_insights.append("Proteine ulaşma başarılı.")
-        
-        # Hedefe göre özel yönlendirme
-        if user_goals.goal_type == "kilo_verme":
-            context_insights.append("Kullanıcı kilo vermek istiyor. Düşük kalorili ama protein açısından zengin öğünler öner.")
-        elif user_goals.goal_type == "kilo_alma":
-            context_insights.append("Kullanıcı kilo almak istiyor. Yüksek kalorili ve proteinli öğünler öner.")
-        else:
-            context_insights.append("Kullanıcı kilosunu korumak istiyor. Dengeli öğünler öner.")
-    else:
-        goal_info = "Kullanıcı henüz hedef belirlememiş."
-    
-    # AI kabul oranı
-    total_interactions = db.query(func.count(AIInteraction.id)).filter(
-        AIInteraction.user_id == user_id
-    ).scalar() or 0
-    
-    accepted_count = db.query(func.count(AIAcceptance.id)).filter(
-        AIAcceptance.user_id == user_id
-    ).scalar() or 0
-    
-    if total_interactions > 0:
-        acceptance_rate = accepted_count / total_interactions
-        if acceptance_rate > 0.6:
-            context_insights.append(f"Kullanıcı AI önerilerini genellikle kabul ediyor (%{int(acceptance_rate*100)}). Benzer öğünler öner.")
-    
-    insights_text = "\n".join([f"- {i}" for i in context_insights]) if context_insights else "Yeterli veri yok."
-    
-    # System prompt
-    system_prompt = """You are a Turkish nutrition assistant with deep knowledge of the user.
-Use the given data and user insights to suggest personalized meals.
-Always respond in Turkish.
-Do not invent nutritional values - only use meals from the provided list.
-If suggesting meals, include exact meal names from the list.
-Prioritize meals similar to what the user has accepted before.
-Consider the user's goals and recent performance when suggesting meals.
-If the user is below protein target, prioritize high-protein meals.
-If the user is above calorie target and wants to lose weight, suggest lower calorie options."""
-
-    # User context
-    user_context = f"""
+    # 4️⃣ User prompt oluştur
+    user_prompt = f"""
 Kullanıcı mesajı: {req.user_message}
 
-{profile_context}
+{context_text}
 
-{goal_info}
-
-📊 Kullanıcı Analizi:
-{insights_text}
-
-Son 7 gün kalori: {req.weekly_calories}
-Son 7 gün protein: {req.weekly_protein}
-Favori öğünler: {', '.join(req.favorites) if req.favorites else 'Yok'}
 Geçmişte kabul ettiği AI önerileri: {', '.join(accepted_meals) if accepted_meals else 'Henüz yok'}
 
-Mevcut öğün listesi:
+Mevcut öğün listesi (sadece buradan öner):
 {meals_summary}
 """
 
+    # 5️⃣ OpenAI API çağrısı
     try:
         import openai
         
@@ -226,50 +148,82 @@ Mevcut öğün listesi:
         response = client.chat.completions.create(
             model="gpt-4.1-mini",
             messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_context}
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt}
             ],
             temperature=0.7,
-            max_tokens=500
+            max_tokens=800,
+            response_format={"type": "json_object"}  # JSON mode
         )
         
-        reply = response.choices[0].message.content
+        reply_text = response.choices[0].message.content
         
-        # Önerilen öğünleri bul
-        suggested = []
-        suggested_ids = []
-        for m in meals:
-            if m.meal_name.lower() in reply.lower():
-                suggested.append(m.meal_name)
-                suggested_ids.append(m.meal_id)
+        # 6️⃣ Parse JSON response
+        try:
+            ai_response = json.loads(reply_text)
+        except json.JSONDecodeError:
+            # Fallback: AI JSON döndürmediyse
+            ai_response = {
+                "summary": reply_text[:200],
+                "warnings": [],
+                "meal_suggestions": [],
+                "tips": []
+            }
         
-        suggested = suggested[:5]
-        suggested_ids = suggested_ids[:5]
+        # 7️⃣ Meal suggestions'a meal_id ekle
+        meal_suggestions = []
+        for suggestion in ai_response.get("meal_suggestions", []):
+            title = suggestion.get("title", "")
+            reason = suggestion.get("reason", "")
+            
+            # Öğün listesinde ara
+            meal_id = None
+            for meal_name, m_id in meals_dict.items():
+                if meal_name.lower() in title.lower() or title.lower() in meal_name.lower():
+                    meal_id = m_id
+                    title = meal_name  # Doğru ismi kullan
+                    break
+            
+            meal_suggestions.append(MealSuggestion(
+                title=title,
+                reason=reason,
+                meal_id=meal_id
+            ))
         
-        # AI Interaction'ı DB'ye kaydet
+        # 8️⃣ AI Interaction'ı DB'ye kaydet
+        suggested_ids = [s.meal_id for s in meal_suggestions if s.meal_id]
+        
         interaction = AIInteraction(
             user_id=user_id,
             prompt_text=req.user_message,
-            response_text=reply[:500],  # İlk 500 karakter
+            response_text=json.dumps(ai_response, ensure_ascii=False)[:500],
             suggested_meal_ids=json.dumps(suggested_ids)
         )
         db.add(interaction)
         db.commit()
         db.refresh(interaction)
         
-        return ChatResponse(
-            reply=reply,
-            suggested_meals=suggested,
-            interaction_id=interaction.id
+        return StructuredAIResponse(
+            summary=ai_response.get("summary", ""),
+            warnings=ai_response.get("warnings", []),
+            meal_suggestions=meal_suggestions,
+            tips=ai_response.get("tips", []),
+            interaction_id=interaction.id,
+            raw_context=context  # Debug için
         )
         
     except Exception as e:
-        return ChatResponse(
-            reply=f"AI servisi şu anda kullanılamıyor. Hata: {str(e)}",
-            suggested_meals=[],
-            interaction_id=None
+        return StructuredAIResponse(
+            summary=f"AI servisi şu anda kullanılamıyor. Hata: {str(e)}",
+            warnings=[],
+            meal_suggestions=[],
+            tips=[],
+            interaction_id=None,
+            raw_context=context
         )
 
+
+# ===== ACCEPT ENDPOINT =====
 
 @router.post("/accept")
 def accept_suggestion(
@@ -277,7 +231,7 @@ def accept_suggestion(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db)
 ):
-    """AI önerisinin kabul edildiğini kaydet"""
+    """AI önerisinin kabul edildiğini kaydet (yedim/favori)"""
     acceptance = AIAcceptance(
         ai_interaction_id=req.ai_interaction_id,
         user_id=user_id,
@@ -289,6 +243,8 @@ def accept_suggestion(
     return {"ok": True}
 
 
+# ===== STATS ENDPOINT =====
+
 @router.get("/stats")
 def get_ai_stats(
     user_id: int = Depends(get_current_user_id),
@@ -297,17 +253,14 @@ def get_ai_stats(
     """AI kabul oranı istatistikleri"""
     from sqlalchemy import func
     
-    # Toplam AI etkileşimi
     total_interactions = db.query(func.count(AIInteraction.id)).filter(
         AIInteraction.user_id == user_id
     ).scalar() or 0
     
-    # Kabul edilen öneri sayısı
     accepted_count = db.query(func.count(AIAcceptance.id)).filter(
         AIAcceptance.user_id == user_id
     ).scalar() or 0
     
-    # Kabul oranı
     acceptance_rate = accepted_count / total_interactions if total_interactions > 0 else 0
     
     return {
@@ -317,6 +270,8 @@ def get_ai_stats(
     }
 
 
+# ===== TOP MEALS ENDPOINT =====
+
 @router.get("/top-meals")
 def get_top_ai_meals(
     user_id: int = Depends(get_current_user_id),
@@ -325,7 +280,6 @@ def get_top_ai_meals(
     """En çok kabul edilen AI öğünleri"""
     from sqlalchemy import func
     
-    # meal_id bazında gruplayıp say
     results = db.query(
         AIAcceptance.meal_id,
         func.count(AIAcceptance.id).label("count")
@@ -337,7 +291,6 @@ def get_top_ai_meals(
         func.count(AIAcceptance.id).desc()
     ).limit(5).all()
     
-    # Öğün isimlerini al
     top_meals = []
     for meal_id, count in results:
         meal = db.query(Meal).filter(Meal.meal_id == meal_id).first()
@@ -348,3 +301,114 @@ def get_top_ai_meals(
             })
     
     return top_meals
+
+
+# ===== CONTEXT DEBUG ENDPOINT =====
+
+@router.get("/context")
+def get_ai_context(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """Debug: AI context'ini göster"""
+    today = date.today()
+    context = build_ai_context(user_id, today, db)
+    return context
+
+
+# ===== WEEKLY COACH ENDPOINT (FAZ 9.2) =====
+
+WEEKLY_COACH_PROMPT = """Sen bir haftalık beslenme koçusun.
+Aşağıda bir kullanıcının son 7 günlük performans özeti var.
+Backend tarafından hesaplanmış, kesinlikle sayı üretme.
+
+Görevin:
+1. Bu hafta neyi iyi yaptığını söyle (övgü)
+2. Nerede zorlandığını belirt (yapıcı eleştiri)
+3. Önümüzdeki hafta için 1 NET hedef öner
+
+Yanıtını MUTLAKA aşağıdaki JSON formatında ver:
+{
+  "praise": "Bu hafta iyi yaptığın şey...",
+  "critique": "Zorlandığın alan...",
+  "next_week_goal": "Önümüzdeki hafta için tek bir somut hedef",
+  "motivation": "Kısa motivasyon mesajı (1 cümle)"
+}
+
+Kurallar:
+- Türkçe yanıt ver
+- Kısa ve öz ol
+- Sayı hesaplama, sadece yorum yap
+- Samimi ama profesyonel ol"""
+
+
+class WeeklyCoachResponse(BaseModel):
+    """FAZ 9.2: Weekly Coach AI Response"""
+    praise: str
+    critique: str
+    next_week_goal: str
+    motivation: str
+    weekly_summary: Optional[dict] = None
+
+
+@router.get("/weekly-coach", response_model=WeeklyCoachResponse)
+def get_weekly_coach(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """
+    FAZ 9.2: Haftalık AI Koç Yorumu.
+    
+    Övgü + Eleştiri + 1 Net Öneri.
+    Davranış yorumu, sayı yok.
+    """
+    from app.services.weekly_coach import get_weekly_summary, format_weekly_summary_for_ai
+    
+    today = date.today()
+    summary = get_weekly_summary(user_id, today, db)
+    summary_text = format_weekly_summary_for_ai(summary)
+    
+    try:
+        import openai
+        
+        client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+        
+        response = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[
+                {"role": "system", "content": WEEKLY_COACH_PROMPT},
+                {"role": "user", "content": summary_text}
+            ],
+            temperature=0.7,
+            max_tokens=400,
+            response_format={"type": "json_object"}
+        )
+        
+        reply_text = response.choices[0].message.content
+        
+        try:
+            ai_response = json.loads(reply_text)
+        except json.JSONDecodeError:
+            ai_response = {
+                "praise": "Bu hafta veri girişi yapmışsın, bu harika!",
+                "critique": "Daha düzenli veri girişi yapabilirsin.",
+                "next_week_goal": "Her gün en az bir öğün kaydet.",
+                "motivation": "Küçük adımlar büyük değişimlere yol açar!"
+            }
+        
+        return WeeklyCoachResponse(
+            praise=ai_response.get("praise", ""),
+            critique=ai_response.get("critique", ""),
+            next_week_goal=ai_response.get("next_week_goal", ""),
+            motivation=ai_response.get("motivation", ""),
+            weekly_summary=summary
+        )
+        
+    except Exception as e:
+        return WeeklyCoachResponse(
+            praise="Bu hafta sistemi kullandın!",
+            critique=f"AI servisi şu anda kullanılamıyor: {str(e)}",
+            next_week_goal="Düzenli veri girişi yapmayı hedefle.",
+            motivation="Her gün küçük bir adım!",
+            weekly_summary=summary
+        )

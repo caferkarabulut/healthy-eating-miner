@@ -15,6 +15,8 @@ import SmartComments from '@/components/SmartComments';
 import GoalsEditor from '@/components/GoalsEditor';
 import ProfileSetup from '@/components/ProfileSetup';
 import ActivityLogger from '@/components/ActivityLogger';
+import DailyFeedback from '@/components/DailyFeedback';
+import WeeklyCoach from '@/components/WeeklyCoach';
 
 interface Meal {
     meal_id: number;
@@ -101,6 +103,9 @@ export default function DashboardPage() {
         activity_level: string;
     } | null>(null);
 
+    // Phase 8.5.3 - Daily Warnings
+    const [dailyWarnings, setDailyWarnings] = useState<{ type: 'warning' | 'info' | 'success', message: string }[]>([]);
+
     const fetchData = useCallback(async () => {
         try {
             // Check profile first
@@ -131,6 +136,16 @@ export default function DashboardPage() {
                 }
             } catch {
                 // Stats fetch failed
+            }
+
+            // Fetch daily warnings (8.5.3)
+            try {
+                const warnRes = await apiRequest('/analysis/warnings');
+                if (warnRes.ok) {
+                    setDailyWarnings(await warnRes.json());
+                }
+            } catch {
+                // Warning fetch failed
             }
 
             // Fetch meals
@@ -310,9 +325,13 @@ export default function DashboardPage() {
                         bmr={profileStats.bmr}
                         tdee={profileStats.tdee}
                         targetCalories={profileStats.target_calories}
+
                         onUpdate={fetchData}
                     />
                 )}
+
+                {/* Phase 8.5.3: Günlük Geri Bildirim */}
+                <DailyFeedback warnings={dailyWarnings} />
 
                 {/* Goals Editor */}
                 {goals && (
@@ -364,12 +383,12 @@ export default function DashboardPage() {
                     <ProgressCards data={progressData} />
                 </div>
 
+                {/* Weekly Coach - FAZ 9 */}
+                <WeeklyCoach />
+
                 {/* AI Nutrition Assistant */}
                 <NutritionAssistant
                     meals={meals}
-                    favorites={favoriteNames}
-                    weeklyCalories={weeklyData.map(d => d.calories)}
-                    weeklyProtein={weeklyData.map(d => d.protein)}
                     selectedDate={selectedDate}
                     onRefresh={fetchData}
                 />

@@ -5,8 +5,11 @@ from typing import Optional
 import statistics
 
 from app.db.session import get_db
-from app.db.models import MealLog, Meal, UserGoals, AIInteraction, AIAcceptance
+from app.db.models import MealLog, Meal, UserGoals, AIInteraction, AIAcceptance, DailyActivity, UserProfile
 from app.core.security import get_current_user_id
+from app.services.metabolism import get_full_calculations
+from app.services.warnings import generate_daily_warnings
+from app.services.weekly_coach import get_weekly_summary
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
@@ -166,3 +169,86 @@ def get_user_progress(
         "ai_effect": ai_effect_result,
         "metadata": metadata
     }
+
+
+@router.get("/warnings")
+def get_daily_warnings(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """
+    Kullanıcı için bugünkü deterministik uyarıları getirir.
+    """
+    today = datetime.now().date()
+    
+    # 1. Profil ve Hedefleri Al (Target Calculation)
+    profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
+    goals = db.query(UserGoals).filter(UserGoals.user_id == user_id).first()
+    activity = db.query(DailyActivity).filter(
+        DailyActivity.user_id == user_id, 
+        DailyActivity.activity_date == today
+    ).first()
+    
+    steps = activity.steps if activity else 0
+    goal_type = goals.goal_type if goals else "koruma"
+    
+    target_kcal = 2000 # Default fallback
+    protein_target = 80 # Default fallback
+    
+    if profile:
+        calcs = get_full_calculations(
+            weight_kg=profile.weight_kg,
+            height_cm=profile.height_cm,
+            birth_year=profile.birth_year,
+            gender=profile.gender,
+            steps=steps,
+            goal_type=goal_type
+        )
+        target_kcal = calcs["target_calories"]
+        protein_target = calcs["target_protein"]
+    elif goals:
+        # Profil yoksa ama manuel hedef varsa
+        target_kcal = goals.daily_calorie_target
+        protein_target = goals.daily_protein_target
+
+    # 2. Tüketilenleri Hesapla (Log Aggregation)
+    today_logs = db.query(MealLog).filter(
+        MealLog.user_id == user_id,
+        MealLog.log_date == today
+    ).all()
+    
+    consumed_kcal = 0
+    consumed_protein = 0
+    
+    # Meal bilgilerini de çekerek hesapla
+    for log in today_logs:
+        meal = db.query(Meal).filter(Meal.meal_id == log.meal_id).first()
+        if meal:
+            consumed_kcal += meal.calories * log.portion
+            consumed_protein += meal.protein_g * log.portion
+            
+    # 3. Warning Engine Çalıştır
+    warnings = generate_daily_warnings(
+        target_kcal=int(target_kcal),
+        consumed_kcal=int(consumed_kcal),
+        protein_target=int(protein_target),
+        consumed_protein=int(consumed_protein),
+        steps=steps
+    )
+    
+    return warnings
+
+
+@router.get("/weekly-summary")
+def get_weekly_summary_endpoint(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """
+    FAZ 9.1: Haftalık özet verileri.
+    Son 7 günün detaylı analizi.
+    """
+    today = datetime.now().date()
+    summary = get_weekly_summary(user_id, today, db)
+    return summary
+

@@ -10,32 +10,35 @@ interface Meal {
     protein_g: number;
 }
 
+interface MealSuggestion {
+    title: string;
+    reason: string;
+    meal_id: number | null;
+}
+
+// FAZ 8.5.4: Structured AI Response
+interface StructuredAiResponse {
+    summary: string;
+    warnings: string[];
+    meal_suggestions: MealSuggestion[];
+    tips: string[];
+    interaction_id: number | null;
+}
+
 interface NutritionAssistantProps {
     meals: Meal[];
-    favorites: string[];
-    weeklyCalories: number[];
-    weeklyProtein: number[];
     selectedDate: string;
     onRefresh: () => void;
 }
 
-interface AiResponse {
-    reply: string;
-    suggested_meals: string[];
-    interaction_id: number | null;
-}
-
 export default function NutritionAssistant({
     meals,
-    favorites,
-    weeklyCalories,
-    weeklyProtein,
     selectedDate,
     onRefresh,
 }: NutritionAssistantProps) {
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
-    const [response, setResponse] = useState<AiResponse | null>(null);
+    const [response, setResponse] = useState<StructuredAiResponse | null>(null);
     const [error, setError] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -46,13 +49,11 @@ export default function NutritionAssistant({
         setError('');
 
         try {
+            // FAZ 8.5.4: Simplified request - backend handles all context
             const res = await apiRequest('/ai/chat', {
                 method: 'POST',
                 body: JSON.stringify({
                     user_message: message,
-                    weekly_calories: weeklyCalories,
-                    weekly_protein: weeklyProtein,
-                    favorites: favorites,
                 }),
             });
 
@@ -69,11 +70,10 @@ export default function NutritionAssistant({
         setLoading(false);
     };
 
-    const handleFavorite = async (mealName: string) => {
-        const meal = meals.find((m) => m.meal_name === mealName);
-        if (!meal) return;
+    const handleFavorite = async (suggestion: MealSuggestion) => {
+        if (!suggestion.meal_id) return;
 
-        await apiRequest(`/favorites?meal_id=${meal.meal_id}`, { method: 'POST' });
+        await apiRequest(`/favorites?meal_id=${suggestion.meal_id}`, { method: 'POST' });
 
         // AI accept bildirimi
         if (response?.interaction_id) {
@@ -81,7 +81,7 @@ export default function NutritionAssistant({
                 method: 'POST',
                 body: JSON.stringify({
                     ai_interaction_id: response.interaction_id,
-                    meal_id: meal.meal_id,
+                    meal_id: suggestion.meal_id,
                 }),
             });
         }
@@ -89,11 +89,10 @@ export default function NutritionAssistant({
         onRefresh();
     };
 
-    const handleEat = async (mealName: string) => {
-        const meal = meals.find((m) => m.meal_name === mealName);
-        if (!meal) return;
+    const handleEat = async (suggestion: MealSuggestion) => {
+        if (!suggestion.meal_id) return;
 
-        await apiRequest(`/logs?meal_id=${meal.meal_id}&portion=1&log_date=${selectedDate}`, {
+        await apiRequest(`/logs?meal_id=${suggestion.meal_id}&portion=1&log_date=${selectedDate}`, {
             method: 'POST',
         });
 
@@ -103,7 +102,7 @@ export default function NutritionAssistant({
                 method: 'POST',
                 body: JSON.stringify({
                     ai_interaction_id: response.interaction_id,
-                    meal_id: meal.meal_id,
+                    meal_id: suggestion.meal_id,
                 }),
             });
         }
@@ -111,7 +110,8 @@ export default function NutritionAssistant({
         onRefresh();
     };
 
-    const getMealInfo = (mealName: string) => meals.find((m) => m.meal_name === mealName);
+    const getMealInfo = (mealId: number | null) =>
+        mealId ? meals.find((m) => m.meal_id === mealId) : null;
 
     return (
         <div className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700">
@@ -123,7 +123,7 @@ export default function NutritionAssistant({
                         type="text"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Örn: 60g protein içeren bir öğün öner..."
+                        placeholder="Örn: Bugün ne yemeliyim?"
                         className="flex-1 px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                     <button
@@ -144,50 +144,93 @@ export default function NutritionAssistant({
 
             {response && (
                 <div className="mt-6 space-y-4">
-                    {/* AI Reply */}
-                    <div className="bg-gray-700/30 rounded-xl p-4">
-                        <h4 className="text-white font-medium mb-2">💬 Yanıt</h4>
-                        <p className="text-gray-300 whitespace-pre-wrap">{response.reply}</p>
+                    {/* 🧠 Genel Yorum (Summary) */}
+                    <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl p-4 border border-blue-500/30">
+                        <h4 className="text-blue-400 font-medium mb-2 flex items-center gap-2">
+                            <span>🧠</span> Genel Yorum
+                        </h4>
+                        <p className="text-gray-200">{response.summary}</p>
                     </div>
 
-                    {/* Suggested Meals */}
-                    {response.suggested_meals.length > 0 && (
-                        <div>
-                            <h4 className="text-white font-medium mb-2">🍽️ Önerilen Öğünler</h4>
+                    {/* ⚠️ Uyarılar (Warnings) */}
+                    {response.warnings.length > 0 && (
+                        <div className="bg-yellow-500/10 rounded-xl p-4 border border-yellow-500/30">
+                            <h4 className="text-yellow-400 font-medium mb-2 flex items-center gap-2">
+                                <span>⚠️</span> Uyarılar
+                            </h4>
+                            <ul className="space-y-1">
+                                {response.warnings.map((warning, i) => (
+                                    <li key={i} className="text-yellow-200/80 flex items-start gap-2">
+                                        <span className="text-yellow-500">•</span>
+                                        {warning}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {/* 🍽️ Öneriler (Meal Suggestions) */}
+                    {response.meal_suggestions.length > 0 && (
+                        <div className="bg-green-500/10 rounded-xl p-4 border border-green-500/30">
+                            <h4 className="text-green-400 font-medium mb-3 flex items-center gap-2">
+                                <span>🍽️</span> Öneriler
+                            </h4>
                             <div className="space-y-2">
-                                {response.suggested_meals.map((mealName, i) => {
-                                    const meal = getMealInfo(mealName);
+                                {response.meal_suggestions.map((suggestion, i) => {
+                                    const meal = getMealInfo(suggestion.meal_id);
                                     return (
                                         <div
                                             key={i}
                                             className="bg-gray-700/50 rounded-xl p-4 flex justify-between items-center border border-gray-600"
                                         >
-                                            <div>
-                                                <p className="text-white font-medium">{mealName}</p>
+                                            <div className="flex-1">
+                                                <p className="text-white font-medium">{suggestion.title}</p>
+                                                <p className="text-gray-400 text-sm mt-1">{suggestion.reason}</p>
                                                 {meal && (
-                                                    <p className="text-gray-400 text-sm">
-                                                        {meal.calories} kcal | 💪 {meal.protein_g}g
+                                                    <p className="text-green-400 text-sm mt-1">
+                                                        🔥 {meal.calories} kcal | 💪 {meal.protein_g}g protein
                                                     </p>
                                                 )}
                                             </div>
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => handleFavorite(mealName)}
-                                                    className="px-3 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition text-sm"
-                                                >
-                                                    ⭐
-                                                </button>
-                                                <button
-                                                    onClick={() => handleEat(mealName)}
-                                                    className="px-3 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition text-sm"
-                                                >
-                                                    🍽️
-                                                </button>
-                                            </div>
+                                            {suggestion.meal_id && (
+                                                <div className="flex gap-2 ml-3">
+                                                    <button
+                                                        onClick={() => handleFavorite(suggestion)}
+                                                        className="px-3 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition text-sm"
+                                                        title="Favorilere Ekle"
+                                                    >
+                                                        ⭐
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleEat(suggestion)}
+                                                        className="px-3 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition text-sm"
+                                                        title="Yedim"
+                                                    >
+                                                        🍽️
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })}
                             </div>
+                        </div>
+                    )}
+
+                    {/* 💡 İpuçları (Tips) */}
+                    {response.tips.length > 0 && (
+                        <div className="bg-purple-500/10 rounded-xl p-4 border border-purple-500/30">
+                            <h4 className="text-purple-400 font-medium mb-2 flex items-center gap-2">
+                                <span>💡</span> İpuçları
+                            </h4>
+                            <ul className="space-y-1">
+                                {response.tips.map((tip, i) => (
+                                    <li key={i} className="text-purple-200/80 flex items-start gap-2">
+                                        <span className="text-purple-500">•</span>
+                                        {tip}
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
                     )}
                 </div>
@@ -195,3 +238,4 @@ export default function NutritionAssistant({
         </div>
     );
 }
+

@@ -15,10 +15,19 @@ export async function apiRequest(
         (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
     }
 
-    return fetch(`${API_BASE}${endpoint}`, {
+    const response = await fetch(`${API_BASE}${endpoint}`, {
         ...options,
         headers,
     });
+
+    // 401 hatası alınırsa oturumu sonlandır ve login'e yönlendir
+    if (response.status === 401 && typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('email');
+        window.location.href = '/';
+    }
+
+    return response;
 }
 
 export async function login(email: string, password: string): Promise<{ access_token: string } | null> {
