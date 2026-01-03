@@ -5,10 +5,10 @@ Haftalık özet motoru - son 7 günün verilerini hesaplar.
 Skor uydurma yok, tamamen mevcut veriden.
 """
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import Optional, List
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, cast, Date
 
 from app.db.models import (
     UserGoals, UserProfile, DailyActivity, 
@@ -90,17 +90,26 @@ def get_weekly_summary(user_id: int, end_date: date, db: Session) -> dict:
     protein_trend = _calculate_trend(protein_values)
     
     # 7️⃣ AI kabul oranı (bu hafta)
-    ai_interactions = db.query(AIInteraction).filter(
-        AIInteraction.user_id == user_id,
-        AIInteraction.created_at >= start_date
-    ).all()
+    # DateTime'ı date'e çevirerek karşılaştır
+    start_datetime = datetime.combine(start_date, datetime.min.time())
     
-    ai_acceptances = db.query(AIAcceptance).filter(
-        AIAcceptance.user_id == user_id,
-        AIAcceptance.created_at >= start_date
-    ).count()
+    try:
+        ai_interactions = db.query(AIInteraction).filter(
+            AIInteraction.user_id == user_id,
+            AIInteraction.created_at >= start_datetime
+        ).all()
+        ai_interaction_count = len(ai_interactions)
+    except Exception:
+        ai_interaction_count = 0
     
-    ai_interaction_count = len(ai_interactions)
+    try:
+        ai_acceptances = db.query(AIAcceptance).filter(
+            AIAcceptance.user_id == user_id,
+            AIAcceptance.created_at >= start_datetime
+        ).count()
+    except Exception:
+        ai_acceptances = 0
+    
     ai_acceptance_rate = ai_acceptances / ai_interaction_count if ai_interaction_count > 0 else 0
     
     # 8️⃣ En sık gelen uyarı
