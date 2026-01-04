@@ -57,8 +57,9 @@ async def log_requests(request: Request, call_next):
     return response
 
 
-# tabloları oluştur (ilk çalıştırmada)
-Base.metadata.create_all(bind=engine)
+# ⚠️ ALEMBIC MIGRATIONS - create_all kaldırıldı
+# Tablo değişiklikleri için: alembic revision --autogenerate -m "description"
+# Uygulamak için: alembic upgrade head
 
 app.include_router(auth_router)
 app.include_router(logs_router)
