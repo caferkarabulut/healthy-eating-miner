@@ -103,3 +103,29 @@ def health_check():
         }
     }
 
+
+@app.get("/health/db")
+def db_health_check():
+    """
+    Dedicated database health check for Azure SQL.
+    Returns: {"db": "ok"} if connection successful.
+    """
+    from app.db.session import test_db_connection
+    
+    try:
+        test_db_connection()
+        return {
+            "db": "ok",
+            "server": settings.DB_SERVER,
+            "database": settings.DB_NAME,
+            "message": "Azure SQL connection successful"
+        }
+    except Exception as e:
+        logger.error(f"Azure SQL connection failed: {e}")
+        return {
+            "db": "error",
+            "server": settings.DB_SERVER,
+            "database": settings.DB_NAME,
+            "error": str(e)
+        }
+
