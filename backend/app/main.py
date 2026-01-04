@@ -81,17 +81,20 @@ def health_check():
     Health check endpoint.
     Returns: ok / degraded based on DB connection.
     """
+    from sqlalchemy import text
+    
     status = "ok"
     db_status = "ok"
     
     try:
         db = SessionLocal()
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         db.close()
     except Exception as e:
         db_status = "error"
         status = "degraded"
         logger.error(f"Health check DB error: {e}")
+    
     
     return {
         "status": status,
