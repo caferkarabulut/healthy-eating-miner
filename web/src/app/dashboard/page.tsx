@@ -20,6 +20,11 @@ import WeeklyCoach from '@/components/WeeklyCoach';
 import OnboardingBanner from '@/components/OnboardingBanner';
 import LoadingSpinner, { CardSkeleton } from '@/components/LoadingSpinner';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import ProgressBar from '@/components/ProgressBar';
+import WarningCard from '@/components/WarningCard';
+import MealSearch from '@/components/MealSearch';
+import StreakCard from '@/components/StreakCard';
+import MealSuggestions from '@/components/MealSuggestions';
 
 interface Meal {
     meal_id: number;
@@ -109,6 +114,34 @@ export default function DashboardPage() {
     // Phase 8.5.3 - Daily Warnings
     const [dailyWarnings, setDailyWarnings] = useState<{ type: 'warning' | 'info' | 'success', message: string }[]>([]);
 
+    // FAZ 10.3 - Daily Progress Tracking
+    interface DailyProgress {
+        calorie_target: number;
+        calorie_consumed: number;
+        calorie_pct: number;
+        protein_target: number;
+        protein_consumed: number;
+        protein_pct: number;
+        status: string;
+        warnings: Array<{ type: 'success' | 'info' | 'warning' | 'danger', icon: string, message: string }>;
+    }
+    const [dailyProgress, setDailyProgress] = useState<DailyProgress | null>(null);
+
+    // FAZ 10.4 - Streak & Suggestions
+    interface StreakData {
+        current_streak: number;
+        max_streak: number;
+        message: string;
+        status: 'active' | 'warning' | 'broken' | 'new';
+    }
+    interface SuggestionsData {
+        remaining_calories: number;
+        remaining_protein: number;
+        suggestions: Array<{ meal_id: number; meal_name: string; calories: number; protein_g: number; meal_type: string | null }>;
+    }
+    const [streakData, setStreakData] = useState<StreakData | null>(null);
+    const [suggestionsData, setSuggestionsData] = useState<SuggestionsData | null>(null);
+
     const fetchData = useCallback(async () => {
         try {
             // Check profile first
@@ -167,6 +200,36 @@ export default function DashboardPage() {
             // Fetch goals
             const goalsRes = await apiRequest('/user/goals');
             if (goalsRes.ok) setGoals(await goalsRes.json());
+
+            // FAZ 10.3 - Fetch daily progress
+            try {
+                const progressDailyRes = await apiRequest(`/progress/daily?target_date=${selectedDate}`);
+                if (progressDailyRes.ok) {
+                    setDailyProgress(await progressDailyRes.json());
+                }
+            } catch {
+                // Progress fetch failed, continue
+            }
+
+            // FAZ 10.4 - Fetch streak
+            try {
+                const streakRes = await apiRequest('/engagement/streak');
+                if (streakRes.ok) {
+                    setStreakData(await streakRes.json());
+                }
+            } catch {
+                // Streak fetch failed, continue
+            }
+
+            // FAZ 10.4 - Fetch meal suggestions
+            try {
+                const suggestRes = await apiRequest('/engagement/meal-suggestions');
+                if (suggestRes.ok) {
+                    setSuggestionsData(await suggestRes.json());
+                }
+            } catch {
+                // Suggestions fetch failed, continue
+            }
 
             // Fetch weekly data (son 7 gün)
             const weekly: WeeklyData[] = [];
@@ -344,6 +407,49 @@ export default function DashboardPage() {
 
                         onUpdate={fetchData}
                     />
+                )}
+
+                {/* FAZ 10.4: Streak Card */}
+                {streakData && (
+                    <StreakCard
+                        currentStreak={streakData.current_streak}
+                        maxStreak={streakData.max_streak}
+                        message={streakData.message}
+                        status={streakData.status}
+                    />
+                )}
+
+                {/* FAZ 10.4: Meal Suggestions */}
+                {suggestionsData && (
+                    <MealSuggestions
+                        remainingCalories={suggestionsData.remaining_calories}
+                        remainingProtein={suggestionsData.remaining_protein}
+                        suggestions={suggestionsData.suggestions}
+                        onAddMeal={(mealId) => handleAddMeal(mealId, 1)}
+                    />
+                )}
+
+
+                {/* FAZ 10.3: Günlük İlerleme Çubuğu */}
+                {dailyProgress && (
+                    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                        <h3 className="text-lg font-semibold text-white mb-4">🎯 Bugünkü Hedefler</h3>
+                        <ProgressBar
+                            label="Kalori"
+                            current={dailyProgress.calorie_consumed}
+                            target={dailyProgress.calorie_target}
+                            unit=" kcal"
+                            icon="🔥"
+                        />
+                        <ProgressBar
+                            label="Protein"
+                            current={dailyProgress.protein_consumed}
+                            target={dailyProgress.protein_target}
+                            unit="g"
+                            icon="💪"
+                        />
+                        <WarningCard warnings={dailyProgress.warnings} />
+                    </div>
                 )}
 
                 {/* Phase 8.5.3: Günlük Geri Bildirim */}

@@ -123,3 +123,22 @@ class DailyActivity(Base):
     target_kcal: Mapped[int] = mapped_column(Integer, nullable=True)
 
 
+# FAZ 10.4 - Streak Tracking
+class UserStreak(Base):
+    __tablename__ = "user_streaks"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    current_streak: Mapped[int] = mapped_column(Integer, default=0)
+    max_streak: Mapped[int] = mapped_column(Integer, default=0)
+    last_logged_date: Mapped[date] = mapped_column(Date, nullable=True)
+
+
+# FAZ 10.4 - Error Logging
+class ErrorLog(Base):
+    __tablename__ = "error_logs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    endpoint: Mapped[str] = mapped_column(String(255), nullable=False)
+    error_message: Mapped[str] = mapped_column(String(1000), nullable=False)
+    created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())

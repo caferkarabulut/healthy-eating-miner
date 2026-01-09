@@ -15,6 +15,8 @@ from app.routers.ai import router as ai_router
 from app.routers.user import router as user_router
 from app.routers.analysis import router as analysis_router
 from app.routers.profile import router as profile_router
+from app.routers.progress import router as progress_router
+from app.routers.engagement import router as engagement_router
 from app.core.config import settings
 
 # Logging setup
@@ -69,6 +71,8 @@ app.include_router(ai_router)
 app.include_router(user_router)
 app.include_router(analysis_router)
 app.include_router(profile_router)
+app.include_router(progress_router)
+app.include_router(engagement_router)
 
 
 @app.get("/")

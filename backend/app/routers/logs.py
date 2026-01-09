@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import date
+import logging
 
 from app.db.session import get_db
 from app.db.models import MealLog
 from app.core.security import get_current_user_id
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/logs", tags=["logs"])
 
 @router.post("/")
@@ -16,15 +18,23 @@ def add_log(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db)
 ):
-    log = MealLog(
-        user_id=user_id,
-        meal_id=meal_id,
-        portion=portion,
-        log_date=log_date
-    )
-    db.add(log)
-    db.commit()
-    return {"ok": True}
+    """Yemek logu ekle (transaction-safe)"""
+    try:
+        log = MealLog(
+            user_id=user_id,
+            meal_id=meal_id,
+            portion=portion,
+            log_date=log_date
+        )
+        db.add(log)
+        db.commit()
+        db.refresh(log)
+        logger.info(f"Meal log added: user={user_id}, meal={meal_id}, date={log_date}")
+        return {"ok": True, "log_id": log.id}
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Meal log failed: user={user_id}, meal={meal_id}, error={str(e)}")
+        raise HTTPException(status_code=500, detail="Öğün kaydedilemedi")
 
 @router.get("/")
 def get_logs(
