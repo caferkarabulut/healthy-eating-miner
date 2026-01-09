@@ -9,7 +9,7 @@ from app.core.security import get_current_user_id
 router = APIRouter(prefix="/meals", tags=["meals"])
 
 
-@router.get("/")
+@router.get("")
 def list_meals(
     search: Optional[str] = Query(None, description="Yemek adında arama"),
     min_calories: Optional[float] = Query(None, description="Minimum kalori"),
