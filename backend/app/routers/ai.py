@@ -159,7 +159,7 @@ Mevcut öğün listesi (sadece buradan öner):
         client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
         
         response = client.chat.completions.create(
-            model="gpt-4.1-mini",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_prompt}
@@ -401,7 +401,7 @@ def get_weekly_coach(
         client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
         
         response = client.chat.completions.create(
-            model="gpt-4.1-mini",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": WEEKLY_COACH_PROMPT},
                 {"role": "user", "content": summary_text}
