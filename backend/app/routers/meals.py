@@ -16,7 +16,7 @@ def list_meals(
     max_calories: Optional[float] = Query(None, description="Maksimum kalori"),
     min_protein: Optional[float] = Query(None, description="Minimum protein (g)"),
     meal_type: Optional[str] = Query(None, description="Öğün tipi: Breakfast, Lunch, Dinner, Snack"),
-    limit: int = Query(50, ge=1, le=200, description="Sonuç limiti"),
+    limit: int = Query(50, ge=1, le=2000, description="Sonuç limiti"),
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user_id)
 ):

@@ -38,7 +38,7 @@ export default function MealSearch({ onSelectMeal, selectedMealId }: MealSearchP
             if (maxCalories) params.append('max_calories', String(maxCalories));
             if (minProtein) params.append('min_protein', String(minProtein));
             if (mealType) params.append('meal_type', mealType);
-            params.append('limit', '50');
+            params.append('limit', '1000');
 
             const res = await apiRequest(`/meals?${params.toString()}`);
             if (res.ok) {
@@ -90,21 +90,27 @@ export default function MealSearch({ onSelectMeal, selectedMealId }: MealSearchP
                         ) : meals.length === 0 ? (
                             <div className="p-3 text-center text-gray-500">Sonuç bulunamadı</div>
                         ) : (
-                            meals.map((meal) => (
-                                <div
-                                    key={meal.meal_id}
-                                    onClick={() => handleSelectMeal(meal)}
-                                    className={`p-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-0 ${selectedMealId === meal.meal_id ? 'bg-green-100' : ''
-                                        }`}
-                                >
-                                    <div className="font-medium text-gray-800">{meal.meal_name}</div>
-                                    <div className="text-sm text-gray-500 flex gap-3">
-                                        <span>🔥 {meal.calories} kcal</span>
-                                        <span>💪 {meal.protein_g}g protein</span>
-                                        {meal.meal_type && <span>🍽️ {meal.meal_type}</span>}
+                            <>
+                                {meals.length === 1000 && (
+                                    <div className="p-2 text-xs text-center bg-yellow-50 text-yellow-600 border-b border-yellow-100">
+                                        İlk 1000 sonuç gösteriliyor. Aradığınız yemek yoksa arama yapın.
                                     </div>
-                                </div>
-                            ))
+                                )}
+                                {meals.map((meal) => (
+                                    <div
+                                        key={meal.meal_id}
+                                        onClick={() => handleSelectMeal(meal)}
+                                        className={`p-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-0 ${selectedMealId === meal.meal_id ? 'bg-green-100' : ''
+                                            }`}
+                                    >
+                                        <div className="font-medium text-gray-800">{meal.meal_name}</div>
+                                        <div className="text-sm text-gray-500 flex gap-3">
+                                            <span>🔥 {meal.calories} kcal</span>
+                                            <span>💪 {meal.protein_g}g protein</span>
+                                            {meal.meal_type && <span>🍽️ {meal.meal_type}</span>}
+                                        </div>
+                                    </div>
+                                ))}</>
                         )}
                     </div>
                 )}
