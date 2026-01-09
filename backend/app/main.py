@@ -59,6 +59,38 @@ async def log_requests(request: Request, call_next):
     return response
 
 
+# Global Exception Handler - FAZ 10.4.4
+from fastapi.responses import JSONResponse
+from app.db.models import ErrorLog
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Tüm beklenmeyen hataları yakala, logla ve kullanıcıya düzgün mesaj döndür"""
+    error_message = str(exc)[:1000]  # Max 1000 karakter
+    endpoint = f"{request.method} {request.url.path}"
+    
+    # Error log'a kaydet
+    try:
+        db = SessionLocal()
+        error_log = ErrorLog(
+            user_id=None,  # JWT'den çıkarılabilir ama basit tutalım
+            endpoint=endpoint,
+            error_message=error_message
+        )
+        db.add(error_log)
+        db.commit()
+        db.close()
+    except:
+        pass  # Log kaydetme başarısız olsa bile kullanıcıya cevap dön
+    
+    logger.error(f"Unhandled exception at {endpoint}: {error_message}")
+    
+    return JSONResponse(
+        status_code=500,
+        content={"error": True, "message": "Bir hata oluştu. Lütfen tekrar deneyin."}
+    )
+
+
 # ⚠️ ALEMBIC MIGRATIONS - create_all kaldırıldı
 # Tablo değişiklikleri için: alembic revision --autogenerate -m "description"
 # Uygulamak için: alembic upgrade head
