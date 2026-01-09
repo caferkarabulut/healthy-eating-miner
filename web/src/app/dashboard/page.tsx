@@ -185,7 +185,7 @@ export default function DashboardPage() {
             }
 
             // Fetch meals
-            const mealsRes = await apiRequest('/meals');
+            const mealsRes = await apiRequest('/meals?limit=5000');
             const mealsData = mealsRes.ok ? await mealsRes.json() : [];
             setMeals(mealsData);
 
