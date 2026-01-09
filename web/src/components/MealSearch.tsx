@@ -38,7 +38,7 @@ export default function MealSearch({ onSelectMeal, selectedMealId }: MealSearchP
             if (maxCalories) params.append('max_calories', String(maxCalories));
             if (minProtein) params.append('min_protein', String(minProtein));
             if (mealType) params.append('meal_type', mealType);
-            params.append('limit', '1000');
+            params.append('limit', '5000');
 
             const res = await apiRequest(`/meals?${params.toString()}`);
             if (res.ok) {
@@ -91,11 +91,6 @@ export default function MealSearch({ onSelectMeal, selectedMealId }: MealSearchP
                             <div className="p-3 text-center text-gray-500">Sonuç bulunamadı</div>
                         ) : (
                             <>
-                                {meals.length === 1000 && (
-                                    <div className="p-2 text-xs text-center bg-yellow-50 text-yellow-600 border-b border-yellow-100">
-                                        İlk 1000 sonuç gösteriliyor. Aradığınız yemek yoksa arama yapın.
-                                    </div>
-                                )}
                                 {meals.map((meal) => (
                                     <div
                                         key={meal.meal_id}
