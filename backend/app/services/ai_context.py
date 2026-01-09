@@ -52,7 +52,7 @@ def build_ai_context(user_id: int, target_date: date, db: Session) -> dict:
         if meal:
             today_data["calorie"] += int(meal.calories * log.portion)
             today_data["protein"] += int(meal.protein_g * log.portion)
-            today_data["carbs"] += int(meal.carb_g * log.portion)
+            today_data["carbs"] += int(meal.carbs_g * log.portion)
             today_data["fat"] += int(meal.fat_g * log.portion)
     
     # 3️⃣ AKTİVİTE VE METABOLİZMA
