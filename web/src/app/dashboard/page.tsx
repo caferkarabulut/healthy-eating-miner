@@ -89,6 +89,7 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [email, setEmail] = useState('');
     const [showProfileSetup, setShowProfileSetup] = useState(false);
+    const [toast, setToast] = useState<string | null>(null);
 
     const [selectedDate, setSelectedDate] = useState(() => {
         const today = new Date();
@@ -302,6 +303,10 @@ export default function DashboardPage() {
         await apiRequest(`/logs?meal_id=${mealId}&portion=${portion}&log_date=${selectedDate}`, {
             method: 'POST',
         });
+        // Toast bildirimi göster
+        const meal = meals.find(m => m.meal_id === mealId);
+        setToast(`✅ ${meal?.meal_name || 'Öğün'} eklendi!`);
+        setTimeout(() => setToast(null), 3000);
         fetchData();
     };
 
@@ -312,6 +317,9 @@ export default function DashboardPage() {
 
     const handleAddFavorite = async (mealId: number) => {
         await apiRequest(`/favorites?meal_id=${mealId}`, { method: 'POST' });
+        const meal = meals.find(m => m.meal_id === mealId);
+        setToast(`⭐ ${meal?.meal_name || 'Öğün'} favorilere eklendi!`);
+        setTimeout(() => setToast(null), 3000);
         fetchData();
     };
 
@@ -324,6 +332,9 @@ export default function DashboardPage() {
         await apiRequest(`/logs?meal_id=${mealId}&portion=1&log_date=${selectedDate}`, {
             method: 'POST',
         });
+        const meal = meals.find(m => m.meal_id === mealId);
+        setToast(`✅ ${meal?.meal_name || 'Öğün'} eklendi!`);
+        setTimeout(() => setToast(null), 3000);
         fetchData();
     };
 
@@ -347,6 +358,12 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+            {/* Toast Notification */}
+            {toast && (
+                <div className="fixed top-6 right-6 z-50 bg-gradient-to-r from-green-400 to-emerald-500 text-white px-8 py-4 rounded-xl shadow-2xl text-lg font-semibold border-2 border-green-300 animate-bounce">
+                    {toast}
+                </div>
+            )}
             {/* Header */}
             <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 sticky top-0 z-10">
                 <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -480,7 +497,9 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Add Meal Form */}
-                <AddMealForm meals={meals} onAdd={handleAddMeal} onFavorite={handleAddFavorite} />
+                <div id="meals" className="scroll-mt-20">
+                    <AddMealForm meals={meals} onAdd={handleAddMeal} onFavorite={handleAddFavorite} />
+                </div>
 
                 {/* Favorites */}
                 <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">

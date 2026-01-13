@@ -40,7 +40,7 @@ def update_user_streak(db: Session, user_id: int, log_date: date):
     return streak
 
 
-@router.post("/")
+@router.post("")
 def add_log(
     meal_id: int,
     portion: float = 1.0,
@@ -70,7 +70,7 @@ def add_log(
         logger.error(f"Meal log failed: user={user_id}, meal={meal_id}, error={str(e)}")
         raise HTTPException(status_code=500, detail="Öğün kaydedilemedi")
 
-@router.get("/")
+@router.get("")
 def get_logs(
     log_date: date,
     user_id: int = Depends(get_current_user_id),

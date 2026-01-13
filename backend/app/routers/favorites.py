@@ -7,7 +7,7 @@ from app.core.security import get_current_user_id
 
 router = APIRouter(prefix="/favorites", tags=["favorites"])
 
-@router.post("/")
+@router.post("")
 def add_favorite(
     meal_id: int,
     user_id: int = Depends(get_current_user_id),
@@ -18,7 +18,7 @@ def add_favorite(
     db.commit()
     return {"ok": True}
 
-@router.get("/")
+@router.get("")
 def list_favorites(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db)

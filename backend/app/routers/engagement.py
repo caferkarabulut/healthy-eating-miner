@@ -196,12 +196,12 @@ def get_meal_suggestions(
     remaining_cal = max(0, calorie_target - consumed_cal)
     remaining_prot = max(0, protein_target - consumed_prot)
     
-    # Akıllı sorgu: Kalan kaloriye sığan, protein'i yüksek yemekler
+    # Akıllı sorgu: Kalan kaloriye sığan yemekler, rastgele sıralanmış
+    from sqlalchemy import text
     suggestions = db.query(Meal).filter(
-        Meal.calories <= remaining_cal,
-        Meal.protein_g >= remaining_prot * 0.2  # En az %20 protein karşılasın
+        Meal.calories <= remaining_cal
     ).order_by(
-        Meal.protein_g.desc()
+        text("NEWID()")  # MSSQL için rastgele sıralama
     ).limit(5).all()
     
     return {

@@ -22,6 +22,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  console.log('Build: Final Hardcoded HTTPS');
   return (
     <html lang="en">
       <body

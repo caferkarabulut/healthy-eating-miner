@@ -114,8 +114,9 @@ def ai_chat(
     context = build_ai_context(user_id, today, db)
     context_text = format_context_for_prompt(context)
     
-    # 2️⃣ Mevcut öğün listesini al (öneri için)
-    meals = db.query(Meal).limit(50).all()
+    # 2️⃣ Mevcut öğün listesini al (öneri için) - RANDOM SAMPLE
+    from sqlalchemy import text
+    meals = db.query(Meal).order_by(text("NEWID()")).limit(100).all()
     meals_dict = {m.meal_name: m.meal_id for m in meals}
     meals_summary = "\n".join([
         f"- {m.meal_name}: {m.calories} kcal, {m.protein_g}g protein"

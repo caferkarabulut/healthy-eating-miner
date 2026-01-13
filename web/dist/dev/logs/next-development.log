@@ -1,0 +1,67 @@
+[00:00:02.814] Server  LOG     ✓ Ready in 1868ms
+[00:00:40.838] Server  LOG     ○ Compiling /login ...
+[00:00:42.911] Server  LOG     Build: Final Hardcoded HTTPS
+[00:01:12.411] Server  LOG     Build: Final Hardcoded HTTPS
+[00:01:12.670] Server  LOG     Build: Final Hardcoded HTTPS
+[00:01:13.622] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:45.126] Server  LOG     Build: Final Hardcoded HTTPS
+[00:01:45.199] Server  LOG     Build: Final Hardcoded HTTPS
+[00:01:45.535] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:45.617] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:50.051] Server  LOG     Build: Final Hardcoded HTTPS
+[00:01:50.213] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:17:07.775] Server  LOG     ✓ Compiled in 696ms
+[00:17:37.290] Server  LOG     ✓ Compiled in 127ms
+[00:18:07.947] Server  LOG     Build: Final Hardcoded HTTPS
+[00:18:08.181] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:25:44.358] Server  LOG     ✓ Compiled in 436ms
+[00:26:21.901] Server  LOG     ✓ Compiled in 141ms
+[00:26:55.505] Server  LOG     Build: Final Hardcoded HTTPS
+[00:26:55.752] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:27:04.680] Server  LOG     Build: Final Hardcoded HTTPS
+[00:27:04.851] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[02:57:52.833] Server  LOG     Build: Final Hardcoded HTTPS
+[02:57:53.286] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[02:57:53.497] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/login" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <RootLayout>
+                        <html
+                          lang="en"
+-                         data-jetski-tab-id="1919967801"
+                        >
+                          <body
++                           className="geist_a71539c9-module__T19VSG__variable geist_mono_8d43a2aa-module__8Li5zG__var..."
+-                           className="geist_a71539c9-module__T19VSG__variable geist_mono_8d43a2aa-module__8Li5zG__var..."
+                          >
+                  ...
+
+[02:58:17.235] Server  LOG     Build: Final Hardcoded HTTPS
+[02:58:17.859] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[04:17:28.316] Server  LOG     Build: Final Hardcoded HTTPS
+[04:17:28.422] Server  LOG     Build: Final Hardcoded HTTPS
+[04:17:28.775] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold

@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE = 'http://localhost:8000';
 
 export async function apiRequest(
     endpoint: string,
@@ -6,28 +6,24 @@ export async function apiRequest(
 ): Promise<Response> {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
-    const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-        ...options.headers,
-    };
-
-    if (token) {
-        (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${API_BASE}${endpoint}`, {
+    // No trailing slash - Azure App Service redirects slashed URLs to HTTP
+    const res = await fetch(`${API_BASE}${endpoint}`, {
         ...options,
-        headers,
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}), // Only add Authorization if token exists
+            ...options.headers,
+        },
     });
 
     // 401 hatası alınırsa oturumu sonlandır ve login'e yönlendir
-    if (response.status === 401 && typeof window !== 'undefined') {
+    if (res.status === 401 && typeof window !== 'undefined') {
         localStorage.removeItem('token');
         localStorage.removeItem('email');
         window.location.href = '/';
     }
 
-    return response;
+    return res;
 }
 
 export async function login(email: string, password: string): Promise<{ access_token: string } | null> {
