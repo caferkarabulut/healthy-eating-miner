@@ -53,7 +53,26 @@ ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/BiteRoutine.Api --no
 | Method | Path           | Response                                     |
 |--------|----------------|----------------------------------------------|
 | GET    | `/health/live` | `200` `{"status":"ok","service":"Bite Routine"}` |
+| GET    | `/meals`       | `200` `{"items":[...],"page":1,"pageSize":20,"totalCount":25}` |
+| GET    | `/meals/{mealId}` | `200` `{"mealId":1,"mealName":"Demo Pasta",...}` |
+
+> **Demo Data Note:** The `/meals` endpoints currently serve 25 immutable in-memory demo records. No database, SQL, or external data source is connected in this initial slice; operations validate the HTTP contract, pagination, search, and error handling.
+
+### Example requests
 
 ```bash
+# Health check
 curl -i http://127.0.0.1:5080/health/live
+
+# List first page of meals
+curl -i "http://127.0.0.1:5080/meals"
+
+# Search meals by name with custom page size
+curl -i "http://127.0.0.1:5080/meals?search=pasta&pageSize=5"
+
+# Get single meal by ID
+curl -i "http://127.0.0.1:5080/meals/1"
+
+# Invalid meal ID (returns 400 Bad Request)
+curl -i "http://127.0.0.1:5080/meals/abc"
 ```
