@@ -88,7 +88,7 @@ targeting `main` and on pushes to `main` when files under `backend-dotnet/`,
 `global.json`, then runs `dotnet restore`, `dotnet build` (Release), the EF
 pending-model check and `dotnet test` (Release) for `BiteRoutine.slnx`. It uses read-only permissions and
 an ephemeral PostgreSQL service, but no secrets, caching, publishing or deployment.
-The web job uses Node 24 and runs `npm ci`, `npm run build` and `npm run lint`.
+The web job uses Node 24 and runs `npm ci`, `npm run test`, `npm run build` and `npm run lint`.
 
 ## Run locally
 
