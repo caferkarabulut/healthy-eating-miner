@@ -1,11 +1,14 @@
+using BiteRoutine.Api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Register MVC controller services in the DI container.
+// Register MVC controller services and application services in the DI container.
 builder.Services.AddControllers();
+builder.Services.AddScoped<MealCatalogService>();
 
 var app = builder.Build();
 
-// Map attribute-routed controllers (e.g. HealthController) to endpoints.
+// Map attribute-routed controllers (e.g. HealthController, MealsController) to endpoints.
 app.MapControllers();
 
 app.Run();
