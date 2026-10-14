@@ -50,6 +50,10 @@ jobs:
         run: dotnet restore BiteRoutine.slnx
       - name: Build
         run: dotnet build BiteRoutine.slnx --no-restore --configuration Release
+      - name: Verify EF migration snapshot
+        run: |
+          dotnet tool restore
+          dotnet ef migrations has-pending-model-changes --project src/BiteRoutine.Api --no-build --configuration Release
       - name: Test
         env:
           BITE_ROUTINE_TEST_CONNECTION: Host=127.0.0.1;Port=5432;Database=bite_routine_test;Username=bite_routine;Password=ci_test_only
