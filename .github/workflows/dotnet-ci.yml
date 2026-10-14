@@ -20,6 +20,20 @@ jobs:
     name: Build and test
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: bite_routine_test
+          POSTGRES_USER: bite_routine
+          POSTGRES_PASSWORD: ci_test_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bite_routine -d bite_routine_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     defaults:
       run:
         working-directory: backend-dotnet
@@ -37,4 +51,7 @@ jobs:
       - name: Build
         run: dotnet build BiteRoutine.slnx --no-restore --configuration Release
       - name: Test
+        env:
+          BITE_ROUTINE_TEST_CONNECTION: Host=127.0.0.1;Port=5432;Database=bite_routine_test;Username=bite_routine;Password=ci_test_only
         run: dotnet test BiteRoutine.slnx --no-build --configuration Release
+

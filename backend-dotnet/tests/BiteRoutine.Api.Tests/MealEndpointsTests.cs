@@ -1,16 +1,19 @@
 using System.Net;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
+using BiteRoutine.Api.Data;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 namespace BiteRoutine.Api.Tests;
 
-public sealed class MealEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
+public sealed class MealEndpointsTests : IClassFixture<PostgresTestFactory>
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly PostgresTestFactory _factory;
 
-    public MealEndpointsTests(WebApplicationFactory<Program> factory)
+    public MealEndpointsTests(PostgresTestFactory factory)
     {
         _factory = factory;
+        _factory.EnsureSeeded();
     }
 
     [Fact]
@@ -122,6 +125,51 @@ public sealed class MealEndpointsTests : IClassFixture<WebApplicationFactory<Pro
     }
 
     [Theory]
+    [InlineData("%")]
+    [InlineData("_")]
+    public async Task GetMeals_SearchTreatsSqlWildcardsAsLiteralText(string search)
+    {
+        using var client = _factory.CreateClient();
+        using var response = await client.GetAsync($"/meals?search={Uri.EscapeDataString(search)}");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        Assert.Equal(0, json.RootElement.GetProperty("totalCount").GetInt32());
+    }
+
+    [Fact]
+    public async Task GetMeals_TurkishCasing_FindsDottedAndDotlessI()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<BiteRoutineDbContext>();
+        var meals = new[]
+        {
+            new Meal { MealId = 1001, MealName = "İzmir Köfte" },
+            new Meal { MealId = 1002, MealName = "Ispanak Yemeği" }
+        };
+        db.Meals.AddRange(meals);
+        await db.SaveChangesAsync();
+
+        try
+        {
+            using var client = _factory.CreateClient();
+            foreach (var (search, expectedId) in new[] { ("izmir", 1001), ("ıspanak", 1002) })
+            {
+                using var response = await client.GetAsync($"/meals?search={Uri.EscapeDataString(search)}");
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+                Assert.Equal(1, json.RootElement.GetProperty("totalCount").GetInt32());
+                Assert.Equal(expectedId, json.RootElement.GetProperty("items")[0].GetProperty("mealId").GetInt32());
+            }
+        }
+        finally
+        {
+            db.Meals.RemoveRange(meals);
+            await db.SaveChangesAsync();
+        }
+    }
+
+    [Theory]
     [InlineData("/meals?page=999&pageSize=20", 999, 20)]
     [InlineData("/meals?page=2147483647&pageSize=100", 2147483647, 100)]
     public async Task GetMeals_OutOfRangeAndExtremePage_ReturnsOkWithEmptyItemsAndTotalCount25(
@@ -225,3 +273,4 @@ public sealed class MealEndpointsTests : IClassFixture<WebApplicationFactory<Pro
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 }
+

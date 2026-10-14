@@ -38,7 +38,7 @@ Hatalı veya yanıltıcı besin hesabı sunulmasını önlemek adına, **bu ilk 
 
 - **Yetkilendirme:** Anonim (herkese açık).
 - **Query Parametreleri:**
-  - `search` *(string?, opsiyonel)*: Yemek adı içinde aranacak metin. Baş ve sondaki boşluklar temizlenir (`trim`). Boş bırakılırsa veya yalnızca boşluk içerirse filtreleme uygulanmaz, tüm kayıtlar sayfalanır. Arama metni verildiğinde büyük/küçük harf duyarsız (`OrdinalIgnoreCase`) olarak yemek adı içinde alt metin eşleşmesi aranır.
+  - `search` *(string?, opsiyonel)*: Yemek adı içinde aranacak metin. Baş ve sondaki boşluklar temizlenir (`trim`). Boş bırakılırsa veya yalnızca boşluk içerirse filtreleme uygulanmaz, tüm kayıtlar sayfalanır. Arama metni verildiğinde PostgreSQL `ILIKE` ve Türkçe ICU sıralamasıyla büyük/küçük harf duyarsız alt metin eşleşmesi aranır (`İ/i`, `I/ı`). `%` ve `_` düz metin olarak aranır.
   - `page` *(int, opsiyonel, varsayılan: `1`)*: Pozitif `Int32` sayfa numarası (`1 <= page <= 2147483647`).
   - `pageSize` *(int, opsiyonel, varsayılan: `20`)*: Sayfa başına kayıt sayısı (`1 <= pageSize <= 100`).
 - **Sıralama:** `mealId` artan sırada (ascending).
@@ -134,3 +134,4 @@ Bu sözleşme uygulandığında doğrulanması gereken minimum test senaryoları
 9. **Bulunamayan Tek Kayıt:** Pozitif fakat veritabanında olmayan bir `mealId` için `GET /meals/{mealId}` çağrıldığında `404 Not Found` dönmelidir.
 10. **Geçersiz ID ile Tek Kayıt:** `mealId` sıfır, negatif, `abc` veya `Int32` dışı olduğunda `400 Bad Request` dönmelidir.
 11. **Null Alan Güvenliği:** `cuisine` ve `mealType` alanları boş olan kayıtlarda JSON çıktısında bu alanlar `null` olarak güvenle yer almalıdır.
+

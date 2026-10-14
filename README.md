@@ -1,5 +1,10 @@
 # Healthy Eating Miner
 
+> **Bite Routine rewrite:** The new ASP.NET Core API is under
+> [`backend-dotnet/`](backend-dotnet/README.md). It uses PostgreSQL with EF Core
+> for its meal catalog. This README documents the original Python/Azure SQL
+> implementation; the Next.js client has not yet been switched to the new API.
+
 A nutrition tracking platform that combines meal logging, metabolic calculations, and AI-powered coaching to help users manage their diet effectively.
 
 ## Overview
@@ -88,3 +93,4 @@ The original meal dataset (`data/healthy_eating.csv`) was cleaned and analyzed u
 ## License
 
 MIT
+
