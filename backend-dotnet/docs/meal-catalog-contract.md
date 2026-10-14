@@ -16,7 +16,7 @@ Bu belge, Bite Routine projesinde yemek kataloğu okuma işlemlerinin ilk dilimi
 | **Yanıt Formatı** | Düz JSON dizisi (`[]`), `snake_case` alan adları | Sarmalanmış JSON nesnesi (`{ items, page, pageSize, totalCount }`), `camelCase` alan adları |
 | **Tek Kayıt Sorgusu** | Mevcut değil | `GET /meals/{mealId}` (pozitif ID, bulunamazsa 404) |
 
-> **İstemci Uyumluluk Notu:** Yeni sözleşme `camelCase` alan adları ve sayfalanmış yanıt yapısı kullanmaktadır. Mevcut frontend (`web/`) henüz yeni .NET API'ye bağlı değildir ve eski Python API yapısına göre çalışmaktadır.
+> **İstemci Uyumluluk Notu:** Yeni sözleşme `camelCase` alan adları ve sayfalanmış yanıt yapısı kullanır. `web/` ana sayfasındaki açık katalog bu .NET API'sine bağlıdır. Eski oturum, takip ve koçluk ekranları Python API yapısına göre çalışır.
 
 ---
 
@@ -27,8 +27,7 @@ Kaynak veri ve eski modeller incelendiğinde şu uyumsuzluklar tespit edilmişti
 2. Ancak eski Python `Meal` veritabanı modelinde (`backend/app/db/models.py`) `serving_size_g` alanı tanımlanmamıştır.
 3. CSV'deki kalori ve makro değerlerinin (protein, karbonhidrat, yağ vb.) **100 gram başına mı yoksa porsiyon başına mı** hesaplandığı doğrulanmamıştır.
 
-**Karar:**
-Hatalı veya yanıltıcı besin hesabı sunulmasını önlemek adına, **bu ilk dilimde besin alanları (`calories`, `protein_g`, `carbs_g`, `fat_g` vb.) API sözleşmesine dahil edilmemiştir**. Veri aktarımı (migration/seed) öncesinde veri kaynağının metodolojisi ve birimleri netleştirilecek, besin değerleri ayrı bir sözleşme adımıyla eklenecektir.
+**Güncel karar:** Eski CSV'den besin değeri alınmaz. İkinci dilimde, USDA FoodData Central kaynağı belirtilen temel gıdalar için yaklaşık 100 g değerleri isteğe bağlı `nutrition` nesnesinde sunulur. Kaynaksız demo kayıtlarda `nutrition: null` döner. Hazırlanmış Türk yemeklerinin besin hesabı ve porsiyonları bu kapsamda değildir.
 
 ---
 
@@ -38,7 +37,7 @@ Hatalı veya yanıltıcı besin hesabı sunulmasını önlemek adına, **bu ilk 
 
 - **Yetkilendirme:** Anonim (herkese açık).
 - **Query Parametreleri:**
-  - `search` *(string?, opsiyonel)*: Yemek adı içinde aranacak metin. Baş ve sondaki boşluklar temizlenir (`trim`). Boş bırakılırsa veya yalnızca boşluk içerirse filtreleme uygulanmaz, tüm kayıtlar sayfalanır. Arama metni verildiğinde büyük/küçük harf duyarsız (`OrdinalIgnoreCase`) olarak yemek adı içinde alt metin eşleşmesi aranır.
+  - `search` *(string?, opsiyonel)*: Yemek adı içinde aranacak metin. Baş ve sondaki boşluklar temizlenir (`trim`). Boş bırakılırsa veya yalnızca boşluk içerirse filtreleme uygulanmaz, tüm kayıtlar sayfalanır. Arama metni verildiğinde PostgreSQL `ILIKE` ve Türkçe ICU sıralamasıyla büyük/küçük harf duyarsız alt metin eşleşmesi aranır (`İ/i`, `I/ı`). `%` ve `_` düz metin olarak aranır.
   - `page` *(int, opsiyonel, varsayılan: `1`)*: Pozitif `Int32` sayfa numarası (`1 <= page <= 2147483647`).
   - `pageSize` *(int, opsiyonel, varsayılan: `20`)*: Sayfa başına kayıt sayısı (`1 <= pageSize <= 100`).
 - **Sıralama:** `mealId` artan sırada (ascending).
@@ -57,13 +56,15 @@ Hatalı veya yanıltıcı besin hesabı sunulmasını önlemek adına, **bu ilk 
       "mealId": 1,
       "mealName": "Kid Pasta",
       "cuisine": "Indian",
-      "mealType": "Lunch"
+      "mealType": "Lunch",
+      "nutrition": null
     },
     {
       "mealId": 2,
       "mealName": "Husband Rice",
       "cuisine": "Mexican",
-      "mealType": "Lunch"
+      "mealType": "Lunch",
+      "nutrition": null
     }
   ],
   "page": 1,
@@ -78,7 +79,8 @@ Hatalı veya yanıltıcı besin hesabı sunulmasını önlemek adına, **bu ilk 
   "mealId": 3,
   "mealName": "Simple Snack",
   "cuisine": null,
-  "mealType": null
+  "mealType": null,
+  "nutrition": null
 }
 ```
 
@@ -113,9 +115,12 @@ Hatalı veya yanıltıcı besin hesabı sunulmasını önlemek adına, **bu ilk 
   "mealId": 1,
   "mealName": "Kid Pasta",
   "cuisine": "Indian",
-  "mealType": "Lunch"
+  "mealType": "Lunch",
+  "nutrition": null
 }
 ```
+
+Kaynaklı bir temel gıdada `nutrition` alanı `basisGrams: 100`, `caloriesKcal`, `proteinG`, `carbsG`, `fatG`, `source`, `sourceUrl` ve `approximate: true` içerir. Değerler pişirme durumuna bağlıdır; örneğin sade pişmiş pirinç tereyağlı pilavın değeri olarak sunulmaz. USDA veri kullanımı ve 100 g birimi için [FoodData Central API kılavuzu](https://fdc.nal.usda.gov/api-guide/) ile [alan tanımları](https://fdc.nal.usda.gov/portal-data/external/dataDictionary) esas alınır.
 
 ---
 
@@ -134,3 +139,4 @@ Bu sözleşme uygulandığında doğrulanması gereken minimum test senaryoları
 9. **Bulunamayan Tek Kayıt:** Pozitif fakat veritabanında olmayan bir `mealId` için `GET /meals/{mealId}` çağrıldığında `404 Not Found` dönmelidir.
 10. **Geçersiz ID ile Tek Kayıt:** `mealId` sıfır, negatif, `abc` veya `Int32` dışı olduğunda `400 Bad Request` dönmelidir.
 11. **Null Alan Güvenliği:** `cuisine` ve `mealType` alanları boş olan kayıtlarda JSON çıktısında bu alanlar `null` olarak güvenle yer almalıdır.
+

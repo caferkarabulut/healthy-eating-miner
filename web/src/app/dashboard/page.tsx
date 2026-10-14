@@ -277,8 +277,8 @@ export default function DashboardPage() {
             router.push('/login');
             return;
         }
-        setEmail(localStorage.getItem('email') || '');
-        fetchData();
+        queueMicrotask(() => setEmail(localStorage.getItem('email') || ''));
+        queueMicrotask(() => { void fetchData(); });
     }, [router, fetchData]);
 
     // Calculate macros

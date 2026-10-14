@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { apiRequest } from '@/lib/api';
 
 interface WeeklySummary {
@@ -30,11 +30,7 @@ export default function WeeklyCoach() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        fetchWeeklyCoach();
-    }, []);
-
-    const fetchWeeklyCoach = async () => {
+    const fetchWeeklyCoach = useCallback(async () => {
         setLoading(true);
         setError('');
 
@@ -51,7 +47,11 @@ export default function WeeklyCoach() {
         }
 
         setLoading(false);
-    };
+    }, []);
+
+    useEffect(() => {
+        queueMicrotask(() => { void fetchWeeklyCoach(); });
+    }, [fetchWeeklyCoach]);
 
     const getTrendIcon = (trend: string) => {
         switch (trend) {
@@ -174,7 +174,7 @@ export default function WeeklyCoach() {
 
                 {/* Motivation */}
                 <div className="text-center py-3 border-t border-gray-700 mt-4">
-                    <p className="text-purple-300 italic">"{data.motivation}"</p>
+                    <p className="text-purple-300 italic">&ldquo;{data.motivation}&rdquo;</p>
                 </div>
             </div>
 

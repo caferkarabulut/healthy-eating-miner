@@ -1,90 +1,42 @@
-# Healthy Eating Miner
+# Bite Routine
 
-A nutrition tracking platform that combines meal logging, metabolic calculations, and AI-powered coaching to help users manage their diet effectively.
+Bite Routine is a nutrition tracking project being rebuilt for Turkey. The current, working slice is a Turkish-searchable food catalog: an ASP.NET Core API backed by PostgreSQL 17 and a Next.js page that displays approximate nutrition per 100 g with links to each source.
 
-## Overview
+## Current stack and scope
 
-This project consists of a **FastAPI backend** connected to **Azure SQL** and a **Next.js frontend**. Users can log meals, track macros, set goals, and get personalized feedback from an AI nutrition coach powered by GPT-4o.
+- `backend-dotnet/`: .NET 10, EF Core, Npgsql and PostgreSQL 17. `GET /health/live`, `GET /meals` and `GET /meals/{mealId}` are implemented and covered by real-database integration tests.
+- `web/`: Next.js 16 public catalog at `/`. Search and source-linked nutrition use the .NET API.
+- `backend/`: earlier Python/Azure SQL prototype. It remains in the repository as prior work; its auth, logging and coaching features have **not** been ported to .NET. The corresponding older web pages still call that prototype API.
+- No mobile client or deployment is included yet.
 
-The app also includes:
-- Rule-based daily warnings (calorie overages, low protein, inactivity)
-- Streak tracking to encourage consistent logging
-- Weekly performance summaries with trend analysis
-- AI suggestion acceptance tracking to measure coaching effectiveness
+The development database is empty after migrations. An explicit, repeatable seed adds eight basic foods from [USDA FoodData Central](https://fdc.nal.usda.gov/api-guide/). Their numbers describe approximately **100 g of edible food**, not a serving. The older CSV is not imported because its nutrition units and usage rights have not been verified.
 
-## Architecture
+## Run the catalog locally
 
-```
-├── backend/          # FastAPI + SQLAlchemy + Azure SQL
-│   ├── app/
-│   │   ├── core/     # Config, security, rate limiting
-│   │   ├── db/       # Models, session, migrations
-│   │   ├── routers/  # API endpoints
-│   │   └── services/ # Business logic (metabolism, warnings, AI context)
-│   ├── Dockerfile
-│   └── requirements.txt
-├── web/              # Next.js frontend
-├── data/             # Source CSV datasets
-├── results/          # Apriori association rules
-└── notebooks/        # Exploratory data analysis
-```
-
-## Tech Stack
-
-| Layer     | Technology              |
-|-----------|------------------------|
-| Backend   | Python 3.11, FastAPI    |
-| Database  | Azure SQL (via pyodbc)  |
-| Auth      | JWT + bcrypt            |
-| AI        | OpenAI GPT-4o-mini      |
-| Frontend  | Next.js, React          |
-| Deploy    | Docker, Azure           |
-
-## Getting Started
-
-### Backend
+Install .NET SDK 10 and PostgreSQL 17. Start the database at `127.0.0.1:5433` and create the `bite_routine` and `bite_routine_test` databases with the local example role described in [backend setup](backend-dotnet/README.md). Then:
 
 ```bash
-cd backend
-python -m venv .venv
-.venv\Scripts\activate       # Windows
-pip install -r requirements.txt
-cp .env.example .env         # Edit with your credentials
-uvicorn app.main:app --reload
+cd backend-dotnet
+dotnet tool restore
+dotnet restore BiteRoutine.slnx
+dotnet build BiteRoutine.slnx --no-restore --configuration Release
+ASPNETCORE_ENVIRONMENT=Development dotnet ef database update --project src/BiteRoutine.Api --no-build --configuration Release
+psql -h 127.0.0.1 -p 5433 -U bite_routine -d bite_routine -v ON_ERROR_STOP=1 -f db/seed-usda-starter.sql
+ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/BiteRoutine.Api --configuration Release --no-build --no-launch-profile --urls http://127.0.0.1:5080
 ```
 
-### Frontend
+In a second terminal:
 
 ```bash
 cd web
-npm install
-npm run dev
+npm ci
+npm run dev -- --hostname 127.0.0.1
 ```
 
-### Environment Variables
+Open [the local catalog](http://127.0.0.1:3000). The API is at `http://127.0.0.1:5080`. Set `BITE_ROUTINE_API_URL` for the Next.js server if the API uses a different address. See [web setup](web/README.md) and [project status](docs/PROJECT_STATUS.md) for limitations and next work.
 
-Copy `backend/.env.example` and fill in your Azure SQL credentials, JWT secret, and OpenAI API key.
+## Validation
 
-## Data Pipeline
+From `backend-dotnet/`, run `dotnet test BiteRoutine.slnx --no-build --configuration Release` with `BITE_ROUTINE_TEST_CONNECTION` pointing **only** to `bite_routine_test`. See [backend setup](backend-dotnet/README.md) for the example connection string. From `web/`, run `npm run build`.
 
-The original meal dataset (`data/healthy_eating.csv`) was cleaned and analyzed using association rule mining (Apriori). Results are in `results/apriori_rules.csv`. The exploratory analysis notebook is at `notebooks/01_eda.ipynb`.
-
-## API Endpoints
-
-| Endpoint               | Method | Description                        |
-|------------------------|--------|------------------------------------|
-| `/auth/register`       | POST   | Register a new user                |
-| `/auth/login`          | POST   | Login and get JWT token            |
-| `/meals`               | GET    | List/search meals                  |
-| `/logs`                | POST   | Log a meal                         |
-| `/progress/daily`      | GET    | Daily calorie/protein progress     |
-| `/ai/chat`             | POST   | AI nutrition coach chat            |
-| `/ai/weekly-coach`     | GET    | Weekly AI coaching summary         |
-| `/analysis/warnings`   | GET    | Rule-based daily warnings          |
-| `/engagement/streak`   | GET    | Streak status                      |
-| `/profile`             | GET/POST | User profile (height, weight)    |
-| `/profile/activity`    | GET/POST | Daily step count and metabolics  |
-
-## License
-
-MIT
+License: MIT.

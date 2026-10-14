@@ -20,17 +20,17 @@ public sealed class MealsController : ControllerBase
 
     [HttpGet]
     [Produces("application/json")]
-    public ActionResult<MealListResponse> List([FromQuery] MealCatalogQuery query)
+    public async Task<ActionResult<MealListResponse>> List([FromQuery] MealCatalogQuery query, CancellationToken cancellationToken)
     {
-        var response = _mealCatalogService.GetMeals(query);
+        var response = await _mealCatalogService.GetMealsAsync(query, cancellationToken);
         return Ok(response);
     }
 
     [HttpGet("{mealId}")]
     [Produces("application/json")]
-    public ActionResult<MealResponse> GetById([FromRoute] [Range(1, int.MaxValue)] int mealId)
+    public async Task<ActionResult<MealResponse>> GetById([FromRoute] [Range(1, int.MaxValue)] int mealId, CancellationToken cancellationToken)
     {
-        var meal = _mealCatalogService.GetMealById(mealId);
+        var meal = await _mealCatalogService.GetMealByIdAsync(mealId, cancellationToken);
         if (meal is null)
         {
             return NotFound();
@@ -39,3 +39,4 @@ public sealed class MealsController : ControllerBase
         return Ok(meal);
     }
 }
+

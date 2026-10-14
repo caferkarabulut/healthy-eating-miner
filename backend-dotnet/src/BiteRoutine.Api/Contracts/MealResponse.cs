@@ -4,5 +4,6 @@ public sealed record MealResponse(
     int MealId,
     string MealName,
     string? Cuisine,
-    string? MealType
+    string? MealType,
+    MealNutritionResponse? Nutrition
 );

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { isAuthenticated, logout, apiRequest } from '@/lib/api';
 
@@ -26,15 +26,7 @@ export default function SettingsPage() {
     const [gender, setGender] = useState('male');
     const [birthYear, setBirthYear] = useState(1990);
 
-    useEffect(() => {
-        if (!isAuthenticated()) {
-            router.push('/login');
-            return;
-        }
-        fetchProfile();
-    }, [router]);
-
-    const fetchProfile = async () => {
+    const fetchProfile = useCallback(async () => {
         const res = await apiRequest('/profile');
         if (res.ok) {
             const data = await res.json();
@@ -47,7 +39,15 @@ export default function SettingsPage() {
             }
         }
         setLoading(false);
-    };
+    }, []);
+
+    useEffect(() => {
+        if (!isAuthenticated()) {
+            router.push('/login');
+            return;
+        }
+        queueMicrotask(() => { void fetchProfile(); });
+    }, [router, fetchProfile]);
 
     const handleSave = async () => {
         setSaving(true);
