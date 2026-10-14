@@ -7,9 +7,7 @@ namespace BiteRoutine.Api.Data.Migrations;
 [DbContext(typeof(BiteRoutineDbContext))]
 public sealed class BiteRoutineDbContextModelSnapshot : ModelSnapshot
 {
-    protected override void BuildModel(ModelBuilder modelBuilder) => BuildMealModel(modelBuilder);
-
-    internal static void BuildMealModel(ModelBuilder modelBuilder)
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
         modelBuilder.HasAnnotation("ProductVersion", "10.0.13")
             .HasAnnotation("Relational:MaxIdentifierLength", 63);

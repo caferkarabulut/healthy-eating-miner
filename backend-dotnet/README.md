@@ -11,7 +11,7 @@ ASP.NET Core Web API (controllers) for Bite Routine, targeting **.NET 10** (`net
   picks the highest installed 10.0.4xx SDK that is >= 10.0.402. It never rolls
   forward to 10.0.5xx (or later) and never downloads an SDK. Prerelease SDKs are
   not allowed (`allowPrerelease: false`).
-- Docker Desktop or another PostgreSQL 17 server for the database tests and local API.
+- PostgreSQL 17 (the supplied Compose service or a local server) for database tests and the local API.
 
 ## Structure
 
@@ -39,8 +39,14 @@ BITE_ROUTINE_TEST_CONNECTION='Host=127.0.0.1;Port=5433;Database=bite_routine_tes
 database is for local development; `bite_routine_test` is only for integration
 tests. These are local example credentials, not production secrets. The test
 database is created by the init script when the Docker volume is first created.
-The integration fixture applies migrations and seeds 25 demo meals **only in the
-test database**. Run the test command against an empty, dedicated test database.
+The integration fixture accepts only a connection whose database name is
+`bite_routine_test`. Each test run creates a unique schema there, applies
+migrations and seeds 25 demo meals in that schema, then removes it. Other data
+in the test database and the development database are untouched.
+
+If Docker is unavailable, run PostgreSQL 17 on localhost port 5433 and create
+the two databases with the names above. The checked-in example connection
+strings use the local `bite_routine` role and `local_dev_only` password.
 
 ## Database setup
 
@@ -65,8 +71,8 @@ no English demo meals are added to a user-facing database.
 GitHub Actions workflow `.github/workflows/dotnet-ci.yml` runs on pull requests
 targeting `main` and on pushes to `main`, only when files under `backend-dotnet/`
 or the workflow itself change. On `ubuntu-latest` it installs the SDK from
-`global.json`, then runs `dotnet restore`, `dotnet build` (Release) and
-`dotnet test` (Release) for `BiteRoutine.slnx`. It uses read-only permissions and
+`global.json`, then runs `dotnet restore`, `dotnet build` (Release), the EF
+pending-model check and `dotnet test` (Release) for `BiteRoutine.slnx`. It uses read-only permissions and
 an ephemeral PostgreSQL service, but no secrets, caching, publishing or deployment.
 
 ## Run locally
@@ -90,8 +96,8 @@ ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/BiteRoutine.Api --no
 | Method | Path           | Response                                     |
 |--------|----------------|----------------------------------------------|
 | GET    | `/health/live` | `200` `{"status":"ok","service":"Bite Routine"}` |
-| GET    | `/meals`       | `200` `{"items":[...],"page":1,"pageSize":20,"totalCount":25}` |
-| GET    | `/meals/{mealId}` | `200` `{"mealId":1,"mealName":"Demo Pasta",...}` |
+| GET    | `/meals`       | On a new database: `200` `{"items":[],"page":1,"pageSize":20,"totalCount":0}` |
+| GET    | `/meals/{mealId}` | `404` until that meal is imported; `200` with its details afterward |
 
 > `/meals` now reads PostgreSQL. Until real meals are imported, a new development
 > database returns an empty list and `totalCount: 0`. The 25 demo records exist
@@ -109,7 +115,7 @@ curl -i "http://127.0.0.1:5080/meals"
 # Search meals by name with custom page size
 curl -i "http://127.0.0.1:5080/meals?search=pasta&pageSize=5"
 
-# Get single meal by ID
+# Get single meal by ID (404 on an empty database)
 curl -i "http://127.0.0.1:5080/meals/1"
 
 # Invalid meal ID (returns 400 Bad Request)

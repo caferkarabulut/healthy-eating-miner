@@ -1,0 +1,23 @@
+# Bite Routine — PostgreSQL geliştirme planı
+
+Karar: .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazarına yöneliktir; Türkçe arama, gram/kcal ve kullanıcıya gösterilen öğün günlerinde Europe/Istanbul esas alınır. Bu belge geliştirme veritabanını anlatır. Eski Azure SQL planı geçerli değildir.
+
+## Yerel veritabanı
+
+`backend-dotnet/compose.yaml` PostgreSQL 17'yi yalnız `127.0.0.1:5433` üzerinde açar. `bite_routine` geliştirme veritabanı, `bite_routine_test` entegrasyon testleri içindir. `backend-dotnet/README.md` kurulum, migration, test ve HTTP komutlarını içerir. Compose kullanılamıyorsa aynı sürüm, port, veritabanı ve rol adlarıyla yerel PostgreSQL kullanılabilir.
+
+Örnek parolalar yalnız yerel geliştirme/CI içindir. Gerçek bağlantı bilgileri Git'e yazılmaz. API'ye deploy ederken bağlantı dizesi ortam yapılandırmasından verilir; migration ayrı ve gözden geçirilmiş bir adımda uygulanır. API başlangıcı veritabanı şemasını otomatik değiştirmez.
+
+## Şema ve migration
+
+İlk migration `meals` tablosunu oluşturur: tamsayı ID, zorunlu yemek adı, isteğe bağlı mutfak ve öğün türü. `meal_name` için deterministik Türkçe ICU collation (`bite_routine_tr`, `tr-TR`) tanımlıdır. Arama Npgsql `ILIKE` ile yapılır; `%`, `_` ve ters eğik çizgi düz metin olarak kaçırılır. Bu davranış gerçek PostgreSQL entegrasyon testleriyle doğrulanır.
+
+Migration'ın hedef model metadatası kendi dosyasında sabittir. Snapshot sonraki migration üretimlerinde yeniden yazılabilir. Yeni migration eklerken geçici kopyada scaffold + Release build yapılır; sonra kalıcı dalda `dotnet ef migrations has-pending-model-changes` kontrol edilir. Geliştirme veritabanında mevcut migration açıkça `dotnet ef database update --project src/BiteRoutine.Api` ile uygulanır.
+
+## Test izolasyonu
+
+Test fixture'ı yalnız adı tam olarak `bite_routine_test` olan veritabanına bağlanır. Her fixture benzersiz bir şema açar, migration ve 25 demo kaydını orada uygular, bitince şemayı kaldırır. Testler geliştirme veritabanına veya önceden kalmış test verilerine yazmamalıdır. CI geçici PostgreSQL 17 servisi kullanır; yerel testlerde de gerçek PostgreSQL gerekir.
+
+## Sonraki veri işi
+
+Geliştirme veritabanı migration sonrasında boştur. Kullanıcıya gösterilecek gerçek Türkçe yemek kataloğunun kaynağı ve lisansı, besin değerlerinin porsiyon/100 g anlamı ve birimleri doğrulanmadan CSV importu yapılmaz. Ardından tekrarlanabilir import, gerekli besin alanları ve frontend geçişi ayrı iş olarak tasarlanır. Azure kaynakları bu planın parçası değildir.
