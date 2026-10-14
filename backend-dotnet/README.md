@@ -68,7 +68,7 @@ psql -h 127.0.0.1 -p 5433 -U bite_routine -d bite_routine -v ON_ERROR_STOP=1 -f 
 ```
 
 The seed is repeatable: it inserts eight basic foods once, identified by their
-USDA FoodData Central IDs. Values are **approximate, per 100 g of edible food**,
+USDA FoodData Central IDs, and corrects their source links when re-run. Values are **approximate, per 100 g of edible food**,
 and each record links to its source. Preparation is part of the name: plain
 cooked rice is not a buttered pilaf, for example. The legacy CSV is not used.
 

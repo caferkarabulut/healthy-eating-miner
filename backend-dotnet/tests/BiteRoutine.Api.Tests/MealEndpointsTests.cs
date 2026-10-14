@@ -266,7 +266,7 @@ public sealed class MealEndpointsTests : IClassFixture<PostgresTestFactory>
             FatGPer100G = 0.38m,
             NutritionSource = "USDA FoodData Central",
             NutritionSourceId = "172421",
-            NutritionSourceUrl = "https://fdc.nal.usda.gov/food-details/172421/nutrients"
+            NutritionSourceUrl = "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=172421"
         };
         db.Meals.Add(meal);
         await db.SaveChangesAsync();
