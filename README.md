@@ -1,11 +1,11 @@
 # Bite Routine
 
-Bite Routine is a nutrition tracking project being rebuilt for Turkey. The current, working slice is a Turkish-searchable food catalog: an ASP.NET Core API backed by PostgreSQL 17 and a Next.js page that displays approximate nutrition per 100 g with links to each source.
+Bite Routine is a nutrition tracking project being rebuilt for Turkey. The current, working slice is a Turkish-searchable food catalog: an ASP.NET Core API backed by PostgreSQL 17 and a Next.js page that displays source-linked approximate nutrition and a gram-based portion preview.
 
 ## Current stack and scope
 
 - `backend-dotnet/`: .NET 10, EF Core, Npgsql and PostgreSQL 17. `GET /health/live`, `GET /meals` and `GET /meals/{mealId}` are implemented and covered by real-database integration tests.
-- `web/`: Next.js 16 public catalog at `/`. Search and source-linked nutrition use the .NET API.
+- `web/`: Next.js 16 public catalog at `/`. Search and source-linked nutrition use the .NET API; portion previews scale the 100 g values in the browser without saving data.
 - `backend/`: earlier Python/Azure SQL prototype. It remains in the repository as prior work; its auth, logging and coaching features have **not** been ported to .NET. The corresponding older web pages still call that prototype API.
 - No mobile client or deployment is included yet.
 
