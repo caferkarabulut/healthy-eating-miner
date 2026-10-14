@@ -237,16 +237,62 @@ public sealed class MealEndpointsTests : IClassFixture<PostgresTestFactory>
 
         // Check exact camelCase property names without enforcing strict order
         var propNames = root4.EnumerateObject().Select(p => p.Name).ToList();
-        Assert.Equal(4, propNames.Count);
+        Assert.Equal(5, propNames.Count);
         Assert.Contains("mealId", propNames);
         Assert.Contains("mealName", propNames);
         Assert.Contains("cuisine", propNames);
         Assert.Contains("mealType", propNames);
+        Assert.Contains("nutrition", propNames);
 
         Assert.Equal(4, root4.GetProperty("mealId").GetInt32());
         Assert.Equal("Demo Energy Bar", root4.GetProperty("mealName").GetString());
         Assert.Equal(JsonValueKind.Null, root4.GetProperty("cuisine").ValueKind);
         Assert.Equal(JsonValueKind.Null, root4.GetProperty("mealType").ValueKind);
+        Assert.Equal(JsonValueKind.Null, root4.GetProperty("nutrition").ValueKind);
+    }
+
+    [Fact]
+    public async Task GetMealById_WithNutrition_ReturnsPer100GValuesAndSource()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<BiteRoutineDbContext>();
+        var meal = new Meal
+        {
+            MealId = 2001,
+            MealName = "Mercimek (haşlanmış, tuzsuz)",
+            CaloriesKcalPer100G = 116,
+            ProteinGPer100G = 9.02m,
+            CarbsGPer100G = 20.10m,
+            FatGPer100G = 0.38m,
+            NutritionSource = "USDA FoodData Central",
+            NutritionSourceId = "172421",
+            NutritionSourceUrl = "https://fdc.nal.usda.gov/food-details/172421/nutrients"
+        };
+        db.Meals.Add(meal);
+        await db.SaveChangesAsync();
+
+        try
+        {
+            using var client = _factory.CreateClient();
+            using var response = await client.GetAsync("/meals/2001");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var nutrition = json.RootElement.GetProperty("nutrition");
+            Assert.Equal(100, nutrition.GetProperty("basisGrams").GetInt32());
+            Assert.Equal(116, nutrition.GetProperty("caloriesKcal").GetDecimal());
+            Assert.Equal(9.02m, nutrition.GetProperty("proteinG").GetDecimal());
+            Assert.Equal(20.10m, nutrition.GetProperty("carbsG").GetDecimal());
+            Assert.Equal(0.38m, nutrition.GetProperty("fatG").GetDecimal());
+            Assert.Equal("USDA FoodData Central", nutrition.GetProperty("source").GetString());
+            Assert.Equal(meal.NutritionSourceUrl, nutrition.GetProperty("sourceUrl").GetString());
+            Assert.True(nutrition.GetProperty("approximate").GetBoolean());
+        }
+        finally
+        {
+            db.Meals.Remove(meal);
+            await db.SaveChangesAsync();
+        }
     }
 
     [Fact]

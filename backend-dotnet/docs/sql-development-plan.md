@@ -18,6 +18,8 @@ Migration'ın hedef model metadatası kendi dosyasında sabittir. Snapshot sonra
 
 Test fixture'ı yalnız adı tam olarak `bite_routine_test` olan veritabanına bağlanır. Her fixture benzersiz bir şema açar, migration ve 25 demo kaydını orada uygular, bitince şemayı kaldırır. Testler geliştirme veritabanına veya önceden kalmış test verilerine yazmamalıdır. CI geçici PostgreSQL 17 servisi kullanır; yerel testlerde de gerçek PostgreSQL gerekir.
 
-## Sonraki veri işi
+## Kaynaklı başlangıç verisi
 
-Geliştirme veritabanı migration sonrasında boştur. Kullanıcıya gösterilecek gerçek Türkçe yemek kataloğunun kaynağı ve lisansı, besin değerlerinin porsiyon/100 g anlamı ve birimleri doğrulanmadan CSV importu yapılmaz. Ardından tekrarlanabilir import, gerekli besin alanları ve frontend geçişi ayrı iş olarak tasarlanır. Azure kaynakları bu planın parçası değildir.
+İkinci migration 100 g başına kcal, protein, karbonhidrat ve yağ ile kaynak kimliği/bağlantısı alanlarını ekler. `db/seed-usda-starter.sql` sekiz temel gıdayı USDA FoodData Central'ın CC0 verisinden, açık komutla ve tekrar çalıştırılabilir biçimde ekler. Değerler yaklaşık olarak sunulur; besin nesnesi `basisGrams: 100`, `approximate: true` ve kaynak bağlantısını taşır. Kaynak açıklaması: https://fdc.nal.usda.gov/api-guide/ . Geliştirme veritabanı migration sonrasında yine boştur; seed ayrı uygulanır.
+
+Eski `data/healthy_eating*.csv` dosyalarının lisansı ve besin birimi doğrulanmadığından import edilmez. Geleneksel Türk yemekleri için kaynak, pişirme tarifi ve porsiyon tanımı ayrıca gerekir. Next.js ana sayfası yeni katalog API'sini kullanır; eski oturum, takip ve koçluk ekranlarının .NET'e geçişi sıradaki iştir. Azure kaynakları bu planın parçası değildir.

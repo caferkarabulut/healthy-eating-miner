@@ -28,7 +28,11 @@ public sealed class MealCatalogService(BiteRoutineDbContext db)
         var items = await meals.OrderBy(meal => meal.MealId)
             .Skip((int)offset)
             .Take(query.PageSize)
-            .Select(meal => new MealResponse(meal.MealId, meal.MealName, meal.Cuisine, meal.MealType))
+            .Select(meal => new MealResponse(meal.MealId, meal.MealName, meal.Cuisine, meal.MealType,
+                meal.NutritionSource == null || meal.NutritionSourceUrl == null ? null : new MealNutritionResponse(
+                    100, meal.CaloriesKcalPer100G, meal.ProteinGPer100G,
+                    meal.CarbsGPer100G, meal.FatGPer100G,
+                    meal.NutritionSource, meal.NutritionSourceUrl, true)))
             .ToListAsync(cancellationToken);
 
         return new MealListResponse(items, query.Page, query.PageSize, totalCount);
@@ -38,7 +42,11 @@ public sealed class MealCatalogService(BiteRoutineDbContext db)
     {
         return db.Meals.AsNoTracking()
             .Where(meal => meal.MealId == mealId)
-            .Select(meal => new MealResponse(meal.MealId, meal.MealName, meal.Cuisine, meal.MealType))
+            .Select(meal => new MealResponse(meal.MealId, meal.MealName, meal.Cuisine, meal.MealType,
+                meal.NutritionSource == null || meal.NutritionSourceUrl == null ? null : new MealNutritionResponse(
+                    100, meal.CaloriesKcalPer100G, meal.ProteinGPer100G,
+                    meal.CarbsGPer100G, meal.FatGPer100G,
+                    meal.NutritionSource, meal.NutritionSourceUrl, true)))
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

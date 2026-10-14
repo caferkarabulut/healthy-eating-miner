@@ -56,24 +56,39 @@ Apply the checked-in EF Core migration to the development database:
 ASPNETCORE_ENVIRONMENT=Development dotnet ef database update --project src/BiteRoutine.Api
 ```
 
-The development connection string is in `appsettings.Development.json`. When
-deploying, set `ConnectionStrings__BiteRoutine` to the managed PostgreSQL
+The development connection string is in `appsettings.Development.json`. To add
+the small, source-linked starter catalog after migrating, run either:
+
+```bash
+# With Compose, from backend-dotnet/
+docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U bite_routine -d bite_routine < db/seed-usda-starter.sql
+
+# With a local PostgreSQL 17 installation
+psql -h 127.0.0.1 -p 5433 -U bite_routine -d bite_routine -v ON_ERROR_STOP=1 -f db/seed-usda-starter.sql
+```
+
+The seed is repeatable: it inserts eight basic foods once, identified by their
+USDA FoodData Central IDs. Values are **approximate, per 100 g of edible food**,
+and each record links to its source. Preparation is part of the name: plain
+cooked rice is not a buttered pilaf, for example. The legacy CSV is not used.
+
+When deploying, set `ConnectionStrings__BiteRoutine` to the managed PostgreSQL
 connection string and apply the reviewed migrations as a separate deployment
 step. Do not rely on the API to create or migrate a production database.
 
-Only the catalog fields (`mealId`, `mealName`, `cuisine`, `mealType`) are modeled
-so far. The database starts **empty** outside the test fixture. Importing real
-Turkish meal data and confirming the source nutrition units are separate work;
-no English demo meals are added to a user-facing database.
+The database starts **empty** after migration; the starter seed is a separate,
+explicit step. No English demo meals are added to a user-facing database.
+Traditional Turkish recipes need their own sourced values and serving rules.
 
 ## Continuous integration
 
 GitHub Actions workflow `.github/workflows/dotnet-ci.yml` runs on pull requests
-targeting `main` and on pushes to `main`, only when files under `backend-dotnet/`
-or the workflow itself change. On `ubuntu-latest` it installs the SDK from
+targeting `main` and on pushes to `main` when files under `backend-dotnet/`,
+`web/`, or the workflow itself change. On `ubuntu-latest` it installs the SDK from
 `global.json`, then runs `dotnet restore`, `dotnet build` (Release), the EF
 pending-model check and `dotnet test` (Release) for `BiteRoutine.slnx`. It uses read-only permissions and
 an ephemeral PostgreSQL service, but no secrets, caching, publishing or deployment.
+The web job uses Node 24 and runs `npm ci`, `npm run build` and `npm run lint`.
 
 ## Run locally
 
@@ -96,12 +111,13 @@ ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/BiteRoutine.Api --no
 | Method | Path           | Response                                     |
 |--------|----------------|----------------------------------------------|
 | GET    | `/health/live` | `200` `{"status":"ok","service":"Bite Routine"}` |
-| GET    | `/meals`       | On a new database: `200` `{"items":[],"page":1,"pageSize":20,"totalCount":0}` |
-| GET    | `/meals/{mealId}` | `404` until that meal is imported; `200` with its details afterward |
+| GET    | `/meals`       | On a new database: `200` `{"items":[],"page":1,"pageSize":20,"totalCount":0}`; eight items after the starter seed |
+| GET    | `/meals/{mealId}` | `404` for unknown IDs; `200` with details and optional `nutrition` afterward |
 
 > `/meals` now reads PostgreSQL. Until real meals are imported, a new development
-> database returns an empty list and `totalCount: 0`. The 25 demo records exist
-> only in the isolated integration test database.
+> database returns an empty list and `totalCount: 0`. The eight sourced starter
+> foods are added only by the explicit seed command. The 25 English demo records
+> exist only in the isolated integration test database.
 
 ### Example requests
 
@@ -113,7 +129,7 @@ curl -i http://127.0.0.1:5080/health/live
 curl -i "http://127.0.0.1:5080/meals"
 
 # Search meals by name with custom page size
-curl -i "http://127.0.0.1:5080/meals?search=pasta&pageSize=5"
+curl -i "http://127.0.0.1:5080/meals?search=mercimek&pageSize=5"
 
 # Get single meal by ID (404 on an empty database)
 curl -i "http://127.0.0.1:5080/meals/1"
