@@ -32,6 +32,15 @@ dotnet build BiteRoutine.slnx --no-restore
 dotnet test BiteRoutine.slnx --no-build
 ```
 
+## Continuous integration
+
+GitHub Actions workflow `.github/workflows/dotnet-ci.yml` runs on pull requests
+targeting `main` and on pushes to `main`, only when files under `backend-dotnet/`
+or the workflow itself change. On `ubuntu-latest` it installs the SDK from
+`global.json`, then runs `dotnet restore`, `dotnet build` (Release) and
+`dotnet test` (Release) for `BiteRoutine.slnx`. It uses read-only permissions and
+no secrets, caching, publishing or deployment.
+
 ## Run locally
 
 ```bash

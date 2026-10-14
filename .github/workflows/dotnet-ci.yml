@@ -1,0 +1,40 @@
+name: Bite Routine .NET CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend-dotnet/**'
+      - '.github/workflows/dotnet-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'backend-dotnet/**'
+      - '.github/workflows/dotnet-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend-dotnet
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: backend-dotnet/global.json
+      - name: SDK
+        run: dotnet --version
+      - name: Restore
+        run: dotnet restore BiteRoutine.slnx
+      - name: Build
+        run: dotnet build BiteRoutine.slnx --no-restore --configuration Release
+      - name: Test
+        run: dotnet test BiteRoutine.slnx --no-build --configuration Release
