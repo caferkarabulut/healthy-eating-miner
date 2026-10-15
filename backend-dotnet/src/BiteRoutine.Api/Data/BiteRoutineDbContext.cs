@@ -1,13 +1,17 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BiteRoutine.Api.Data;
 
-public sealed class BiteRoutineDbContext(DbContextOptions<BiteRoutineDbContext> options) : DbContext(options)
+public sealed class BiteRoutineDbContext(DbContextOptions<BiteRoutineDbContext> options) : IdentityUserContext<IdentityUser>(options)
 {
     public DbSet<Meal> Meals => Set<Meal>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         // Turkish casing (I/ı and İ/i) must follow Turkish rules in meal-name searches.
         modelBuilder.HasCollation("bite_routine_tr", locale: "tr-TR", provider: "icu", deterministic: true);
 

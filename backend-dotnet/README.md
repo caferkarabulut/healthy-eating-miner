@@ -31,8 +31,8 @@ Run from the `backend-dotnet/` directory:
 docker compose up -d postgres
 dotnet tool restore
 dotnet restore BiteRoutine.slnx
-dotnet build BiteRoutine.slnx --no-restore
-BITE_ROUTINE_TEST_CONNECTION='Host=127.0.0.1;Port=5433;Database=bite_routine_test;Username=bite_routine;Password=local_dev_only' dotnet test BiteRoutine.slnx --no-build
+dotnet build BiteRoutine.slnx --no-restore --configuration Release
+BITE_ROUTINE_TEST_CONNECTION='Host=127.0.0.1;Port=5433;Database=bite_routine_test;Username=bite_routine;Password=local_dev_only' dotnet test BiteRoutine.slnx --no-build --configuration Release
 ```
 
 `compose.yaml` exposes PostgreSQL only on localhost port 5433. The `bite_routine`
@@ -50,7 +50,7 @@ strings use the local `bite_routine` role and `local_dev_only` password.
 
 ## Database setup
 
-Apply the checked-in EF Core migration to the development database:
+Apply the checked-in EF Core migrations (catalog and Identity user tables) to the development database:
 
 ```bash
 ASPNETCORE_ENVIRONMENT=Development dotnet ef database update --project src/BiteRoutine.Api
@@ -76,7 +76,7 @@ When deploying, set `ConnectionStrings__BiteRoutine` to the managed PostgreSQL
 connection string and apply the reviewed migrations as a separate deployment
 step. Do not rely on the API to create or migrate a production database.
 
-The database starts **empty** after migration; the starter seed is a separate,
+The meal catalog starts **empty** after migration; the starter seed is a separate,
 explicit step. No English demo meals are added to a user-facing database.
 Traditional Turkish recipes need their own sourced values and serving rules.
 
@@ -86,7 +86,7 @@ GitHub Actions workflow `.github/workflows/dotnet-ci.yml` runs on pull requests
 targeting `main` and on pushes to `main` when files under `backend-dotnet/`,
 `web/`, or the workflow itself change. On `ubuntu-latest` it installs the SDK from
 `global.json`, then runs `dotnet restore`, `dotnet build` (Release), the EF
-pending-model check and `dotnet test` (Release) for `BiteRoutine.slnx`. It uses read-only permissions and
+pending-model check, focused Identity tests and the full `dotnet test` (Release) suite for `BiteRoutine.slnx`. It uses read-only permissions and
 an ephemeral PostgreSQL service, but no secrets, caching, publishing or deployment.
 The web job uses Node 24 and runs `npm ci`, `npm run test`, `npm run build` and `npm run lint`.
 
@@ -113,6 +113,12 @@ ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/BiteRoutine.Api --no
 | GET    | `/health/live` | `200` `{"status":"ok","service":"Bite Routine"}` |
 | GET    | `/meals`       | On a new database: `200` `{"items":[],"page":1,"pageSize":20,"totalCount":0}`; eight items after the starter seed |
 | GET    | `/meals/{mealId}` | `404` for unknown IDs; `200` with details and optional `nutrition` afterward |
+| POST   | `/auth/register` | Creates a PostgreSQL-backed Identity user; requires `email` and `password` |
+| POST   | `/auth/login` | Identity bearer access/refresh tokens; `?useCookies=true` selects an HttpOnly cookie |
+| POST   | `/auth/refresh` | Renews an Identity bearer session |
+| GET    | `/me` | `401` without a session; otherwise returns the caller's `userId` and `email` |
+
+The catalog and health endpoints stay public. See [identity and session design](docs/auth-session.md) for the web/mobile choice, built-in auxiliary routes and current email-flow limitation.
 
 > `/meals` now reads PostgreSQL. Until real meals are imported, a new development
 > database returns an empty list and `totalCount: 0`. The eight sourced starter
