@@ -1,4 +1,4 @@
-# Bite Routine durum — 15 Ekim 2026
+# Bite Routine durum — 16 Ekim 2026
 
 ## Karar
 
@@ -88,13 +88,20 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Ortak `/sources` sayfası ve görünür katalog bağlantıları USDA/CC0, 100 g yenilebilir kısım ve yaklaşık değer bilgisini taşır. Gıdaya özel kaynak detayda kalır. Backend, DB, besin hesabı ve günlük ekranı değişmedi.
 - Doğrulama: 52 web testi, build/lint, gerçek HTTP kontrolü. Tarayıcıda 375/1280/1920 px, girişten doğrulanmış katalog dönüşü/karşılama, arama/sayfalama, favori, kaynak sayfası ve 150,25 g ile günlük ekleme kontrol edildi; yatay taşma yok. Katalog/giriş ekran görüntüleri kaydedildi. Geçici test hesapları temizlendi; backend değişmediği için yerel backend testleri tekrarlanmadı.
 
-## Bu dal: kompakt günlük ve öğün toplamları
+## Kompakt günlük ve öğün toplamları (main)
 
 - PR #20'nin `5b01277` HEAD'i ve başarılı CI doğrulandı; aynı HEAD koşuluyla merge edildi. Yerel main fast-forward güncellendi; `ui/diary-meal-summary` buradan açıldı.
 - Günlük GET yanıtında sabit sırada beş `mealSummaries` vardır. Aynı kullanıcı/gün için alınan kayıtlar bellekte gruplandırılır, mevcut snapshot/gramaj/decimal toplamı yeniden kullanılır; ek DB sorgusu veya migration yoktur. Null yalnız ilgili öğün/besin alanına yayılır; günlük toplam davranışı değişmez. [Sözleşme](../backend-dotnet/docs/diary-contract.md).
 - Günlük kompakt öğün listesi oldu: başlıkta öğün toplamları, satırda tam ad/hazırlama, gramaj ve kcal; detay ve düzenleme seçimle açılır. Günlük toplam da kompaktlaştı. Mevcut sıra, silme onayı, belirsiz istek kilidi, kullanıcı/CSRF ve önbellek kuralları korunur. Oluşturulma zamanı tüketim saati gibi gösterilmez; adet/porsiyon eklenmedi.
 - Doğrulama: 107 gerçek PostgreSQL testi, 53 web testi, Release build, web build/lint ve gerçek HTTP smoke. Kullanıcı/gün ayrımı, tek kayıt sorgusu, öğün null/sıfır ve snapshot toplamları, gramaj/öğün/tarih taşıma/silme doğrulandı. Tarayıcıda aynı değişikliklerle iki toplamın yenilenmesi, ayrıntılar, silmeden vazgeçme/onaylama ve 375 px/masaüstü taşmasız görünüm kontrol edildi; ekran görüntüleri kaydedildi. Geçici test hesapları temizlendi.
 
+## Bu dal: kaynaklı adet ve ev ölçüleri
+
+- PR #21'in `99c44e6` HEAD'i ve başarılı CI doğrulandı; aynı HEAD koşuluyla main'e birleşti. Yerel main fast-forward güncellendi; `feat/food-portions` buradan açıldı.
+- Mevcut 30 USDA kaydı incelendi; 28 gıda için 64 ayrı kaynak ölçüsü eklendi. Yoğurt/Fuji elmadaki RACC adet sayılmadı; bu gıdalar gramla kalır. Kaynak amount/gramWeight saklanır, gramsPerUnit bölmeyle hesaplanır. Boyut ve hazırlama farkları korunur. [Model, HTTP ve kaynak tablosu](../backend-dotnet/docs/food-portions-contract.md).
+- Yeni tablo/migration ve kaynak kimliğiyle tekrar uygulanabilir seed; herkese açık GET /meals/{mealId}/portions. Günlük sözleşmesi ve web değişmedi.
+- Doğrulama: 115 gerçek PostgreSQL testi, uyarısız Release build, pending-model kontrolü, geçici kopyada boş sonraki migration scaffold/derleme. Hedefi doğrulanan geliştirme DB'sine migration ve seed iki kez uygulandı; katalog/kullanıcı/günlük/favori içerikleri aynı kaldı. Gerçek HTTP ile tüm 30 gıda/64 ölçü, normalizasyon, boş liste ve 400/404 doğrulandı. Web değişmediği için yerel web testleri tekrarlanmadı.
+
 ## Sıradaki iş
 
-Kompakt günlük ve öğün toplamları PR'ını incelemek. Yeni PR merge edilmedi; deployment yapılmadı.
+Kaynaklı ölçü API temelinin PR incelemesi; ardından ayrı dilimde web ölçü seçicisini bağlamak. Yeni özellik PR'ı merge edilmedi; deployment yapılmadı.

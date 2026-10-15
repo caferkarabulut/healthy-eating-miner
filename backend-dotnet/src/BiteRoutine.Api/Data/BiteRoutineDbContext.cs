@@ -6,6 +6,7 @@ namespace BiteRoutine.Api.Data;
 
 public sealed class BiteRoutineDbContext(DbContextOptions<BiteRoutineDbContext> options) : IdentityUserContext<IdentityUser>(options)
 {
+    public DbSet<FoodPortion> FoodPortions => Set<FoodPortion>();
     public DbSet<Meal> Meals => Set<Meal>();
     public DbSet<DiaryEntry> DiaryEntries => Set<DiaryEntry>();
     public DbSet<FavoriteMeal> FavoriteMeals => Set<FavoriteMeal>();
@@ -13,6 +14,27 @@ public sealed class BiteRoutineDbContext(DbContextOptions<BiteRoutineDbContext> 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<FoodPortion>(entity =>
+        {
+            entity.ToTable("food_portions", table =>
+            {
+                table.HasCheckConstraint("ck_food_portions_positive", "amount > 0 AND gram_weight > 0");
+            });
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Id).HasColumnName("id");
+            entity.Property(x => x.MealId).HasColumnName("meal_id");
+            entity.Property(x => x.MeasureName).HasColumnName("measure_name").HasMaxLength(300);
+            entity.Property(x => x.Amount).HasColumnName("amount").HasPrecision(18, 8);
+            entity.Property(x => x.GramWeight).HasColumnName("gram_weight").HasPrecision(18, 8);
+            entity.Property(x => x.Source).HasColumnName("source").HasMaxLength(100);
+            entity.Property(x => x.SourceFoodId).HasColumnName("source_food_id").HasMaxLength(40);
+            entity.Property(x => x.SourceId).HasColumnName("source_id").HasMaxLength(40);
+            entity.Property(x => x.SourceDescription).HasColumnName("source_description").HasMaxLength(500);
+            entity.Property(x => x.SourceUrl).HasColumnName("source_url").HasMaxLength(500);
+            entity.HasIndex(x => new { x.Source, x.SourceId }).IsUnique();
+            entity.HasOne<Meal>().WithMany().HasForeignKey(x => x.MealId).OnDelete(DeleteBehavior.Cascade);
+        });
 
         modelBuilder.Entity<FavoriteMeal>(entity =>
         {

@@ -51,3 +51,5 @@ Tüm sayılar 100 g yenilebilir gıda içindir. Sütunlar veritabanına alınan 
 | Ceviz (İngiliz cevizi, iç) | [170187](https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170187) | Nuts, walnuts, english | 654.00 | 15.23 | 13.71 | 65.21 |
 | Mercimek (kuru, pişirilmemiş) | [172420](https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=172420) | Lentils, raw | 352.00 | 24.63 | 63.35 | 1.06 |
 | Beyaz fasulye (kuru, pişirilmemiş) | [175202](https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=175202) | Beans, white, mature seeds, raw | 333.00 | 23.36 | 60.27 | 0.85 |
+
+Adet/ev ölçüleri ve kaynak amount normalizasyonu ayrı [ölçü sözleşmesinde](food-portions-contract.md) belgelenmiştir; yukarıdaki 100 g eşlemesi değişmez.
