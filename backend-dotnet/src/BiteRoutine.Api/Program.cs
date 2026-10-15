@@ -7,6 +7,13 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (args.Contains("--check-local-demo"))
+{
+    Environment.ExitCode = builder.Environment.IsDevelopment()
+        ? await LocalDemoCheck.RunAsync(builder.Configuration) : 10;
+    return;
+}
+
 // Register MVC controller services and application services in the DI container.
 builder.Services.AddControllers();
 builder.Services.AddDbContext<BiteRoutineDbContext>(options =>

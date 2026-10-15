@@ -59,13 +59,20 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Doğrulama: 88 gerçek PostgreSQL testi, 41 web testi, Release build, web build/lint, migration model kontrolü ve geçici kopyada sonraki migration scaffold/derleme. Yerel HTTP ve tarayıcıda favori ekleme/çıkarma/kalıcılık, günlük ekleme, iki kullanıcı ayrımı, CSRF ve bearer doğrulandı.
 - PR #15 doğrulanan HEAD ve başarılı CI ile main'e birleşti; yerel main fast-forward güncellendi.
 
-## Bu dal: günlük geçmişi
+## Günlük geçmişi (main)
 
 - PR #16'nın `d14f071` HEAD'i ve iki başarılı CI işi doğrulandı; aynı HEAD koşuluyla main'e birleşti. Yerel main fast-forward güncellendi; `feat/diary-history` buradan açıldı.
 - Oturumlu `GET /me/diary-summary?endDate=yyyy-MM-dd`, bitiş dahil yedi takvim gününü artan sırada döndürür. Tek kullanıcı/aralık DB sorgusu ve mevcut snapshot/decimal günlük hesabı kullanılır; boş gün 0, eksik besin null kalır. Yeni tablo/migration yoktur.
 - `/history`, mevcut İstanbul günü yardımcısı, önceki/sonraki yedi gün, günlük bağlantıları, “Kayıt yok”/“Eksik veri”, yüklenme/oturum/hata durumları ve özel önbelleksiz geçit içerir. Grafik/hedef/ortalama/sağlık yorumu eklenmedi.
 - Doğrulama: 101 gerçek PostgreSQL testi (tek aralık sorgusu dahil), 45 web testi, uyarısız Release build, web build/lint ve değişiklik olmadığını bildiren migration model kontrolü. Çerezli HTTP kontrolü ekleme/düzenleme/tarih taşıma/silme sonrası geçmişi günlük özetiyle karşılaştırdı. Tarayıcıda boş/dolu günler, haftalık gezinme, günlüğe geçiş, yenileme, iki hesap ayrımı ve 375 px mobil görünüm doğrulandı.
 
+## Bu dal: tek komutla yerel demo
+
+- PR #17'nin `79ee806` HEAD'i ve başarılı CI doğrulandı; aynı HEAD koşuluyla merge edildi. Yerel main fast-forward güncellendi, `chore/local-demo` buradan açıldı.
+- `node scripts/local-demo.mjs`, mevcut Release API ve kurulu Next.js ile Development ortamını açar; paket kurulumu/build/test tekrar etmez. Salt okunur ön kontrol yerel PostgreSQL 17, yalnız geliştirme DB'si, migration ve kaynaklı seed varlığını doğrular; eksikte açık manuel yönlendirme verir. Veri/hesap oluşturmaz veya ayar/gizli bilgi yazdırmaz.
+- Port çakışmasında mevcut süreç korunur; hazır olma sonrası adres gösterilir. SIGINT/SIGTERM ve hatalarda yalnız başlatılan süreç grupları kapatılır. [Komut ve sorun giderme](local-setup.md).
+- Doğrulama: 4 başlatıcı testi, 106 backend testi, uyarısız Release build. Gerçek ortamda başlatma, API/web hazır olma, ikinci başlatmada port hatası, SIGINT sonrası iki portun boşalması; HTTP ve tarayıcıda katalog/giriş/favoriler/günlük/geçmiş akışı doğrulandı. Geçici hesaplar temizlendi, 30 katalog kaydı korundu. Model/migration ve web ekranları değişmedi.
+
 ## Sıradaki iş
 
-Günlük geçmişi PR'ını incelemek. Yeni PR merge edilmedi; deployment yapılmadı. Migration veya manuel kurulum adımı gerekmiyor.
+Yerel demo PR'ını incelemek. Yeni PR merge edilmedi; deployment yapılmadı. Mevcut kurulu ortamda tek komut yeterlidir.
