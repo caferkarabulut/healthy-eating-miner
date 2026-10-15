@@ -36,13 +36,21 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Giriş/kayıt ekranlarına katalog dönüşü ve form etiketlerine alan bağlantıları eklendi. Kullanıcı metinleri sadeleşti; Europe/Istanbul tarih davranışı değişmedi. Yeni akış eski Python ekranlarına bağlantı vermiyor.
 - Doğrulama: 31 web testi, build ve sıfır uyarılı lint. 320 px tarayıcıda katalog, kayıt/giriş, uzun e-postalı hesap, günlük ekleme/düzenleme/silme/çıkış denendi; taşma veya kullanılamayan form bulunmadı. Backend/model değişmediği için yerel backend testleri tekrarlanmadı; PR #12'nin başarılı CI doğrulaması esas alındı.
 
-## Bu dal: günlük öğünleri
+## Günlük öğünleri (main)
 
 - Günlük `mealSlot`: breakfast/lunch/dinner/snack/other; katalog mealType alanından bağımsız. POST'ta atlanırsa other, PATCH'te atlanırsa mevcut öğün korunur; geçersiz değerler 400. Yanıtlar öğünü taşır, sahiplik ve iki CSRF katmanı korunur.
 - AddDiaryMealSlot yalnız yeni sütun/varsayılan/CHECK ekler; eski kayıtlar other olur. Migration hedefi localhost PostgreSQL 17 bite_routine olarak doğrulandı ve uygulandı; kullanıcı/katalog/günlük içerikleri önce/sonra karşılaştırıldı. Dolu eski şemadan geçiş ayrıca gerçek PostgreSQL testinde doğrulandı.
 - Web ekleme/düzenlemede Türkçe öğün seçimi, listede sabit sırada gruplama. Günlük özeti tüm öğünleri kapsar; öğün değişimi besin toplamlarını değiştirmez.
 - Doğrulama: 77 gerçek PostgreSQL testi, 33 web testi, Release build, web build/lint, pending-model kontrolü ve geçici kopyada boş sonraki migration scaffold/derleme. Tarayıcıda beş öğüne ekleme, öğün taşıma, sıralama ve sayfa yenileme sonrası kalıcılık/toplamlar doğrulandı.
 
+## Bu dal: katalog genişletme
+
+- Başlangıç kataloğu 30 kaynaklı temel gıdaya genişletildi. USDA Food Details yanıtındaki kimlik/açıklama/birim/100 g miktarlar doğrulandı; ham seçilmiş alanlar ve [kaynak eşlemesi](../backend-dotnet/docs/usda-catalog-sources.md) eklendi. Geleneksel yemek veya tahmini tarif yoktur.
+- Eski sekiz kaynak kimliği/gıda kimliği korunur; katalogdaki kaba yuvarlamalar resmî ayrıntı değerleriyle düzeltilir. Seed yalnız katalog ad/besin/kaynak alanlarını günceller; geçmiş günlük kopyalarına dokunmaz. Model/migration değişmedi.
+- Geliştirme hedefi localhost PostgreSQL 17 `bite_routine` olarak doğrulandı; seed iki kez uygulandı. Her iki çalıştırmada eski kimlikler, kullanıcılar ve günlük verileri korundu; ikinci çalıştırma katalog içeriğini değiştirmedi, toplam 30 ve kopya sayısı sıfır kaldı. Dolu günlük kopyası ayrıca izole gerçek PostgreSQL testinde korundu.
+- Web kataloğunda mevcut API ile 20 kayıt/sayfa ve önceki/sonraki bağlantıları vardır. Bağlantılar aramayı korur; arama formu ilk sayfaya döner. Tarayıcı ve HTTP ile 20+10 benzersiz kayda erişim ve Türkçe arama doğrulandı.
+- Doğrulama: 78 gerçek PostgreSQL testi, 35 web testi, Release build, web build/lint. PR #14 başarılı CI ve doğrulanan HEAD ile main'e birleşti; yerel main fast-forward güncellendi.
+
 ## Sıradaki iş
 
-Öğün seçimi PR'ını incelemek. Merge veya deployment yapılmadı.
+Katalog genişletme PR'ını incelemek. Bu yeni PR için merge veya deployment yapılmadı.

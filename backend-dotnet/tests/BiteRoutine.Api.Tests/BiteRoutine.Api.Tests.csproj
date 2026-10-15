@@ -21,6 +21,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="../../db/seed-usda-starter.sql" LogicalName="CatalogSeed.sql" />
+    <EmbeddedResource Include="../../db/sources/usda-starter-foods.json" LogicalName="CatalogSources.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\BiteRoutine.Api\BiteRoutine.Api.csproj" />
   </ItemGroup>
 

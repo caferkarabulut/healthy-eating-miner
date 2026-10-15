@@ -67,8 +67,8 @@ docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U bite_routine -d bite_
 psql -h 127.0.0.1 -p 5433 -U bite_routine -d bite_routine -v ON_ERROR_STOP=1 -f db/seed-usda-starter.sql
 ```
 
-The seed is repeatable: it inserts eight basic foods once, identified by their
-USDA FoodData Central IDs, and corrects their source links when re-run. Values are **approximate, per 100 g of edible food**,
+The seed is repeatable: it inserts 30 basic foods, identified by their
+USDA FoodData Central IDs, and updates reviewed names/nutrients/source links in place when re-run, preserving existing meal IDs and diary snapshots. Values are **approximate, per 100 g of edible food**,
 and each record links to its source. Preparation is part of the name: plain
 cooked rice is not a buttered pilaf, for example. The legacy CSV is not used.
 
@@ -111,7 +111,7 @@ ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/BiteRoutine.Api --no
 | Method | Path           | Response                                     |
 |--------|----------------|----------------------------------------------|
 | GET    | `/health/live` | `200` `{"status":"ok","service":"Bite Routine"}` |
-| GET    | `/meals`       | On a new database: `200` `{"items":[],"page":1,"pageSize":20,"totalCount":0}`; eight items after the starter seed |
+| GET    | `/meals`       | On a new database: `200` `{"items":[],"page":1,"pageSize":20,"totalCount":0}`; `totalCount: 30` after the starter seed (20 items on the default first page) |
 | GET    | `/meals/{mealId}` | `404` for unknown IDs; `200` with details and optional `nutrition` afterward |
 | POST   | `/auth/register` | Creates a PostgreSQL-backed Identity user; requires `email` and `password` |
 | POST   | `/auth/login` | Identity bearer access/refresh tokens; `?useCookies=true` selects an HttpOnly cookie |
@@ -129,7 +129,7 @@ See [diary model and HTTP contract](docs/diary-contract.md) for validation, nutr
 The catalog and health endpoints stay public. Cookie-backed mutations and cookie login require an API antiforgery token, including direct calls to `/auth/logout`; bearer-only mobile calls do not. See [identity and session design](docs/auth-session.md) for the web/mobile network and CSRF boundary, built-in auxiliary routes and current email-flow limitation.
 
 > `/meals` now reads PostgreSQL. Until real meals are imported, a new development
-> database returns an empty list and `totalCount: 0`. The eight sourced starter
+> database returns an empty list and `totalCount: 0`. The 30 sourced starter
 > foods are added only by the explicit seed command. The 25 English demo records
 > exist only in the isolated integration test database.
 
@@ -152,3 +152,5 @@ curl -i "http://127.0.0.1:5080/meals/1"
 curl -i "http://127.0.0.1:5080/meals/abc"
 ```
 
+
+Source IDs, original descriptions, per-100-g values and rounding policy: [USDA catalog mapping](docs/usda-catalog-sources.md).
