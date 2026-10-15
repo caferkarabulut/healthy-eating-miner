@@ -107,6 +107,20 @@ async function day(session, date = diaryInput.date) {
   }
   return result;
 }
+async function history(session, endDate = diaryInput.date) {
+  const response = await fetch(`${base}/api/diary-summary?endDate=${endDate}`, { headers: { Cookie: session }, cache: "no-store" });
+  assert.equal(response.status, 200); assert.match(response.headers.get("cache-control"), /private.*no-store/);
+  assert.ok(response.headers.get("vary").split(",").some((value) => value.trim().toLowerCase() === "cookie"));
+  const result = await response.json();
+  assert.equal(result.days.length, 7);
+  assert.equal(result.days[6].date, endDate);
+  for (let i = 1; i < 7; i++) assert.ok(result.days[i - 1].date < result.days[i].date);
+  assert.deepEqual(result.days[6].summary, (await day(session, endDate)).summary);
+  return result;
+}
+assert.equal((await fetch(`${base}/api/diary-summary?endDate=${diaryInput.date}`)).status, 401);
+assert.equal((await history(identity)).days[6].summary.entryCount, 1);
+assert.equal((await history(identity)).days[0].summary.entryCount, 0);
 assert.equal((await day(identity)).items[0].id, saved.id, "GET after POST must preserve entry");
 assert.equal((await day(identity)).items[0].grams, 150.25);
 assert.equal((await day(identity, "2026-10-16")).items.length, 0, "another day must be empty");
@@ -126,6 +140,7 @@ assert.equal((await day(secondIdentity)).items[0].grams, 75);
 assert.equal((await day(identity)).items.length, 1, "first user's diary must stay separate");
 assert.equal((await day(identity)).items[0].grams, 150.25);
 
+assert.notDeepEqual((await history(identity)).days[6].summary, (await history(secondIdentity)).days[6].summary);
 const beforeSlotChange = await day(identity);
 assert.equal((await post(`/api/diary/${saved.id}`, { grams: diaryInput.grams, date: diaryInput.date, mealSlot: "dinner" }, { identity, method: "PATCH" })).status, 200);
 const afterSlotChange = await day(identity);
@@ -148,12 +163,17 @@ assert.equal((await post(entryPath, { ...updatedInput, grams: 1.234 }, { identit
 assert.equal((await post(entryPath, updatedInput, { identity, method: "PATCH" })).status, 200);
 assert.equal((await day(identity)).items.length, 0, "edited date removes entry from old day");
 const edited = (await day(identity, updatedInput.date)).items[0];
+const movedHistory = await history(identity, updatedInput.date);
+assert.equal(movedHistory.days[6].summary.entryCount, 1);
+assert.equal(movedHistory.days.find((day) => day.date === diaryInput.date).summary.entryCount, 0);
 assert.equal(edited.grams, updatedInput.grams);
 assert.equal(edited.mealSlot, "dinner", "omitted PATCH slot preserves current value");
 assert.equal(edited.mealName, saved.mealName);
 assert.equal(edited.sourceUrl, saved.sourceUrl);
 assert.equal((await post(entryPath, {}, { identity, method: "DELETE" })).status, 204);
 assert.equal((await day(identity, updatedInput.date)).items.length, 0, "deletion must persist after GET");
+assert.equal((await history(identity, updatedInput.date)).days[6].summary.entryCount, 0);
+assert.equal((await history(secondIdentity)).days[6].summary.entryCount, 1);
 assert.equal((await post(entryPath, {}, { identity, method: "DELETE" })).status, 404);
 assert.equal((await day(secondIdentity)).items.length, 1, "other user's record is preserved");
 
@@ -196,4 +216,4 @@ assert.match(response.headers.getSetCookie().join(";"), /expires=Thu, 01 Jan 197
 response = await fetch(`${base}/account`, { redirect: "manual" });
 assert.equal(response.status, 307, "after logout, anonymous account access must redirect");
 
-console.log("HTTP smoke passed: private/idempotent favorites, auth, diary summary/create/edit/delete/persistence/date/user isolation, direct API CSRF rejection, mobile bearer.");
+console.log("HTTP smoke passed: private seven-day history, private/idempotent favorites, auth, diary summary/create/edit/delete/persistence/date/user isolation, direct API CSRF rejection, mobile bearer.");

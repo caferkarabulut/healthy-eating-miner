@@ -10,7 +10,7 @@ export default async function DiaryPage({ searchParams }: { searchParams: Promis
       <div className="mx-auto max-w-4xl">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div><p className="font-semibold text-[#277f64]">Bite Routine</p><h1 className="mt-2 text-3xl font-semibold">Yemek günlüğüm</h1></div>
-          <nav className="flex flex-wrap gap-4 font-medium"><Link href="/">Katalog</Link><Link href="/favorites">Favorilerim</Link><Link href="/account">Hesabım</Link></nav>
+          <nav className="flex flex-wrap gap-4 font-medium"><Link href="/">Katalog</Link><Link href="/favorites">Favorilerim</Link><Link href="/history">Geçmiş</Link><Link href="/account">Hesabım</Link></nav>
         </header>
         <DiaryView key={isDiaryDate(date) ? date : "today"} initialDate={isDiaryDate(date) ? date : undefined} />
       </div>
