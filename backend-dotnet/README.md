@@ -88,7 +88,7 @@ targeting `main` and on pushes to `main` when files under `backend-dotnet/`,
 `global.json`, then runs `dotnet restore`, `dotnet build` (Release), the EF
 pending-model check, focused Identity tests and the full `dotnet test` (Release) suite for `BiteRoutine.slnx`. It uses read-only permissions and
 an ephemeral PostgreSQL service, but no secrets, caching, publishing or deployment.
-The web job uses Node 24 and runs `npm ci`, `npm run test`, `npm run build` and `npm run lint`.
+The web job uses Node 24 and runs `npm ci`, `npm run test`, `npm run build` and `npm run lint`. The backend job also starts the API and a built web server against the ephemeral `bite_routine_test` database and runs the same-origin auth HTTP smoke test.
 
 ## Run locally
 
@@ -116,9 +116,11 @@ ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/BiteRoutine.Api --no
 | POST   | `/auth/register` | Creates a PostgreSQL-backed Identity user; requires `email` and `password` |
 | POST   | `/auth/login` | Identity bearer access/refresh tokens; `?useCookies=true` selects an HttpOnly cookie |
 | POST   | `/auth/refresh` | Renews an Identity bearer session |
+| GET    | `/auth/antiforgery` | Issues the API antiforgery cookie and request token for server-side cookie clients |
+| POST   | `/auth/logout` | Ends an authenticated Identity cookie session |
 | GET    | `/me` | `401` without a session; otherwise returns the caller's `userId` and `email` |
 
-The catalog and health endpoints stay public. See [identity and session design](docs/auth-session.md) for the web/mobile choice, built-in auxiliary routes and current email-flow limitation.
+The catalog and health endpoints stay public. Cookie-backed mutations and cookie login require an API antiforgery token, including direct calls to `/auth/logout`; bearer-only mobile calls do not. See [identity and session design](docs/auth-session.md) for the web/mobile network and CSRF boundary, built-in auxiliary routes and current email-flow limitation.
 
 > `/meals` now reads PostgreSQL. Until real meals are imported, a new development
 > database returns an empty list and `totalCount: 0`. The eight sourced starter

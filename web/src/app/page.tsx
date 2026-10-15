@@ -1,4 +1,5 @@
 import MealCatalog from "@/components/MealCatalog";
+import Link from "next/link";
 import type { CatalogMeal } from "@/lib/portion";
 
 type MealList = { items: CatalogMeal[]; totalCount: number };
@@ -30,7 +31,10 @@ export default async function HomePage({
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#277f64]">Bite Routine</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Yemek kataloğu</h1>
           </div>
-          <span className="rounded-full bg-[#e5f3e9] px-4 py-2 text-sm font-medium text-[#276b51]">Türkiye için geliştiriliyor</span>
+          <nav aria-label="Hesap" className="flex items-center gap-4 text-sm font-semibold text-[#276b51]">
+            <Link href="/login" className="hover:underline">Giriş yap</Link>
+            <Link href="/account" className="rounded-full bg-[#e5f3e9] px-4 py-2 hover:bg-[#d7ebdd]">Hesabım</Link>
+          </nav>
         </header>
 
         <section className="mt-10 rounded-3xl bg-[#173f34] px-6 py-9 text-white sm:px-10">

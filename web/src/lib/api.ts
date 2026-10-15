@@ -26,29 +26,6 @@ export async function apiRequest(
     return res;
 }
 
-export async function login(email: string, password: string): Promise<{ access_token: string } | null> {
-    const res = await apiRequest('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-    });
-
-    if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('email', email);
-        return data;
-    }
-    return null;
-}
-
-export async function register(email: string, password: string): Promise<boolean> {
-    const res = await apiRequest('/auth/register', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-    });
-    return res.ok;
-}
-
 export function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('email');

@@ -64,6 +64,32 @@ jobs:
         env:
           BITE_ROUTINE_TEST_CONNECTION: Host=127.0.0.1;Port=5432;Database=bite_routine_test;Username=bite_routine;Password=ci_test_only
         run: dotnet test BiteRoutine.slnx --no-build --configuration Release
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Build web for auth HTTP smoke
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+      - name: Smoke test same-origin Identity session
+        env:
+          ConnectionStrings__BiteRoutine: Host=127.0.0.1;Port=5432;Database=bite_routine_test;Username=bite_routine;Password=ci_test_only
+        run: |
+          dotnet ef database update --project src/BiteRoutine.Api --no-build --configuration Release
+          dotnet run --project src/BiteRoutine.Api --no-build --no-launch-profile --configuration Release --urls http://127.0.0.1:5080 > /tmp/bite-api.log 2>&1 &
+          api_pid=$!
+          (cd ../web && npm run start -- --hostname 127.0.0.1 > /tmp/bite-web.log 2>&1) &
+          web_pid=$!
+          trap 'kill "$api_pid" "$web_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:5080/health/live >/dev/null && curl -fsS http://127.0.0.1:3000/login >/dev/null; then break; fi
+            sleep 1
+          done
+          cd ../web
+          npm run smoke:auth
 
   web-build:
     name: Web build and lint
