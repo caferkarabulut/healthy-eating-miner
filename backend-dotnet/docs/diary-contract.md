@@ -4,7 +4,7 @@
 
 `diary_entries`: UUID kimlik, Identity kullanıcı FK'sı, katalog gıda FK'sı, `date` türünde günlük günü, `numeric(8,2)` gramaj ve PostgreSQL'in `CURRENT_TIMESTAMP` ile ürettiği UTC `timestamptz` oluşturulma zamanı. Kullanıcı/gün bileşik indeksi listelemeyi destekler. Kullanıcı silinince kayıtları silinir; günlükte kullanılan katalog gıdasının silinmesi engellenir.
 
-Gıda adı, dört nullable 100 g besin değeri ve kaynak bilgileri kayıt anında kopyalanır. Katalog sonradan değişse de geçmiş günlük değişmez. Yanıttaki besin değerleri bu kopyadan `grams / 100` oranıyla hesaplanır; eksik alanlar `null`, gerçek sıfırlar `0` kalır. Değerler yaklaşık olup günlük toplamı bu dilimde sunulmaz.
+Gıda adı, dört nullable 100 g besin değeri ve kaynak bilgileri kayıt anında kopyalanır. Katalog sonradan değişse de geçmiş günlük değişmez. Yanıttaki besin değerleri bu kopyadan `grams / 100` oranıyla hesaplanır; eksik alanlar `null`, gerçek sıfırlar `0` kalır. Değerler yaklaşık olarak sunulur.
 
 Gün, kullanıcının **Europe/Istanbul takvimindeki** seçtiği `yyyy-MM-dd` tarihidir. İstek açık tarih taşır; UTC gece yarısına veya sunucu saat dilimine dönüştürülmez. İstemci ileride “bugün” seçerken Europe/Istanbul kullanmalıdır. `createdAtUtc` kayıt zamanıdır, günlük gününü belirlemez. Geçmiş/gelecek gün seçimi serbesttir.
 
@@ -22,11 +22,11 @@ Tüm uç noktalar Identity oturumu gerektirir. Kullanıcı kimliği yalnız doğ
 
 ### GET `/me/diary-entries?date=2026-10-15`
 
-Tarih zorunlu ve tam `yyyy-MM-dd` biçimindedir. `200` yanıtı `{ "date": "2026-10-15", "timeZone": "Europe/Istanbul", "items": [...] }` biçimindedir. Yalnız oturum kullanıcısının o gündeki kayıtları, oluşturulma zamanı/kimlik sırasıyla döner; boş gün `items: []` verir.
+Tarih zorunlu ve tam `yyyy-MM-dd` biçimindedir. `200` yanıtı `{ "date": "2026-10-15", "timeZone": "Europe/Istanbul", "items": [...], "summary": { "entryCount": 2, "caloriesKcal": 196.779209, "proteinG": 3.093024, "carbsG": 4.409559, "fatG": 0.83325 } }` biçimindedir. Yalnız oturum kullanıcısının o gündeki kayıtları, oluşturulma zamanı/kimlik sırasıyla döner; boş gün `items: []` verir.
 
 Kayıt alanları: `id`, `mealId`, `mealName`, `grams`, `date`, `createdAtUtc`, `nutrition` (`caloriesKcal`, `proteinG`, `carbsG`, `fatG`, `approximate: true`), `source`, `sourceId`, `sourceUrl`. Besin alanları tek tek nullable'dır; tümü eksikse de kayıt oluşturulabilir.
 
-Hatalar: geçersiz/eksik alan veya tarih `400` (ProblemDetails), katalogda bulunmayan gıda `404`, oturumsuz istek `401`, çerezli POST/PATCH/DELETE'te eksik/geçersiz antiforgery `403`. Kullanıcı kimliği yanıta eklenmez. Web istemcisi aynı kökenli `/api/diary` geçidini kullanır; tarih, önbellek ve tekrar gönderim davranışı [web README](../../web/README.md) içindedir. Öğün türleri, günlük toplamı ve deployment kapsam dışıdır.
+Hatalar: geçersiz/eksik alan veya tarih `400` (ProblemDetails), katalogda bulunmayan gıda `404`, oturumsuz istek `401`, çerezli POST/PATCH/DELETE'te eksik/geçersiz antiforgery `403`. Kullanıcı kimliği yanıta eklenmez. Web istemcisi aynı kökenli `/api/diary` geçidini kullanır; tarih, önbellek ve tekrar gönderim davranışı [web README](../../web/README.md) içindedir. Öğün türleri ve deployment kapsam dışıdır.
 
 ### PATCH `/me/diary-entries/{id}`
 
@@ -41,3 +41,9 @@ Bu küçük sözleşmede iki alan birlikte zorunludur; JSON Merge Patch değildi
 Gövdesiz istek yalnız kullanıcının kendi kaydını siler; başarı `204` ve boş gövde, başkasının veya olmayan kayıt `404` döner. Aynı silme isteğini yeniden göndermek de `404` döner. Her iki yeni uç noktada oturumsuz istek `401`, API antiforgery bilgisi olmayan çerezli istek `403` olur; bearer akışı korunur.
 
 Web aynı kökenli `PATCH/DELETE /api/diary/{id}` geçidini kullanır. Hem tarayıcı Origin/CSRF kontrolü hem API antiforgery çifti uygulanır; kişisel yanıtlar önbelleğe alınmaz. Web silmeden önce onay ister, işlem sürerken tekrar gönderimi engeller ve belirsiz yanıtları otomatik tekrarlamaz. Başarılı işlemden sonra seçili gün yeniden okunur; tarih değişen kayıt yeni gününde görünür. Eşzamanlı düzenlemelerde son başarılı yazım geçerlidir; bu dilimde sürüm/ETag sözleşmesi yoktur.
+
+### Seçilen günün özeti
+
+GET yanıtındaki `summary`, aynı sorgunun yalnız oturum kullanıcısı/seçilen gün için döndürdüğü `items` listesinden hesaplanır; ayrı bir katalog sorgusu veya saklanan toplam yoktur. `entryCount` tüm kayıtların sayısıdır. Dört besin toplamı, her kaydın **kayıt anındaki 100 g kopyası × gramaj / 100** değeri toplanarak decimal aritmetiğiyle üretilir; ara veya sonuç yuvarlaması yapılmaz. Web yalnız gösterimde Türkçe biçimlendirme yapar.
+
+Boş günde `entryCount` ve dört toplam `0` olur. Herhangi bir kayıtta bir besin eksikse yalnız o alanın toplamı `null` olur; eksik alan sıfır kabul edilmez, eksiksiz diğer alanlar hesaplanır. Gerçek sıfır `0` kalır. Ekleme, gramaj düzenleme, tarih taşıma ve silmeden sonraki GET güncel özeti döndürür; tarih taşındığında her iki günün özeti değişir. Mevcut oturum/kullanıcı ayrımı ve web geçidinin `private, no-store` / `Vary: Cookie` kuralları aynen geçerlidir. Web, eksik toplamda “Eksik veri” ve kısa nedenini gösterir; hedef/öneri/grafik içermez. Model veya migration değişikliği yoktur.

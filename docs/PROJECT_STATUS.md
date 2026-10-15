@@ -18,12 +18,18 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - PR #7 ile günlük API'si main'e birleşti. Gramaj ve tarih doğrulanır; besin/kaynak bilgisi kayıt anında kopyalanır, eksikler `null` kalır. [HTTP sözleşmesi](../backend-dotnet/docs/diary-contract.md). Günlük migration'ı yalnız doğrulanmış `bite_routine` geliştirme DB'sine uygulandı; kullanıcı/katalog verisi korundu. Backend testleri ayrı `bite_routine_test` şemalarında çalışır.
 - Web'de aynı kökenli, iki katmanlı CSRF korumalı günlük GET/POST geçidi ve `/diary` sayfası eklendi. Varsayılan gün Europe/Istanbul'dur; yanıtlar önbelleğe alınmaz. Belirsiz POST otomatik tekrarlanmaz. [Web çalıştırma/test notları](../web/README.md).
 
-## Bu dal: günlük düzenleme/silme
+## Günlük düzenleme/silme (main)
 
 - Kendi kaydına PATCH ile gramaj/tarih düzenleme ve DELETE ile silme; başkasının/olmayan kaydın yanıtı 404. Kayıt anındaki gıda, besin ve kaynak kopyaları korunur; model/migration değişmez.
 - Web kartlarında düzenleme, silme onayı ve aynı kökenli PATCH/DELETE geçidi. İki CSRF katmanı ve önbelleksiz kişisel yanıtlar korunur. Başarı listeyi yeniler; belirsiz istekler otomatik tekrarlanmaz.
-- Doğrulama: gerçek PostgreSQL sahiplik, snapshot, doğrulama ve silme testleri; web test/build/lint; HTTP CSRF/kullanıcı ayrımı ve tarayıcı düzenleme/tarih taşıma/silme/yenileme kontrolleri. Özellik PR'ı inceleme için açılır; merge/deployment bu adımda yapılmaz.
+- PR #11 doğrulanan HEAD ve başarılı CI ile main'e birleşti. Gerçek PostgreSQL ve HTTP/tarayıcı kontrolleri sahiplik, snapshot, doğrulama, silme ve kalıcılığı doğrular.
+
+## Bu dal: günlük özeti
+
+- Günlük liste yanıtında `summary`: kayıt sayısı ve dört besin toplamı. Yalnız kullanıcı/gün kayıtlarının gramaj uygulanmış besin kopyaları decimal aritmetiğiyle, yuvarlanmadan toplanır. Eksik alan kendi toplamını null yapar; boş gün sıfırdır. Model/migration değişmez.
+- Web liste üzerinde sade özet gösterir; null alanlar “Eksik veri” ve nedenini taşır. Aynı önbelleksiz liste yenilemesi ekleme/düzenleme/tarih taşıma/silme sonrası özeti de günceller.
+- Doğrulama: gerçek PostgreSQL kullanıcı/gün ayrımı, gramaj, snapshot, boş gün, null/sıfır ve mutasyon testleri; web test/build/lint, HTTP ve tarayıcı akışı.
 
 ## Sıradaki iş
 
-Özellik PR'ını incelemek. Toplamlar, koçluk, eski Python ekranlarının taşınması ve mobil istemci bu değişikliğin kapsamı dışındadır. Geleneksel Türk yemekleri için tarif, kaynak ve porsiyon tanımı ayrıca hazırlanmalıdır. Deployment yapılmadı.
+Günlük özeti PR'ını incelemek. Kalori hedefi, öneri, grafik, koçluk, eski Python ekranları ve mobil istemci bu işin kapsamı dışındadır. Deployment yapılmadı.

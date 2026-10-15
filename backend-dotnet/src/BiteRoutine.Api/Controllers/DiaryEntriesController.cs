@@ -82,6 +82,7 @@ public sealed class DiaryEntriesController(BiteRoutineDbContext db, UserManager<
         var entries = await db.DiaryEntries.AsNoTracking()
             .Where(x => x.UserId == user.Id && x.Date == day)
             .OrderBy(x => x.CreatedAtUtc).ThenBy(x => x.Id).ToListAsync(cancellationToken);
-        return Ok(new DiaryDayResponse(day, "Europe/Istanbul", entries.Select(DiaryEntryResponse.From).ToArray()));
+        var items = entries.Select(DiaryEntryResponse.From).ToArray();
+        return Ok(new DiaryDayResponse(day, "Europe/Istanbul", items, DiarySummaryResponse.From(items)));
     }
 }

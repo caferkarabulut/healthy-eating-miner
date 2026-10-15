@@ -24,10 +24,11 @@ test("GET forwards only Identity cookie and never caches personal data", async (
     assert.match(String(url), /\/me\/diary-entries\?date=2026-10-15$/);
     assert.equal(new Headers(init?.headers).get("cookie"), cookie);
     assert.equal(init?.cache, "no-store");
-    return Response.json({ date: input.date, items: [] });
+    return Response.json({ date: input.date, items: [], summary: { entryCount: 2, caloriesKcal: 196.779209, proteinG: null, carbsG: 0, fatG: 0.83325 } });
   };
   const response = await diaryGet(new Request(`https://bite.test/api/diary?date=${input.date}`, { headers: { Cookie: `extra=secret; ${cookie}` } }), fake);
   assert.equal(response.status, 200); privateResponse(response);
+  assert.deepEqual((await response.json()).summary, { entryCount: 2, caloriesKcal: 196.779209, proteinG: null, carbsG: 0, fatG: 0.83325 });
 });
 
 test("GET rejects anonymous access and propagates expiration without caching", async () => {

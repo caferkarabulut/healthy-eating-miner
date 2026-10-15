@@ -6,7 +6,8 @@ export type DiaryEntry = DiaryInput & {
   id: string; mealName: string; createdAtUtc: string;
   nutrition: NutritionValues & { approximate: boolean };
 };
-export type DiaryDay = { date: string; timeZone: string; items: DiaryEntry[] };
+export type DiarySummary = NutritionValues & { entryCount: number };
+export type DiaryDay = { date: string; timeZone: string; items: DiaryEntry[]; summary: DiarySummary };
 
 export function istanbulDay(now = new Date()): string {
   const parts = new Intl.DateTimeFormat("en", {
