@@ -123,6 +123,9 @@ ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/BiteRoutine.Api --no
 | GET    | `/me/diary-entries?date=yyyy-MM-dd` | Lists only the caller's entries and snapshot-based nutrition summary for the selected day |
 | PATCH  | `/me/diary-entries/{id}` | Updates the caller's grams/date/mealSlot while preserving food/nutrition/source snapshots; unknown/other owner returns 404 |
 | DELETE | `/me/diary-entries/{id}` | Deletes only the caller's entry; 204 on success, unknown/other owner returns 404 |
+| GET | `/me/favorite-meals` | Caller-only favorites with live catalog values and the existing page/pageSize/search contract |
+| PUT | `/me/favorite-meals/{mealId}` | Idempotently adds the caller's favorite; 204, or 404 for an unknown catalog food |
+| DELETE | `/me/favorite-meals/{mealId}` | Idempotently removes only the caller's relation; 204 even when already absent |
 
 See [diary model and HTTP contract](docs/diary-contract.md) for validation, nutrition snapshots and date semantics. Apply the new migration explicitly before using these endpoints; the API never migrates on startup.
 
@@ -154,3 +157,5 @@ curl -i "http://127.0.0.1:5080/meals/abc"
 
 
 Source IDs, original descriptions, per-100-g values and rounding policy: [USDA catalog mapping](docs/usda-catalog-sources.md).
+
+Favorites require the explicit `AddFavoriteMeals` migration on the verified development DB. See [favorites model, HTTP and web contract](docs/favorite-meals-contract.md) for uniqueness, current catalog data, private responses and CSRF behavior.

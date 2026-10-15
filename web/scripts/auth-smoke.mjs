@@ -66,6 +66,23 @@ assert.ok((await response.text()).includes(email), "account must display /me ema
 const catalog = await (await fetch(`${api}/meals?pageSize=1`)).json();
 assert.ok(catalog.items.length, "diary smoke requires seeded catalog");
 const diaryInput = { mealId: catalog.items[0].mealId, grams: 150.25, date: "2026-10-15", mealSlot: "breakfast" };
+async function favorites(session) {
+  const response = await fetch(`${base}/api/favorites?page=1&pageSize=20`, { headers: { Cookie: session }, cache: "no-store" });
+  assert.equal(response.status, 200); assert.match(response.headers.get("cache-control"), /private.*no-store/);
+  return response.json();
+}
+const favoritePath = `/api/favorites/${diaryInput.mealId}`;
+assert.equal((await fetch(`${base}/api/favorites`)).status, 401);
+for (const method of ["PUT", "DELETE"]) {
+  assert.equal((await post(favoritePath, {}, { identity, method, noCsrf: true })).status, 403);
+  assert.equal((await post(favoritePath, {}, { identity, method, origin: "https://evil.test" })).status, 403);
+  assert.equal((await fetch(`${api}/me/favorite-meals/${diaryInput.mealId}`, { method, headers: { Cookie: identity } })).status, 403);
+}
+for (let i = 0; i < 2; i++) assert.equal((await post(favoritePath, {}, { identity, method: "PUT" })).status, 204);
+assert.equal((await favorites(identity)).totalCount, 1);
+assert.equal((await favorites(identity)).items[0].mealId, diaryInput.mealId);
+assert.equal((await post("/api/favorites/2147483647", {}, { identity, method: "PUT" })).status, 404);
+
 response = await fetch(`${base}/api/diary?date=${diaryInput.date}`);
 assert.equal(response.status, 401);
 assert.match(response.headers.get("cache-control"), /no-store/);
@@ -98,6 +115,11 @@ assert.equal((await post("/api/auth/register", { email: secondEmail, password })
 response = await post("/api/auth/login", { email: secondEmail, password });
 assert.equal(response.status, 200);
 const secondIdentity = cookie(response, ".AspNetCore.Identity.Application");
+assert.equal((await favorites(secondIdentity)).totalCount, 0, "favorites must be user scoped");
+assert.equal((await post(favoritePath, {}, { identity: secondIdentity, method: "PUT" })).status, 204);
+for (let i = 0; i < 2; i++) assert.equal((await post(favoritePath, {}, { identity, method: "DELETE" })).status, 204);
+assert.equal((await favorites(identity)).totalCount, 0);
+assert.equal((await favorites(secondIdentity)).totalCount, 1, "removing another user's favorite is impossible");
 assert.equal((await day(secondIdentity)).items.length, 0, "second user must not see first user's entry");
 assert.equal((await post("/api/diary", { ...diaryInput, grams: 75 }, { identity: secondIdentity })).status, 201);
 assert.equal((await day(secondIdentity)).items[0].grams, 75);
@@ -153,6 +175,10 @@ const { accessToken, refreshToken } = await response.json();
 assert.ok(accessToken && refreshToken);
 response = await fetch(`${api}/me`, { headers: { Authorization: `Bearer ${accessToken}` } });
 assert.equal(response.status, 200, "mobile bearer profile must work");
+for (const method of ["PUT", "DELETE"]) {
+  const mobile = await fetch(`${api}/me/favorite-meals/${diaryInput.mealId}`, { method, headers: { Authorization: `Bearer ${accessToken}` } });
+  assert.equal(mobile.status, 204, "mobile favorites work without cookie CSRF");
+}
 response = await fetch(`${api}/auth/refresh`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
@@ -170,4 +196,4 @@ assert.match(response.headers.getSetCookie().join(";"), /expires=Thu, 01 Jan 197
 response = await fetch(`${base}/account`, { redirect: "manual" });
 assert.equal(response.status, 307, "after logout, anonymous account access must redirect");
 
-console.log("HTTP smoke passed: auth, diary summary/create/edit/delete/persistence/date/user isolation, direct API CSRF rejection, mobile bearer.");
+console.log("HTTP smoke passed: private/idempotent favorites, auth, diary summary/create/edit/delete/persistence/date/user isolation, direct API CSRF rejection, mobile bearer.");

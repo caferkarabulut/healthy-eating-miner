@@ -8,10 +8,21 @@ public sealed class BiteRoutineDbContext(DbContextOptions<BiteRoutineDbContext> 
 {
     public DbSet<Meal> Meals => Set<Meal>();
     public DbSet<DiaryEntry> DiaryEntries => Set<DiaryEntry>();
+    public DbSet<FavoriteMeal> FavoriteMeals => Set<FavoriteMeal>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<FavoriteMeal>(entity =>
+        {
+            entity.ToTable("favorite_meals");
+            entity.HasKey(x => new { x.UserId, x.MealId });
+            entity.Property(x => x.UserId).HasColumnName("user_id");
+            entity.Property(x => x.MealId).HasColumnName("meal_id");
+            entity.HasOne<IdentityUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Meal>().WithMany().HasForeignKey(x => x.MealId).OnDelete(DeleteBehavior.Cascade);
+        });
 
         modelBuilder.Entity<DiaryEntry>(entity =>
         {

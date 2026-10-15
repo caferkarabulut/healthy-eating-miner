@@ -6,9 +6,14 @@ namespace BiteRoutine.Api.Services;
 
 public sealed class MealCatalogService(BiteRoutineDbContext db)
 {
-    public async Task<MealListResponse> GetMealsAsync(MealCatalogQuery query, CancellationToken cancellationToken)
+    public Task<MealListResponse> GetMealsAsync(MealCatalogQuery query, CancellationToken cancellationToken) =>
+        ListAsync(db.Meals.AsNoTracking(), query, cancellationToken);
+
+    public Task<MealListResponse> GetFavoriteMealsAsync(string userId, MealCatalogQuery query, CancellationToken cancellationToken) =>
+        ListAsync(db.Meals.AsNoTracking().Where(meal => db.FavoriteMeals.Any(f => f.UserId == userId && f.MealId == meal.MealId)), query, cancellationToken);
+
+    private static async Task<MealListResponse> ListAsync(IQueryable<Meal> meals, MealCatalogQuery query, CancellationToken cancellationToken)
     {
-        IQueryable<Meal> meals = db.Meals.AsNoTracking();
         var search = query.Search?.Trim();
 
         if (!string.IsNullOrEmpty(search))
