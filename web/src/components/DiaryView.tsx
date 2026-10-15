@@ -54,8 +54,8 @@ export default function DiaryView({ initialDate }: { initialDate?: string }) {
   return (
     <section className="mt-8">
       <div className="flex flex-wrap items-end gap-4">
-        <label className="text-sm font-medium">Gün (İstanbul)
-          <input aria-label="Gün (İstanbul)" type="date" value={date} disabled={busy} onChange={(event) => {
+        <label className="text-sm font-medium">Gün
+          <input aria-label="Gün" type="date" value={date} disabled={busy} onChange={(event) => {
             const value = event.target.value;
             editing.current.clear(); selectDate(value); setMessage("");
             if (isDiaryDate(value)) router.replace(`/diary?date=${value}`, { scroll: false });

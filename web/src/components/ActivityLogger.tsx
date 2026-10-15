@@ -14,7 +14,6 @@ interface ActivityLoggerProps {
 
 export default function ActivityLogger({
     currentSteps,
-    currentLevel,
     bmr,
     tdee,
     targetCalories,

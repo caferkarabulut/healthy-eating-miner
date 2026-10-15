@@ -2,22 +2,17 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { isAuthenticated, logout, apiRequest } from '@/lib/api';
-
-interface Profile {
-    height_cm: number;
-    weight_kg: number;
-    gender: string;
-    birth_year: number;
-    age: number;
-    bmr: number;
-}
+import { isAuthenticated, logout, apiRequest, LEGACY_SESSION_EXPIRED } from '@/lib/api';
 
 export default function SettingsPage() {
     const router = useRouter();
+    useEffect(() => {
+        const expired = () => router.replace('/login');
+        window.addEventListener(LEGACY_SESSION_EXPIRED, expired);
+        return () => window.removeEventListener(LEGACY_SESSION_EXPIRED, expired);
+    }, [router]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [profile, setProfile] = useState<Profile | null>(null);
     const [message, setMessage] = useState('');
 
     // Form state
@@ -31,7 +26,6 @@ export default function SettingsPage() {
         if (res.ok) {
             const data = await res.json();
             if (data.has_profile) {
-                setProfile(data);
                 setHeightCm(data.height_cm);
                 setWeightKg(data.weight_kg);
                 setGender(data.gender);
@@ -65,8 +59,6 @@ export default function SettingsPage() {
             });
 
             if (res.ok) {
-                const data = await res.json();
-                setProfile(data);
                 setMessage('✅ Profil güncellendi!');
             } else {
                 const errorData = await res.text();

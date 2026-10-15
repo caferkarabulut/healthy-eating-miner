@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { isAuthenticated, logout, apiRequest } from '@/lib/api';
+import { isAuthenticated, logout, apiRequest, LEGACY_SESSION_EXPIRED } from '@/lib/api';
 import DatePicker from '@/components/DatePicker';
 import MacroCards from '@/components/MacroCards';
 import DailySummary from '@/components/DailySummary';
@@ -18,11 +18,8 @@ import ActivityLogger from '@/components/ActivityLogger';
 import DailyFeedback from '@/components/DailyFeedback';
 import WeeklyCoach from '@/components/WeeklyCoach';
 import OnboardingBanner from '@/components/OnboardingBanner';
-import LoadingSpinner, { CardSkeleton } from '@/components/LoadingSpinner';
-import ErrorBoundary from '@/components/ErrorBoundary';
 import ProgressBar from '@/components/ProgressBar';
 import WarningCard from '@/components/WarningCard';
-import MealSearch from '@/components/MealSearch';
 import StreakCard from '@/components/StreakCard';
 import MealSuggestions from '@/components/MealSuggestions';
 
@@ -86,6 +83,11 @@ interface ProgressData {
 
 export default function DashboardPage() {
     const router = useRouter();
+    useEffect(() => {
+        const expired = () => router.replace('/login');
+        window.addEventListener(LEGACY_SESSION_EXPIRED, expired);
+        return () => window.removeEventListener(LEGACY_SESSION_EXPIRED, expired);
+    }, [router]);
     const [loading, setLoading] = useState(true);
     const [email, setEmail] = useState('');
     const [showProfileSetup, setShowProfileSetup] = useState(false);
@@ -352,9 +354,6 @@ export default function DashboardPage() {
     }
 
     const macros = calculateMacros();
-    const favoriteNames = favorites
-        .map(f => meals.find(m => m.meal_id === f.meal_id)?.meal_name)
-        .filter(Boolean) as string[];
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">

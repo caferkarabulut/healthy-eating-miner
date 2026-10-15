@@ -1,3 +1,5 @@
+export const LEGACY_SESSION_EXPIRED = "bite:legacy-session-expired";
+
 const API_BASE = 'http://localhost:8000';
 
 export async function apiRequest(
@@ -16,11 +18,11 @@ export async function apiRequest(
         },
     });
 
-    // 401 hatası alınırsa oturumu sonlandır ve login'e yönlendir
+    // Let the mounted legacy page navigate with its Next.js router.
     if (res.status === 401 && typeof window !== 'undefined') {
         localStorage.removeItem('token');
         localStorage.removeItem('email');
-        window.location.href = '/';
+        window.dispatchEvent(new Event(LEGACY_SESSION_EXPIRED));
     }
 
     return res;

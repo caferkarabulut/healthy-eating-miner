@@ -58,7 +58,7 @@ export default function DiaryEntryCard({ entry, onBusyChange, onEditingChange, o
                 value={gramsInput} disabled={locked} aria-invalid={value === null} onChange={(event) => setGramsInput(event.target.value)}
                 className="mt-2 w-full rounded-lg border border-[#b8d6c2] px-3 py-2" />
               <p className="mt-2 text-xs text-[#5b7166]">0,01–10.000 g; en fazla iki ondalık basamak. Virgül kullanabilirsiniz.</p>
-              <label htmlFor={`edit-date-${entry.id}`} className="mt-4 block text-sm font-medium">Kayıt tarihi (İstanbul)</label>
+              <label htmlFor={`edit-date-${entry.id}`} className="mt-4 block text-sm font-medium">Kayıt tarihi</label>
               <input id={`edit-date-${entry.id}`} type="date" value={date} disabled={locked} onChange={(event) => setDate(event.target.value)}
                 className="mt-2 w-full rounded-lg border border-[#b8d6c2] px-3 py-2" />
               {(value === null || !isDiaryDate(date)) && <p className="mt-2 text-sm text-[#a33c35]" role="alert">Geçerli gramaj ve tarih girin.</p>}

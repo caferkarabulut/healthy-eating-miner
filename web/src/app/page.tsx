@@ -55,7 +55,7 @@ export default async function HomePage({
             {catalog && <span className="text-sm text-[#5b7166]">{catalog.totalCount} sonuç</span>}
           </div>
           {!catalog ? (
-            <div className="rounded-2xl bg-white p-7">Kataloğa ulaşılamıyor. Yerel .NET API&apos;yi başlatıp sayfayı yenileyin.</div>
+            <div className="rounded-2xl bg-white p-7">Katalog şu anda yüklenemiyor. Lütfen biraz sonra yeniden deneyin.</div>
           ) : catalog.items.length === 0 ? (
             <div className="rounded-2xl bg-white p-7">{search ? "Bu aramayla eşleşen gıda yok." : "Katalog henüz boş."}</div>
           ) : (
