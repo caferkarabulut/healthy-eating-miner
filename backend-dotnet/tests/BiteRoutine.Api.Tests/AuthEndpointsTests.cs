@@ -71,7 +71,9 @@ public sealed class AuthEndpointsTests : IClassFixture<PostgresTestFactory>
         Assert.Equal(HttpStatusCode.OK, login.StatusCode);
         using var json = JsonDocument.Parse(await login.Content.ReadAsStringAsync());
         var token = json.RootElement.GetProperty("accessToken").GetString();
+        var refreshToken = json.RootElement.GetProperty("refreshToken").GetString();
         Assert.False(string.IsNullOrWhiteSpace(token));
+        Assert.False(string.IsNullOrWhiteSpace(refreshToken));
 
         using var request = new HttpRequestMessage(HttpMethod.Get, "/me");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -82,6 +84,15 @@ public sealed class AuthEndpointsTests : IClassFixture<PostgresTestFactory>
         Assert.Equal(email, profile.RootElement.GetProperty("email").GetString());
         Assert.False(string.IsNullOrWhiteSpace(profile.RootElement.GetProperty("userId").GetString()));
         Assert.False(profile.RootElement.TryGetProperty("passwordHash", out _));
+
+        using var refresh = await client.PostAsJsonAsync("/auth/refresh", new { refreshToken });
+        Assert.Equal(HttpStatusCode.OK, refresh.StatusCode);
+        using var refreshedJson = JsonDocument.Parse(await refresh.Content.ReadAsStringAsync());
+        var refreshedToken = refreshedJson.RootElement.GetProperty("accessToken").GetString();
+        using var refreshedRequest = new HttpRequestMessage(HttpMethod.Get, "/me");
+        refreshedRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", refreshedToken);
+        using var refreshedProfile = await client.SendAsync(refreshedRequest);
+        Assert.Equal(HttpStatusCode.OK, refreshedProfile.StatusCode);
     }
 
     [Fact]
@@ -92,7 +103,7 @@ public sealed class AuthEndpointsTests : IClassFixture<PostgresTestFactory>
         const string password = "TestPassword1!";
         await RegisterAsync(client, email, password);
 
-        using var login = await client.PostAsJsonAsync("/auth/login?useCookies=true", new { email, password });
+        using var login = await LoginWithCookieAsync(client, email, password);
         Assert.Equal(HttpStatusCode.OK, login.StatusCode);
         var cookie = Assert.Single(login.Headers.GetValues("Set-Cookie"));
         Assert.Contains("httponly", cookie, StringComparison.OrdinalIgnoreCase);
@@ -126,17 +137,59 @@ public sealed class AuthEndpointsTests : IClassFixture<PostgresTestFactory>
         var email = NewEmail();
         await RegisterAsync(client, email, "TestPassword1!");
 
+        using var login = await LoginWithCookieAsync(client, email, "TestPassword1!");
+        Assert.Equal(HttpStatusCode.OK, login.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/me")).StatusCode);
+
+        var csrf = await GetApiCsrfAsync(client);
+        using var logoutRequest = new HttpRequestMessage(HttpMethod.Post, "/auth/logout");
+        logoutRequest.Headers.Add("X-Bite-Routine-Api-Csrf", csrf);
+        using var logout = await client.SendAsync(logoutRequest);
+        Assert.Equal(HttpStatusCode.NoContent, logout.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/me")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Logout_DirectCookiePostWithoutApiCsrf_IsForbidden()
+    {
+        using var client = _factory.CreateClient();
+        var email = NewEmail();
+        await RegisterAsync(client, email, "TestPassword1!");
+        using var login = await LoginWithCookieAsync(client, email, "TestPassword1!");
+        Assert.Equal(HttpStatusCode.OK, login.StatusCode);
+
+        using var direct = await client.PostAsync("/auth/logout", null);
+        Assert.Equal(HttpStatusCode.Forbidden, direct.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/me")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Login_WithCookie_DirectPostWithoutApiCsrf_IsForbidden()
+    {
+        using var client = _factory.CreateClient();
+        var email = NewEmail();
+        await RegisterAsync(client, email, "TestPassword1!");
+
         using var login = await client.PostAsJsonAsync("/auth/login?useCookies=true", new
         {
             email,
             password = "TestPassword1!"
         });
-        Assert.Equal(HttpStatusCode.OK, login.StatusCode);
-        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/me")).StatusCode);
-
-        using var logout = await client.PostAsync("/auth/logout", null);
-        Assert.Equal(HttpStatusCode.NoContent, logout.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, login.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/me")).StatusCode);
+    }
+
+    [Fact]
+    public async Task IdentityManage_WithCookie_DirectPostWithoutApiCsrf_IsForbidden()
+    {
+        using var client = _factory.CreateClient();
+        var email = NewEmail();
+        await RegisterAsync(client, email, "TestPassword1!");
+        using var login = await LoginWithCookieAsync(client, email, "TestPassword1!");
+        Assert.Equal(HttpStatusCode.OK, login.StatusCode);
+
+        using var response = await client.PostAsJsonAsync("/auth/manage/info", new { newEmail = "new@example.test" });
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]
@@ -160,6 +213,25 @@ public sealed class AuthEndpointsTests : IClassFixture<PostgresTestFactory>
     }
 
     private static string NewEmail() => $"test-{Guid.NewGuid():N}@example.test";
+
+    private static async Task<string> GetApiCsrfAsync(HttpClient client)
+    {
+        using var response = await client.GetAsync("/auth/antiforgery");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        return json.RootElement.GetProperty("requestToken").GetString()!;
+    }
+
+    private static async Task<HttpResponseMessage> LoginWithCookieAsync(HttpClient client, string email, string password)
+    {
+        var csrf = await GetApiCsrfAsync(client);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/auth/login?useCookies=true")
+        {
+            Content = JsonContent.Create(new { email, password })
+        };
+        request.Headers.Add("X-Bite-Routine-Api-Csrf", csrf);
+        return await client.SendAsync(request);
+    }
 
     private static async Task RegisterAsync(HttpClient client, string email, string password)
     {

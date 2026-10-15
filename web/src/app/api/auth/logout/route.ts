@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { hasValidCsrf } from "@/lib/csrf";
-import { apiUrl, IDENTITY_COOKIE } from "@/lib/session";
+import { apiCsrf, apiUrl, IDENTITY_COOKIE } from "@/lib/session";
 
 export async function POST(request: Request) {
   if (!hasValidCsrf(request)) return NextResponse.json({ error: "Güvenlik doğrulaması başarısız." }, { status: 403 });
@@ -8,9 +8,10 @@ export async function POST(request: Request) {
   if (!identityCookie) return NextResponse.json({ error: "Oturum bulunamadı." }, { status: 401 });
 
   try {
+    const csrf = await apiCsrf(identityCookie);
     const upstream = await fetch(apiUrl("/auth/logout"), {
       method: "POST",
-      headers: { Cookie: identityCookie },
+      headers: { Cookie: `${identityCookie}; ${csrf.cookie}`, "X-Bite-Routine-Api-Csrf": csrf.token },
       cache: "no-store",
     });
     if (!upstream.ok && upstream.status !== 401) return NextResponse.json({ error: "Çıkış yapılamadı." }, { status: 502 });

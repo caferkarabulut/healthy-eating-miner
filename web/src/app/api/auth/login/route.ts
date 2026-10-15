@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { hasValidCsrf, requestOrigin } from "@/lib/csrf";
-import { apiUrl, IDENTITY_COOKIE, identityCookieFromResponse } from "@/lib/session";
+import { apiCsrf, apiUrl, IDENTITY_COOKIE, identityCookieFromResponse } from "@/lib/session";
 
 export async function POST(request: Request) {
   if (!hasValidCsrf(request)) return NextResponse.json({ error: "Güvenlik doğrulaması başarısız." }, { status: 403 });
@@ -13,9 +13,10 @@ export async function POST(request: Request) {
   }
 
   try {
+    const csrf = await apiCsrf();
     const upstream = await fetch(apiUrl("/auth/login?useCookies=true"), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-Bite-Routine-Api-Csrf": csrf.token, Cookie: csrf.cookie },
       body: JSON.stringify({ email: credentials.email, password: credentials.password }),
       cache: "no-store",
     });
