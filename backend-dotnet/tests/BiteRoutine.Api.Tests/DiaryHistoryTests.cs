@@ -79,6 +79,10 @@ public sealed class DiaryHistoryTests : IClassFixture<PostgresTestFactory>
         Assert.Contains(">=", diaryQuery);
         Assert.Contains("<=", diaryQuery);
         Assert.Contains("user_id", diaryQuery);
+        commands.Sql.Clear();
+        var day = await client.GetFromJsonAsync<DiaryDayResponse>("/me/diary-entries?date=2026-10-15");
+        Assert.Equal(5, day!.MealSummaries.Count);
+        Assert.Single(commands.Sql, sql => sql.Contains("FROM diary_entries"));
     }
 
     private sealed class CommandCapture : DbCommandInterceptor

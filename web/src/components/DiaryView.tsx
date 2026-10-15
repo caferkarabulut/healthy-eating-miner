@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { DiaryDay } from "@/lib/diary";
-import { groupDiaryEntries, isDiaryDate } from "@/lib/diary";
+import { groupDiaryDay, isDiaryDate } from "@/lib/diary";
+import { summaryMetrics } from "@/lib/diary-summary";
 import DiarySummary from "./DiarySummary";
 import DiaryEntryCard from "./DiaryEntryCard";
 import { useDiaryDate } from "@/lib/use-diary-date";
@@ -71,12 +72,17 @@ export default function DiaryView({ initialDate }: { initialDate?: string }) {
           {current.kind === "session" && <Link href="/login" className="mt-3 inline-block font-semibold underline">Giriş yap</Link>}
         </div>
       ) : current.day.items.length === 0 ? <p className="mt-6 rounded-2xl bg-white p-6">Bu gün için henüz kayıt yok. <Link href="/" className="font-semibold underline">Katalogdan gıda ekleyin.</Link></p> : (
-        <div className="mt-6 space-y-8">
-          {groupDiaryEntries(current.day.items).map((group) => <section key={group.value} aria-label={group.label}>
-            <h2 className="mb-4 text-2xl font-semibold">{group.label}</h2>
-            <ul className="grid gap-4 sm:grid-cols-2">
+        <div className="mt-5 space-y-5">
+          {groupDiaryDay(current.day).map((group) => <section key={group.value} aria-label={group.label}>
+            <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="text-lg font-semibold">{group.label}</h2>
+              <dl aria-label={`${group.label} toplamları`} className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#5b7166]">
+                {group.summary && summaryMetrics(group.summary).map((metric) => <div key={metric.label} className="flex gap-1"><dt>{metric.label}</dt><dd className="font-semibold text-[#18312c]">{metric.text}</dd></div>)}
+              </dl>
+            </div>
+            <ul className="divide-y divide-[#d9e4dc] overflow-hidden rounded-xl border border-[#d9e4dc] bg-white">
               {group.items.map((entry) => (
-                <li key={entry.id} className="rounded-2xl border border-[#d9e4dc] bg-white p-6">
+                <li key={entry.id} className="px-4 py-3">
                   <DiaryEntryCard disabled={busy} entry={entry} onBusyChange={busyChanged} onEditingChange={(value) => {
                     if (value) { editing.current.add(entry.id); selectDate(date); }
                     else editing.current.delete(entry.id);

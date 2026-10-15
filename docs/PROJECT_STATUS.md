@@ -80,7 +80,7 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Parola politikası, e-posta doğrulama kuralları ve uzantı kabulü değişmedi. Regresyon testi gerçek kullanılan form reducer + istemci + geçitte başarısız gönderim/düzeltme/yeniden gönderim/başarı akışını kapsar; CI HTTP smoke aynı akışı gerçek Identity ile doğrular.
 - Doğrulama: 49 web testi, web build/lint; gerçek tarayıcıda zayıf parola mesajları, düzeltince temizlenme, yenilemeden başarı, .net/.technology adresleri ve açık giriş bağlantısı. İki geçici hesap temizlendi. Backend/model değişmediği için yerel backend testleri tekrarlanmadı.
 
-## Bu dal: katalog ve ilk kullanım akışı
+## Katalog ve ilk kullanım akışı (main)
 
 - PR #19'un `74aebb0` HEAD'i ve başarılı CI doğrulandı; aynı HEAD koşuluyla merge edildi. Yerel main fast-forward güncellendi, `ui/catalog-flow` buradan açıldı.
 - Giriş, HttpOnly oturumu `/api/auth/me` üzerinden doğruladıktan sonra kataloğa döner. Katalogdaki kişisel karşılama ayrı no-store istemci okumasıyla gelir; hesap sayfası menüde kalır. Kayıt/giriş krem, beyaz ve yeşil uygulama renklerini kullanır. Favori seçimi zorunlu değildir.
@@ -88,6 +88,13 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Ortak `/sources` sayfası ve görünür katalog bağlantıları USDA/CC0, 100 g yenilebilir kısım ve yaklaşık değer bilgisini taşır. Gıdaya özel kaynak detayda kalır. Backend, DB, besin hesabı ve günlük ekranı değişmedi.
 - Doğrulama: 52 web testi, build/lint, gerçek HTTP kontrolü. Tarayıcıda 375/1280/1920 px, girişten doğrulanmış katalog dönüşü/karşılama, arama/sayfalama, favori, kaynak sayfası ve 150,25 g ile günlük ekleme kontrol edildi; yatay taşma yok. Katalog/giriş ekran görüntüleri kaydedildi. Geçici test hesapları temizlendi; backend değişmediği için yerel backend testleri tekrarlanmadı.
 
+## Bu dal: kompakt günlük ve öğün toplamları
+
+- PR #20'nin `5b01277` HEAD'i ve başarılı CI doğrulandı; aynı HEAD koşuluyla merge edildi. Yerel main fast-forward güncellendi; `ui/diary-meal-summary` buradan açıldı.
+- Günlük GET yanıtında sabit sırada beş `mealSummaries` vardır. Aynı kullanıcı/gün için alınan kayıtlar bellekte gruplandırılır, mevcut snapshot/gramaj/decimal toplamı yeniden kullanılır; ek DB sorgusu veya migration yoktur. Null yalnız ilgili öğün/besin alanına yayılır; günlük toplam davranışı değişmez. [Sözleşme](../backend-dotnet/docs/diary-contract.md).
+- Günlük kompakt öğün listesi oldu: başlıkta öğün toplamları, satırda tam ad/hazırlama, gramaj ve kcal; detay ve düzenleme seçimle açılır. Günlük toplam da kompaktlaştı. Mevcut sıra, silme onayı, belirsiz istek kilidi, kullanıcı/CSRF ve önbellek kuralları korunur. Oluşturulma zamanı tüketim saati gibi gösterilmez; adet/porsiyon eklenmedi.
+- Doğrulama: 107 gerçek PostgreSQL testi, 53 web testi, Release build, web build/lint ve gerçek HTTP smoke. Kullanıcı/gün ayrımı, tek kayıt sorgusu, öğün null/sıfır ve snapshot toplamları, gramaj/öğün/tarih taşıma/silme doğrulandı. Tarayıcıda aynı değişikliklerle iki toplamın yenilenmesi, ayrıntılar, silmeden vazgeçme/onaylama ve 375 px/masaüstü taşmasız görünüm kontrol edildi; ekran görüntüleri kaydedildi. Geçici test hesapları temizlendi.
+
 ## Sıradaki iş
 
-Katalog akışı PR'ını incelemek. Yeni PR merge edilmedi; deployment yapılmadı.
+Kompakt günlük ve öğün toplamları PR'ını incelemek. Yeni PR merge edilmedi; deployment yapılmadı.

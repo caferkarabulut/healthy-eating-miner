@@ -90,6 +90,6 @@ public sealed class DiaryEntriesController(BiteRoutineDbContext db, UserManager<
             .Where(x => x.UserId == user.Id && x.Date == day)
             .OrderBy(x => x.CreatedAtUtc).ThenBy(x => x.Id).ToListAsync(cancellationToken);
         var items = entries.Select(DiaryEntryResponse.From).ToArray();
-        return Ok(new DiaryDayResponse(day, "Europe/Istanbul", items, DiarySummaryResponse.From(items)));
+        return Ok(new DiaryDayResponse(day, "Europe/Istanbul", items, DiaryMealSummaryResponse.From(items), DiarySummaryResponse.From(items)));
     }
 }

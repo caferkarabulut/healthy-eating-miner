@@ -112,6 +112,15 @@ async function day(session, date = diaryInput.date) {
       assert.ok(typeof result.summary[field] === "number" && Math.abs(result.summary[field] - expected) < 1e-9, `summary ${field} must match current entries`);
     }
   }
+  assert.deepEqual(result.mealSummaries.map((item) => item.mealSlot), ["breakfast", "lunch", "dinner", "snack", "other"]);
+  for (const group of result.mealSummaries) {
+    const entries = result.items.filter((item) => item.mealSlot === group.mealSlot);
+    assert.equal(group.summary.entryCount, entries.length);
+    for (const field of ["caloriesKcal", "proteinG", "carbsG", "fatG"]) {
+      if (entries.some((item) => item.nutrition[field] === null)) assert.equal(group.summary[field], null);
+      else assert.ok(Math.abs(group.summary[field] - entries.reduce((sum, item) => sum + item.nutrition[field], 0)) < 1e-9);
+    }
+  }
   return result;
 }
 async function history(session, endDate = diaryInput.date) {
