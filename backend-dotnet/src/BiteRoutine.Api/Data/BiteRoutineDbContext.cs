@@ -7,10 +7,35 @@ namespace BiteRoutine.Api.Data;
 public sealed class BiteRoutineDbContext(DbContextOptions<BiteRoutineDbContext> options) : IdentityUserContext<IdentityUser>(options)
 {
     public DbSet<Meal> Meals => Set<Meal>();
+    public DbSet<DiaryEntry> DiaryEntries => Set<DiaryEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<DiaryEntry>(entity =>
+        {
+            entity.ToTable("diary_entries", table =>
+                table.HasCheckConstraint("ck_diary_entries_grams", "grams >= 0.01 AND grams <= 10000"));
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Id).HasColumnName("id");
+            entity.Property(x => x.UserId).HasColumnName("user_id").IsRequired();
+            entity.Property(x => x.MealId).HasColumnName("meal_id");
+            entity.Property(x => x.Date).HasColumnName("date");
+            entity.Property(x => x.Grams).HasColumnName("grams").HasPrecision(8, 2);
+            entity.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc").HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(x => x.MealName).HasColumnName("meal_name").HasMaxLength(200).IsRequired();
+            entity.Property(x => x.CaloriesKcalPer100G).HasColumnName("calories_kcal_per_100g").HasPrecision(8, 2);
+            entity.Property(x => x.ProteinGPer100G).HasColumnName("protein_g_per_100g").HasPrecision(8, 2);
+            entity.Property(x => x.CarbsGPer100G).HasColumnName("carbs_g_per_100g").HasPrecision(8, 2);
+            entity.Property(x => x.FatGPer100G).HasColumnName("fat_g_per_100g").HasPrecision(8, 2);
+            entity.Property(x => x.Source).HasColumnName("source").HasMaxLength(100);
+            entity.Property(x => x.SourceId).HasColumnName("source_id").HasMaxLength(100);
+            entity.Property(x => x.SourceUrl).HasColumnName("source_url").HasMaxLength(500);
+            entity.HasOne<IdentityUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Meal>().WithMany().HasForeignKey(x => x.MealId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(x => new { x.UserId, x.Date });
+        });
 
         // Turkish casing (I/ı and İ/i) must follow Turkish rules in meal-name searches.
         modelBuilder.HasCollation("bite_routine_tr", locale: "tr-TR", provider: "icu", deterministic: true);

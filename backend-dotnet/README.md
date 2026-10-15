@@ -119,6 +119,10 @@ ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/BiteRoutine.Api --no
 | GET    | `/auth/antiforgery` | Issues the API antiforgery cookie and request token for server-side cookie clients |
 | POST   | `/auth/logout` | Ends an authenticated Identity cookie session |
 | GET    | `/me` | `401` without a session; otherwise returns the caller's `userId` and `email` |
+| POST   | `/me/diary-entries` | Adds a catalog food with grams and an explicit Istanbul calendar date to the caller's diary |
+| GET    | `/me/diary-entries?date=yyyy-MM-dd` | Lists only the caller's entries for the selected day |
+
+See [diary model and HTTP contract](docs/diary-contract.md) for validation, nutrition snapshots and date semantics. Apply the new migration explicitly before using these endpoints; the API never migrates on startup.
 
 The catalog and health endpoints stay public. Cookie-backed mutations and cookie login require an API antiforgery token, including direct calls to `/auth/logout`; bearer-only mobile calls do not. See [identity and session design](docs/auth-session.md) for the web/mobile network and CSRF boundary, built-in auxiliary routes and current email-flow limitation.
 
