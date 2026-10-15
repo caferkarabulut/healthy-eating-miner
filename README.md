@@ -1,6 +1,6 @@
 # Bite Routine
 
-Bite Routine, **Türkiye için geliştirilen bir beslenme ve yemek günlüğü uygulamasıdır**. Türkçe gıda araması, gram/kcal birimleri ve `Europe/Istanbul` takvim günleri temel alınır.
+Bite Routine, **bir beslenme ve yemek günlüğü uygulamasıdır**. Türkçe gıda araması, gram/kcal birimleri ve `Europe/Istanbul` takvim günleri temel alınır.
 
 [English](#english)
 
