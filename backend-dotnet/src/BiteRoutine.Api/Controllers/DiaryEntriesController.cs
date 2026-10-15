@@ -39,6 +39,35 @@ public sealed class DiaryEntriesController(BiteRoutineDbContext db, UserManager<
         return Created($"/me/diary-entries?date={entry.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}", DiaryEntryResponse.From(entry));
     }
 
+    [HttpPatch("{id:guid}")]
+    public async Task<ActionResult<DiaryEntryResponse>> Update(Guid id, UpdateDiaryEntryRequest request, CancellationToken cancellationToken)
+    {
+        if (decimal.Round(request.Grams, 2) != request.Grams)
+        {
+            ModelState.AddModelError(nameof(request.Grams), "Gramaj en fazla iki ondalık basamak içerebilir.");
+            return ValidationProblem(ModelState);
+        }
+
+        var user = await users.GetUserAsync(User);
+        if (user is null) return Unauthorized();
+        var entry = await db.DiaryEntries.SingleOrDefaultAsync(x => x.Id == id && x.UserId == user.Id, cancellationToken);
+        if (entry is null) return NotFound();
+        entry.Grams = request.Grams;
+        entry.Date = request.Date!.Value;
+        try { await db.SaveChangesAsync(cancellationToken); }
+        catch (DbUpdateConcurrencyException) { return NotFound(); }
+        return Ok(DiaryEntryResponse.From(entry));
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        var user = await users.GetUserAsync(User);
+        if (user is null) return Unauthorized();
+        var deleted = await db.DiaryEntries.Where(x => x.Id == id && x.UserId == user.Id).ExecuteDeleteAsync(cancellationToken);
+        return deleted == 0 ? NotFound() : NoContent();
+    }
+
     [HttpGet]
     public async Task<ActionResult<DiaryDayResponse>> List([FromQuery] string? date, CancellationToken cancellationToken)
     {

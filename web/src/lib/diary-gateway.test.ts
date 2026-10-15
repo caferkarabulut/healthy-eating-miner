@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { diaryGet, diaryPost } from "./diary-gateway.ts";
+import { diaryGet, diaryPost, diaryMutate } from "./diary-gateway.ts";
 import { IDENTITY_COOKIE } from "./session.ts";
 
 const input = { mealId: 1, grams: 150.25, date: "2026-10-15" };
@@ -77,4 +77,70 @@ test("lost POST response is uncertain and is never retried", async () => {
   const response = await diaryPost(request(), fake);
   assert.equal(response.status, 502); assert.equal(posts, 1);
   assert.equal((await response.json()).uncertain, true); privateResponse(response);
+});
+
+const entryId = "12345678-1234-1234-1234-123456789abc";
+function mutation(method: "PATCH" | "DELETE", body: unknown = { grams: 175.25, date: input.date }, csrf = true, identity = true, origin = "https://bite.test") {
+  const headers = new Headers(request(body, csrf, identity).headers);
+  headers.set("origin", origin);
+  return new Request(`https://bite.test/api/diary/${entryId}`, { method, headers, ...(method === "PATCH" ? { body: JSON.stringify(body) } : {}) });
+}
+
+test("PATCH and DELETE reject CSRF, foreign origins and anonymous sessions before forwarding", async () => {
+  const fake: typeof fetch = async () => { throw new Error("must not call API"); };
+  for (const method of ["PATCH", "DELETE"] as const) {
+    for (const [req, status] of [
+      [mutation(method, undefined, false), 403], [mutation(method, undefined, true, false), 401],
+      [mutation(method, undefined, true, true, "https://evil.test"), 403],
+    ] as const) {
+      const response = await diaryMutate(req, entryId, fake);
+      assert.equal(response.status, status); privateResponse(response);
+    }
+  }
+  for (const body of [{ grams: 1.234, date: input.date }, { grams: 0, date: input.date }, { grams: 100, date: "2026-02-30" }, { grams: "150,25", date: input.date }, { grams: 100, date: input.date, mealId: 2 }, { grams: 100 }, {}]) {
+    assert.equal((await diaryMutate(mutation("PATCH", body), entryId, fake)).status, 400);
+  }
+  assert.equal((await diaryMutate(mutation("DELETE"), "../auth/logout", fake)).status, 404);
+});
+
+test("PATCH and DELETE forward only session and both API CSRF parts without caching", async () => {
+  for (const method of ["PATCH", "DELETE"] as const) {
+    let writes = 0;
+    const fake: typeof fetch = async (url, init) => {
+      assert.equal(init?.cache, "no-store");
+      const headers = new Headers(init?.headers);
+      if (String(url).endsWith("/auth/antiforgery")) return Response.json({ requestToken: "api-token" }, { headers: { "Set-Cookie": "bite_routine_api_csrf=api-cookie; HttpOnly" } });
+      writes++;
+      assert.match(String(url), new RegExp(`/me/diary-entries/${entryId}$`));
+      assert.equal(init?.method, method);
+      assert.equal(headers.get("cookie"), `${cookie}; bite_routine_api_csrf=api-cookie`);
+      assert.equal(headers.get("x-bite-routine-api-csrf"), "api-token");
+      assert.equal(headers.get("x-csrf-token"), null);
+      if (method === "DELETE") { assert.equal(init?.body, undefined); return new Response(null, { status: 204 }); }
+      assert.deepEqual(JSON.parse(String(init?.body)), { grams: 175.25, date: input.date });
+      return Response.json({ id: entryId, grams: 175.25 });
+    };
+    const response = await diaryMutate(mutation(method), entryId, fake);
+    assert.equal(response.status, method === "DELETE" ? 204 : 200); privateResponse(response);
+    assert.equal(writes, 1); assert.equal(response.headers.get("set-cookie"), null);
+    if (method === "DELETE") assert.equal(await response.text(), "");
+  }
+});
+
+test("mutation errors preserve 400/401/403/404 and uncertain failures are never retried", async () => {
+  for (const method of ["PATCH", "DELETE"] as const) {
+    for (const status of [400, 401, 403, 404, 500, 0]) {
+      let writes = 0;
+      const fake: typeof fetch = async (url) => {
+        if (String(url).endsWith("/auth/antiforgery")) return Response.json({ requestToken: "api-token" }, { headers: { "Set-Cookie": "bite_routine_api_csrf=api-cookie" } });
+        writes++;
+        if (!status) throw new Error("lost reply");
+        return new Response(null, { status });
+      };
+      const response = await diaryMutate(mutation(method), entryId, fake);
+      assert.equal(response.status, status === 0 || status === 500 ? 502 : status);
+      assert.equal(Boolean((await response.json()).uncertain), status === 0 || status === 500);
+      assert.equal(writes, 1); privateResponse(response);
+    }
+  }
 });

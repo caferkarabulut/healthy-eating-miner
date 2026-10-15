@@ -10,7 +10,7 @@ Gün, kullanıcının **Europe/Istanbul takvimindeki** seçtiği `yyyy-MM-dd` ta
 
 ## HTTP sözleşmesi
 
-Her iki uç nokta Identity oturumu gerektirir. Kullanıcı kimliği yalnız doğrulanmış oturumdan alınır; gövdedeki tanımsız alanlar (`userId` dahil) reddedilir. Çerezli POST mevcut API antiforgery kontrolüne tabidir; çerezsiz mobil bearer desteklenir.
+Tüm uç noktalar Identity oturumu gerektirir. Kullanıcı kimliği yalnız doğrulanmış oturumdan alınır; gövdedeki tanımsız alanlar (`userId` dahil) reddedilir. Çerezli POST/PATCH/DELETE mevcut API antiforgery kontrolüne tabidir; çerezsiz mobil bearer desteklenir.
 
 ### POST `/me/diary-entries`
 
@@ -26,4 +26,18 @@ Tarih zorunlu ve tam `yyyy-MM-dd` biçimindedir. `200` yanıtı `{ "date": "2026
 
 Kayıt alanları: `id`, `mealId`, `mealName`, `grams`, `date`, `createdAtUtc`, `nutrition` (`caloriesKcal`, `proteinG`, `carbsG`, `fatG`, `approximate: true`), `source`, `sourceId`, `sourceUrl`. Besin alanları tek tek nullable'dır; tümü eksikse de kayıt oluşturulabilir.
 
-Hatalar: geçersiz/eksik alan veya tarih `400` (ProblemDetails), katalogda bulunmayan gıda `404`, oturumsuz istek `401`, çerezli POST'ta eksik/geçersiz antiforgery `403`. Kullanıcı kimliği yanıta eklenmez. Web istemcisi aynı kökenli `/api/diary` geçidini kullanır; tarih, önbellek ve tekrar gönderim davranışı [web README](../../web/README.md) içindedir. Düzenleme/silme, öğün türleri, günlük toplamı ve deployment kapsam dışıdır.
+Hatalar: geçersiz/eksik alan veya tarih `400` (ProblemDetails), katalogda bulunmayan gıda `404`, oturumsuz istek `401`, çerezli POST/PATCH/DELETE'te eksik/geçersiz antiforgery `403`. Kullanıcı kimliği yanıta eklenmez. Web istemcisi aynı kökenli `/api/diary` geçidini kullanır; tarih, önbellek ve tekrar gönderim davranışı [web README](../../web/README.md) içindedir. Öğün türleri, günlük toplamı ve deployment kapsam dışıdır.
+
+### PATCH `/me/diary-entries/{id}`
+
+```json
+{ "grams": 175.25, "date": "2026-10-16" }
+```
+
+Bu küçük sözleşmede iki alan birlikte zorunludur; JSON Merge Patch değildir. Oluşturmadaki sayı/aralık/iki ondalık ve tarih kuralları geçerlidir. `mealId`, `userId` veya başka alanlar kabul edilmez. Yalnız oturum kullanıcısına ait UUID kaydı düzenlenir; başkasının veya olmayan kaydın yanıtı aynı `404` olur. Başarı `200` ve güncel kayıttır. Gıda kimliği, kayıt anındaki ad, nullable 100 g besin değerleri, kaynak kopyaları ve `createdAtUtc` değişmez; yalnız gramaj ve tarih değişir. Yanıttaki porsiyon değerleri korunmuş kopyadan yeni gramajla hesaplanır.
+
+### DELETE `/me/diary-entries/{id}`
+
+Gövdesiz istek yalnız kullanıcının kendi kaydını siler; başarı `204` ve boş gövde, başkasının veya olmayan kayıt `404` döner. Aynı silme isteğini yeniden göndermek de `404` döner. Her iki yeni uç noktada oturumsuz istek `401`, API antiforgery bilgisi olmayan çerezli istek `403` olur; bearer akışı korunur.
+
+Web aynı kökenli `PATCH/DELETE /api/diary/{id}` geçidini kullanır. Hem tarayıcı Origin/CSRF kontrolü hem API antiforgery çifti uygulanır; kişisel yanıtlar önbelleğe alınmaz. Web silmeden önce onay ister, işlem sürerken tekrar gönderimi engeller ve belirsiz yanıtları otomatik tekrarlamaz. Başarılı işlemden sonra seçili gün yeniden okunur; tarih değişen kayıt yeni gününde görünür. Eşzamanlı düzenlemelerde son başarılı yazım geçerlidir; bu dilimde sürüm/ETag sözleşmesi yoktur.

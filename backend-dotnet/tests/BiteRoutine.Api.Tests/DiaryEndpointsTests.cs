@@ -80,6 +80,20 @@ public sealed class DiaryEndpointsTests : IClassFixture<PostgresTestFactory>
         }
         var listed = Assert.Single((await client.GetFromJsonAsync<DiaryDayResponse>($"/me/diary-entries?date={Day}"))!.Items);
         Assert.Equal(entry, listed);
+        using var update = await client.PatchAsJsonAsync($"/me/diary-entries/{entry.Id}", new { grams = 200, date = "2026-10-16" });
+        Assert.Equal(HttpStatusCode.OK, update.StatusCode);
+        var edited = (await update.Content.ReadFromJsonAsync<DiaryEntryResponse>())!;
+        Assert.Equal(entry.MealId, edited.MealId);
+        Assert.Equal(entry.MealName, edited.MealName);
+        Assert.Equal(entry.Source, edited.Source);
+        Assert.Equal(entry.SourceId, edited.SourceId);
+        Assert.Equal(entry.SourceUrl, edited.SourceUrl);
+        Assert.Equal(entry.CreatedAtUtc, edited.CreatedAtUtc);
+        Assert.Equal(246.9m, edited.Nutrition.CaloriesKcal);
+        Assert.Null(edited.Nutrition.ProteinG);
+        Assert.Equal(0m, edited.Nutrition.CarbsG);
+        Assert.Equal(5m, edited.Nutrition.FatG);
+        Assert.Equal(edited, Assert.Single((await client.GetFromJsonAsync<DiaryDayResponse>("/me/diary-entries?date=2026-10-16"))!.Items));
         var unknown = await CreateAsync(client, 1, 100m, Day);
         Assert.Null(unknown.Nutrition.CaloriesKcal);
         Assert.Null(unknown.Nutrition.ProteinG);
@@ -166,6 +180,101 @@ public sealed class DiaryEndpointsTests : IClassFixture<PostgresTestFactory>
         create.Headers.Add("X-Bite-Routine-Api-Csrf", csrf);
         using var response = await client.SendAsync(create);
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var entry = (await response.Content.ReadFromJsonAsync<DiaryEntryResponse>())!;
+        using var noPatchCsrf = await client.PatchAsJsonAsync($"/me/diary-entries/{entry.Id}", new { grams = 200, date = Day });
+        using var noDeleteCsrf = await client.DeleteAsync($"/me/diary-entries/{entry.Id}");
+        Assert.Equal(HttpStatusCode.Forbidden, noPatchCsrf.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, noDeleteCsrf.StatusCode);
+        foreach (var method in new[] { HttpMethod.Patch, HttpMethod.Delete })
+        {
+            using var mutation = new HttpRequestMessage(method, $"/me/diary-entries/{entry.Id}");
+            if (method == HttpMethod.Patch) mutation.Content = JsonContent.Create(new { grams = 200, date = Day });
+            mutation.Headers.Add("X-Bite-Routine-Api-Csrf", await CsrfAsync(client));
+            using var result = await client.SendAsync(mutation);
+            Assert.Equal(method == HttpMethod.Patch ? HttpStatusCode.OK : HttpStatusCode.NoContent, result.StatusCode);
+        }
+    }
+
+
+    [Fact]
+    public async Task PatchAndDeleteAreOwnerScoped_AndPersistOnTheSelectedDay()
+    {
+        using var owner = await UserAsync();
+        using var other = await UserAsync();
+        var entry = await CreateAsync(owner, 1, 100m, Day);
+        foreach (var id in new[] { entry.Id, Guid.NewGuid() })
+        {
+            using var patch = await other.PatchAsJsonAsync($"/me/diary-entries/{id}", new { grams = 50, date = "2026-10-16" });
+            using var delete = await other.DeleteAsync($"/me/diary-entries/{id}");
+            Assert.Equal(HttpStatusCode.NotFound, patch.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, delete.StatusCode);
+        }
+        Assert.Equal(entry, Assert.Single((await owner.GetFromJsonAsync<DiaryDayResponse>($"/me/diary-entries?date={Day}"))!.Items));
+        using var response = await owner.PatchAsJsonAsync($"/me/diary-entries/{entry.Id}", new { grams = 175.25m, date = "2026-10-16" });
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var updated = (await response.Content.ReadFromJsonAsync<DiaryEntryResponse>())!;
+        Assert.Equal(175.25m, updated.Grams);
+        Assert.Equal(new DateOnly(2026, 10, 16), updated.Date);
+        Assert.Equal(entry.Id, updated.Id);
+        Assert.Equal(entry.CreatedAtUtc, updated.CreatedAtUtc);
+        Assert.Empty((await owner.GetFromJsonAsync<DiaryDayResponse>($"/me/diary-entries?date={Day}"))!.Items);
+        Assert.Equal(updated, Assert.Single((await owner.GetFromJsonAsync<DiaryDayResponse>("/me/diary-entries?date=2026-10-16"))!.Items));
+        using var removed = await owner.DeleteAsync($"/me/diary-entries/{entry.Id}");
+        Assert.Equal(HttpStatusCode.NoContent, removed.StatusCode);
+        Assert.Empty((await owner.GetFromJsonAsync<DiaryDayResponse>("/me/diary-entries?date=2026-10-16"))!.Items);
+        using var again = await owner.DeleteAsync($"/me/diary-entries/{entry.Id}");
+        using var missing = await owner.PatchAsJsonAsync($"/me/diary-entries/{entry.Id}", new { grams = 100, date = Day });
+        Assert.Equal(HttpStatusCode.NotFound, again.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("0.01")]
+    [InlineData("10000")]
+    public async Task PatchAcceptsGramBoundaries(string grams)
+    {
+        using var client = await UserAsync();
+        var entry = await CreateAsync(client, 1, 100m, Day);
+        using var content = new StringContent($"{{\"grams\":{grams},\"date\":\"{Day}\"}}", Encoding.UTF8, "application/json");
+        using var response = await client.PatchAsync($"/me/diary-entries/{entry.Id}", content);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(decimal.Parse(grams, System.Globalization.CultureInfo.InvariantCulture), (await response.Content.ReadFromJsonAsync<DiaryEntryResponse>())!.Grams);
+    }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"grams\":100}")]
+    [InlineData("{\"date\":\"2026-10-15\"}")]
+    [InlineData("{\"grams\":null,\"date\":\"2026-10-15\"}")]
+    [InlineData("{\"grams\":0,\"date\":\"2026-10-15\"}")]
+    [InlineData("{\"grams\":-1,\"date\":\"2026-10-15\"}")]
+    [InlineData("{\"grams\":10000.01,\"date\":\"2026-10-15\"}")]
+    [InlineData("{\"grams\":1.234,\"date\":\"2026-10-15\"}")]
+    [InlineData("{\"grams\":\"150,25\",\"date\":\"2026-10-15\"}")]
+    [InlineData("{\"grams\":100,\"date\":null}")]
+    [InlineData("{\"grams\":100,\"date\":\"2026-02-30\"}")]
+    [InlineData("{\"grams\":100,\"date\":\"15.10.2026\"}")]
+    [InlineData("{\"grams\":100,\"date\":\"2026-10-15\",\"mealId\":2}")]
+    [InlineData("{\"grams\":100,\"date\":\"2026-10-15\",\"userId\":\"other\"}")]
+    public async Task InvalidPatchLeavesEntryUnchanged(string json)
+    {
+        using var client = await UserAsync();
+        var entry = await CreateAsync(client, 1, 100m, Day);
+        using var content = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await client.PatchAsync($"/me/diary-entries/{entry.Id}", content);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(entry, Assert.Single((await client.GetFromJsonAsync<DiaryDayResponse>($"/me/diary-entries?date={Day}"))!.Items));
+    }
+
+    [Fact]
+    public async Task AnonymousPatchAndDeleteAreUnauthorized()
+    {
+        using var client = _factory.CreateClient();
+        var id = Guid.NewGuid();
+        using var patch = await client.PatchAsJsonAsync($"/me/diary-entries/{id}", new { grams = 100, date = Day });
+        using var delete = await client.DeleteAsync($"/me/diary-entries/{id}");
+        Assert.Equal(HttpStatusCode.Unauthorized, patch.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, delete.StatusCode);
     }
 
     private async Task<HttpClient> UserAsync()

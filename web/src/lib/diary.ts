@@ -1,6 +1,7 @@
 import type { NutritionValues } from "./portion.ts";
 
 export type DiaryInput = { mealId: number; grams: number; date: string };
+export type DiaryUpdate = Pick<DiaryInput, "grams" | "date">;
 export type DiaryEntry = DiaryInput & {
   id: string; mealName: string; createdAtUtc: string;
   nutrition: NutritionValues & { approximate: boolean };
@@ -28,4 +29,11 @@ export function isDiaryInput(value: unknown): value is DiaryInput {
     && typeof input.mealId === "number" && Number.isInteger(input.mealId) && input.mealId > 0 && input.mealId <= 2147483647
     && typeof input.grams === "number" && Number.isFinite(input.grams) && input.grams >= 0.01 && input.grams <= 10000
     && Number(input.grams.toFixed(2)) === input.grams && isDiaryDate(input.date);
+}
+
+export function isDiaryUpdate(value: unknown): value is DiaryUpdate {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const input = value as Record<string, unknown>;
+  return Object.keys(input).every((key) => ["grams", "date"].includes(key))
+    && isDiaryInput({ ...input, mealId: 1 });
 }
