@@ -29,4 +29,24 @@ public sealed record DiaryEntryResponse(Guid Id, int MealId, string MealName, de
         entry.Source, entry.SourceId, entry.SourceUrl);
 }
 
-public sealed record DiaryDayResponse(DateOnly Date, string TimeZone, IReadOnlyList<DiaryEntryResponse> Items);
+public sealed record DiarySummaryResponse(int EntryCount, decimal? CaloriesKcal, decimal? ProteinG, decimal? CarbsG, decimal? FatG)
+{
+    public static DiarySummaryResponse From(IReadOnlyList<DiaryEntryResponse> entries)
+    {
+        decimal? Total(Func<DiaryNutritionResponse, decimal?> nutrient)
+        {
+            decimal total = 0m;
+            foreach (var entry in entries)
+            {
+                var value = nutrient(entry.Nutrition);
+                if (value is null) return null;
+                total += value.Value;
+            }
+            return total;
+        }
+
+        return new(entries.Count, Total(x => x.CaloriesKcal), Total(x => x.ProteinG), Total(x => x.CarbsG), Total(x => x.FatG));
+    }
+}
+
+public sealed record DiaryDayResponse(DateOnly Date, string TimeZone, IReadOnlyList<DiaryEntryResponse> Items, DiarySummaryResponse Summary);

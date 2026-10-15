@@ -78,7 +78,16 @@ const saved = await response.json();
 async function day(session, date = diaryInput.date) {
   const response = await fetch(`${base}/api/diary?date=${date}`, { headers: { Cookie: session }, cache: "no-store" });
   assert.equal(response.status, 200); assert.match(response.headers.get("cache-control"), /private.*no-store/);
-  return response.json();
+  const result = await response.json();
+  assert.equal(result.summary.entryCount, result.items.length);
+  for (const field of ["caloriesKcal", "proteinG", "carbsG", "fatG"]) {
+    if (result.items.some((item) => item.nutrition[field] === null)) assert.equal(result.summary[field], null);
+    else {
+      const expected = result.items.reduce((total, item) => total + item.nutrition[field], 0);
+      assert.ok(typeof result.summary[field] === "number" && Math.abs(result.summary[field] - expected) < 1e-9, `summary ${field} must match current entries`);
+    }
+  }
+  return result;
 }
 assert.equal((await day(identity)).items[0].id, saved.id, "GET after POST must preserve entry");
 assert.equal((await day(identity)).items[0].grams, 150.25);
@@ -153,4 +162,4 @@ assert.match(response.headers.getSetCookie().join(";"), /expires=Thu, 01 Jan 197
 response = await fetch(`${base}/account`, { redirect: "manual" });
 assert.equal(response.status, 307, "after logout, anonymous account access must redirect");
 
-console.log("HTTP smoke passed: auth, diary create/edit/delete/persistence/date/user isolation, direct API CSRF rejection, mobile bearer.");
+console.log("HTTP smoke passed: auth, diary summary/create/edit/delete/persistence/date/user isolation, direct API CSRF rejection, mobile bearer.");

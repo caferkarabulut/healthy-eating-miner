@@ -277,6 +277,85 @@ public sealed class DiaryEndpointsTests : IClassFixture<PostgresTestFactory>
         Assert.Equal(HttpStatusCode.Unauthorized, delete.StatusCode);
     }
 
+    [Fact]
+    public async Task SummaryUsesScaledSnapshots_AndStaysScopedAndCurrentAfterMutations()
+    {
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<BiteRoutineDbContext>();
+            db.Meals.AddRange(
+                new Meal { MealId = 1101, MealName = "Summary A", CaloriesKcalPer100G = 123.45m, ProteinGPer100G = 1.23m, CarbsGPer100G = 0m, FatGPer100G = 2.5m },
+                new Meal { MealId = 1102, MealName = "Summary B", CaloriesKcalPer100G = 200.12m, ProteinGPer100G = 3.45m, CarbsGPer100G = 5.67m, FatGPer100G = 0m });
+            await db.SaveChangesAsync();
+        }
+        using var owner = await UserAsync();
+        using var other = await UserAsync();
+        Assert.Equal(new DiarySummaryResponse(0, 0m, 0m, 0m, 0m), (await DayAsync(owner, Day)).Summary);
+        var first = await CreateAsync(owner, 1101, 33.33m, Day);
+        var second = await CreateAsync(owner, 1102, 77.77m, Day);
+        await CreateAsync(other, 1101, 100m, Day);
+        await CreateAsync(owner, 1102, 100m, "2026-10-17");
+        var expected = new DiarySummaryResponse(2, 196.779209m, 3.093024m, 4.409559m, 0.83325m);
+        Assert.Equal(expected, (await DayAsync(owner, Day)).Summary);
+        Assert.Equal(new DiarySummaryResponse(1, 123.45m, 1.23m, 0m, 2.5m), (await DayAsync(other, Day)).Summary);
+        Assert.Equal(new DiarySummaryResponse(1, 200.12m, 3.45m, 5.67m, 0m), (await DayAsync(owner, "2026-10-17")).Summary);
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<BiteRoutineDbContext>();
+            var meal = await db.Meals.SingleAsync(x => x.MealId == 1101);
+            meal.CaloriesKcalPer100G = 999m; meal.ProteinGPer100G = null;
+            meal.CarbsGPer100G = 999m; meal.FatGPer100G = null;
+            await db.SaveChangesAsync();
+        }
+        Assert.Equal(expected, (await DayAsync(owner, Day)).Summary);
+        using var edit = await owner.PatchAsJsonAsync($"/me/diary-entries/{first.Id}", new { grams = 50, date = Day });
+        Assert.Equal(HttpStatusCode.OK, edit.StatusCode);
+        Assert.Equal(new DiarySummaryResponse(2, 217.358324m, 3.298065m, 4.409559m, 1.25m), (await DayAsync(owner, Day)).Summary);
+        using var move = await owner.PatchAsJsonAsync($"/me/diary-entries/{first.Id}", new { grams = 50, date = "2026-10-16" });
+        Assert.Equal(HttpStatusCode.OK, move.StatusCode);
+        Assert.Equal(new DiarySummaryResponse(1, 155.633324m, 2.683065m, 4.409559m, 0m), (await DayAsync(owner, Day)).Summary);
+        Assert.Equal(new DiarySummaryResponse(1, 61.725m, 0.615m, 0m, 1.25m), (await DayAsync(owner, "2026-10-16")).Summary);
+        using var deleteFirst = await owner.DeleteAsync($"/me/diary-entries/{first.Id}");
+        using var deleteSecond = await owner.DeleteAsync($"/me/diary-entries/{second.Id}");
+        Assert.Equal(HttpStatusCode.NoContent, deleteFirst.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, deleteSecond.StatusCode);
+        Assert.Equal(new DiarySummaryResponse(0, 0m, 0m, 0m, 0m), (await DayAsync(owner, Day)).Summary);
+        Assert.Equal(new DiarySummaryResponse(0, 0m, 0m, 0m, 0m), (await DayAsync(owner, "2026-10-16")).Summary);
+        Assert.Equal(1, (await DayAsync(other, Day)).Summary.EntryCount);
+    }
+
+    [Fact]
+    public async Task MissingNutrientsInvalidateOnlyTheirOwnTotals_WhileZeroIsKnown()
+    {
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<BiteRoutineDbContext>();
+            db.Meals.AddRange(
+                new Meal { MealId = 1111, MealName = "Partial A", CaloriesKcalPer100G = 10m, ProteinGPer100G = null, CarbsGPer100G = 0m, FatGPer100G = 2m },
+                new Meal { MealId = 1112, MealName = "Partial B", CaloriesKcalPer100G = 20m, ProteinGPer100G = 4m, CarbsGPer100G = 0m, FatGPer100G = null });
+            await db.SaveChangesAsync();
+        }
+        using var owner = await UserAsync();
+        using var other = await UserAsync();
+        var first = await CreateAsync(owner, 1111, 50m, Day);
+        Assert.Equal(new DiarySummaryResponse(1, 5m, null, 0m, 1m), (await DayAsync(owner, Day)).Summary);
+        var second = await CreateAsync(owner, 1112, 200m, Day);
+        Assert.Equal(new DiarySummaryResponse(2, 45m, null, 0m, null), (await DayAsync(owner, Day)).Summary);
+        await CreateAsync(other, 1, 100m, Day);
+        await CreateAsync(owner, 1, 100m, "2026-10-16");
+        Assert.Equal(new DiarySummaryResponse(2, 45m, null, 0m, null), (await DayAsync(owner, Day)).Summary);
+        using var delete = await owner.DeleteAsync($"/me/diary-entries/{first.Id}");
+        Assert.Equal(HttpStatusCode.NoContent, delete.StatusCode);
+        Assert.Equal(new DiarySummaryResponse(1, 40m, 8m, 0m, null), (await DayAsync(owner, Day)).Summary);
+        using var move = await owner.PatchAsJsonAsync($"/me/diary-entries/{second.Id}", new { grams = 50, date = "2026-10-16" });
+        Assert.Equal(HttpStatusCode.OK, move.StatusCode);
+        Assert.Equal(new DiarySummaryResponse(0, 0m, 0m, 0m, 0m), (await DayAsync(owner, Day)).Summary);
+        Assert.Equal(new DiarySummaryResponse(2, null, null, null, null), (await DayAsync(owner, "2026-10-16")).Summary);
+    }
+
+    private static async Task<DiaryDayResponse> DayAsync(HttpClient client, string day) =>
+        (await client.GetFromJsonAsync<DiaryDayResponse>($"/me/diary-entries?date={day}"))!;
+
     private async Task<HttpClient> UserAsync()
     {
         var client = _factory.CreateClient();

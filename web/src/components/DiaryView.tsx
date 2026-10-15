@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { DiaryDay } from "@/lib/diary";
 import { isDiaryDate } from "@/lib/diary";
+import DiarySummary from "./DiarySummary";
 import DiaryEntryCard from "./DiaryEntryCard";
 import { useDiaryDate } from "@/lib/use-diary-date";
 
@@ -63,6 +64,7 @@ export default function DiaryView({ initialDate }: { initialDate?: string }) {
         <button type="button" disabled={busy} onClick={() => { editing.current.clear(); setRevision((value) => value + 1); }} className="rounded-xl bg-[#e5f3e9] px-5 py-3 font-semibold">Yenile</button>
       </div>
       {message && <p className="mt-4" role="status">{message}</p>}
+      {current?.kind === "ok" && <DiarySummary summary={current.day.summary} />}
       {!isDiaryDate(date) ? <p className="mt-6" role="status">Geçerli bir gün seçin.</p> : !current ? <p className="mt-6" role="status">Günlük yükleniyor...</p> : current.kind !== "ok" ? (
         <div className="mt-6 rounded-2xl bg-white p-6" role="alert">
           <p>{current.message}</p>
