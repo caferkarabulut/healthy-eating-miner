@@ -66,13 +66,20 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - `/history`, mevcut İstanbul günü yardımcısı, önceki/sonraki yedi gün, günlük bağlantıları, “Kayıt yok”/“Eksik veri”, yüklenme/oturum/hata durumları ve özel önbelleksiz geçit içerir. Grafik/hedef/ortalama/sağlık yorumu eklenmedi.
 - Doğrulama: 101 gerçek PostgreSQL testi (tek aralık sorgusu dahil), 45 web testi, uyarısız Release build, web build/lint ve değişiklik olmadığını bildiren migration model kontrolü. Çerezli HTTP kontrolü ekleme/düzenleme/tarih taşıma/silme sonrası geçmişi günlük özetiyle karşılaştırdı. Tarayıcıda boş/dolu günler, haftalık gezinme, günlüğe geçiş, yenileme, iki hesap ayrımı ve 375 px mobil görünüm doğrulandı.
 
-## Bu dal: tek komutla yerel demo
+## Tek komutla yerel demo (main)
 
 - PR #17'nin `79ee806` HEAD'i ve başarılı CI doğrulandı; aynı HEAD koşuluyla merge edildi. Yerel main fast-forward güncellendi, `chore/local-demo` buradan açıldı.
 - `node scripts/local-demo.mjs`, mevcut Release API ve kurulu Next.js ile Development ortamını açar; paket kurulumu/build/test tekrar etmez. Salt okunur ön kontrol yerel PostgreSQL 17, yalnız geliştirme DB'si, migration ve kaynaklı seed varlığını doğrular; eksikte açık manuel yönlendirme verir. Veri/hesap oluşturmaz veya ayar/gizli bilgi yazdırmaz.
 - Port çakışmasında mevcut süreç korunur; hazır olma sonrası adres gösterilir. SIGINT/SIGTERM ve hatalarda yalnız başlatılan süreç grupları kapatılır. [Komut ve sorun giderme](local-setup.md).
 - Doğrulama: 4 başlatıcı testi, 106 backend testi, uyarısız Release build. Gerçek ortamda başlatma, API/web hazır olma, ikinci başlatmada port hatası, SIGINT sonrası iki portun boşalması; HTTP ve tarayıcıda katalog/giriş/favoriler/günlük/geçmiş akışı doğrulandı. Geçici hesaplar temizlendi, 30 katalog kaydı korundu. Model/migration ve web ekranları değişmedi.
 
+## Bu dal: kayıt hata geri bildirimi
+
+- Yeniden üretim: zayıf parola API tarafından reddediliyor, geçit tüm hataları tek mesaja indiriyor ve alan değişince eski hata kalıyordu. Düzeltilen e-posta/parolayla yenilemeden kayıt mevcut kodda da başarılı oldu; kalıcı yüklenme/CSRF kilidi gözlenmedi. CSRF her gönderimde yeniden alınıyor.
+- Tanınan Identity kodları güvenli Türkçe alan mesajlarına çevrilir; ham açıklamalar/teknik ayrıntılar gönderilmez. Düzeltilen alanın hatası ve genel hata temizlenir, diğer alan hatası korunur. Başarısızlık yüklenmeyi kaldırır; eşzamanlı gönderim engellenir. Başarı sonrası zamanlı yönlendirme yerine açık Giriş yap bağlantısı vardır.
+- Parola politikası, e-posta doğrulama kuralları ve uzantı kabulü değişmedi. Regresyon testi gerçek kullanılan form reducer + istemci + geçitte başarısız gönderim/düzeltme/yeniden gönderim/başarı akışını kapsar; CI HTTP smoke aynı akışı gerçek Identity ile doğrular.
+- Doğrulama: 49 web testi, web build/lint; gerçek tarayıcıda zayıf parola mesajları, düzeltince temizlenme, yenilemeden başarı, .net/.technology adresleri ve açık giriş bağlantısı. İki geçici hesap temizlendi. Backend/model değişmediği için yerel backend testleri tekrarlanmadı.
+
 ## Sıradaki iş
 
-Yerel demo PR'ını incelemek. Yeni PR merge edilmedi; deployment yapılmadı. Mevcut kurulu ortamda tek komut yeterlidir.
+Kayıt geri bildirimi PR'ını incelemek. Merge veya deployment yapılmadı.
