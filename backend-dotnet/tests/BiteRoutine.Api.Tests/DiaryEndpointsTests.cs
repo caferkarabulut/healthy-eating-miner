@@ -353,6 +353,47 @@ public sealed class DiaryEndpointsTests : IClassFixture<PostgresTestFactory>
         Assert.Equal(new DiarySummaryResponse(2, null, null, null, null), (await DayAsync(owner, "2026-10-16")).Summary);
     }
 
+    [Fact]
+    public async Task MealSlotsDefaultValidatePersistAndPreserveSummaryAndOwnership()
+    {
+        using var owner = await UserAsync();
+        using var other = await UserAsync();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<BiteRoutineDbContext>();
+            db.Meals.Add(new Meal { MealId = 1201, MealName = "Slot snapshot", CaloriesKcalPer100G = 120m,
+                ProteinGPer100G = 4m, CarbsGPer100G = 0m, FatGPer100G = null, NutritionSource = "Fixture" });
+            await db.SaveChangesAsync();
+        }
+        var original = await CreateAsync(owner, 1201, 150.25m, Day);
+        Assert.Equal("other", original.MealSlot);
+        var summary = (await DayAsync(owner, Day)).Summary;
+        foreach (var slot in new[] { "breakfast", "lunch", "dinner", "snack", "other" })
+        {
+            using var patch = await owner.PatchAsJsonAsync($"/me/diary-entries/{original.Id}", new { grams = original.Grams, date = Day, mealSlot = slot });
+            Assert.Equal(HttpStatusCode.OK, patch.StatusCode);
+            Assert.Equal(original with { MealSlot = slot }, await patch.Content.ReadFromJsonAsync<DiaryEntryResponse>());
+            Assert.Equal(summary, (await DayAsync(owner, Day)).Summary);
+            using var omitted = await owner.PatchAsJsonAsync($"/me/diary-entries/{original.Id}", new { grams = original.Grams, date = Day });
+            Assert.Equal(slot, (await omitted.Content.ReadFromJsonAsync<DiaryEntryResponse>())!.MealSlot);
+            using var create = await other.PostAsJsonAsync("/me/diary-entries", new { mealId = 1201, grams = 100, date = Day, mealSlot = slot });
+            Assert.Equal(HttpStatusCode.Created, create.StatusCode);
+            Assert.Equal(slot, (await create.Content.ReadFromJsonAsync<DiaryEntryResponse>())!.MealSlot);
+        }
+        foreach (object? slot in new object?[] { "", "Breakfast", "kahvalti", " breakfast", "brunch", null, 1 })
+        {
+            using var create = await owner.PostAsJsonAsync("/me/diary-entries", new { mealId = 1201, grams = 100, date = Day, mealSlot = slot });
+            using var patch = await owner.PatchAsJsonAsync($"/me/diary-entries/{original.Id}", new { grams = original.Grams, date = Day, mealSlot = slot });
+            Assert.Equal(HttpStatusCode.BadRequest, create.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, patch.StatusCode);
+        }
+        using var forbidden = await other.PatchAsJsonAsync($"/me/diary-entries/{original.Id}", new { grams = 1, date = Day, mealSlot = "breakfast" });
+        Assert.Equal(HttpStatusCode.NotFound, forbidden.StatusCode);
+        Assert.Equal(original, Assert.Single((await DayAsync(owner, Day)).Items));
+        Assert.Equal(summary, (await DayAsync(owner, Day)).Summary);
+        Assert.DoesNotContain((await DayAsync(other, Day)).Items, x => x.Id == original.Id);
+    }
+
     private static async Task<DiaryDayResponse> DayAsync(HttpClient client, string day) =>
         (await client.GetFromJsonAsync<DiaryDayResponse>($"/me/diary-entries?date={day}"))!;
 

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { isDiaryDate } from "@/lib/diary";
+import MealSlotSelect from "./MealSlotSelect";
+import { type MealSlot, isDiaryDate } from "@/lib/diary";
 import { addDiaryEntry, DiaryError } from "@/lib/diary-client";
 import { useDiaryDate } from "@/lib/use-diary-date";
 
@@ -11,9 +12,10 @@ export default function DiaryAddForm({ mealId, grams, onBusyChange }: {
 }) {
   const { date, selectDate } = useDiaryDate();
   const [session, setSession] = useState<"loading" | "authenticated" | "anonymous" | "error">("loading");
+  const [mealSlot, setMealSlot] = useState<MealSlot>("other");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ key: string; message: string; locked: boolean; success: boolean } | null>(null);
-  const key = `${mealId}/${grams}/${date}`;
+  const key = `${mealId}/${grams}/${date}/${mealSlot}`;
   const current = result?.key === key ? result : null;
   useEffect(() => {
     const controller = new AbortController();
@@ -27,7 +29,7 @@ export default function DiaryAddForm({ mealId, grams, onBusyChange }: {
     if (busy || grams === null || !isDiaryDate(date) || session !== "authenticated" || current?.locked) return;
     setBusy(true); onBusyChange(true);
     try {
-      await addDiaryEntry({ mealId, grams, date });
+      await addDiaryEntry({ mealId, grams, date, mealSlot });
       setResult({ key, message: "Günlüğe eklendi.", locked: true, success: true });
     } catch (reason) {
       if (reason instanceof DiaryError && reason.status === 401) setSession("anonymous");
@@ -40,6 +42,7 @@ export default function DiaryAddForm({ mealId, grams, onBusyChange }: {
       <label htmlFor={`diary-date-${mealId}`} className="block text-sm font-medium">Kayıt tarihi</label>
       <input id={`diary-date-${mealId}`} type="date" value={date} onChange={(event) => selectDate(event.target.value)} disabled={busy}
         className="mt-2 w-full rounded-lg border border-[#b8d6c2] bg-white px-3 py-2" />
+      <MealSlotSelect id={`diary-slot-${mealId}`} value={mealSlot} disabled={busy} onChange={setMealSlot} />
       {session === "loading" && <p className="mt-3 text-sm" role="status">Oturum kontrol ediliyor...</p>}
       {session === "anonymous" && <p className="mt-3 text-sm">Günlüğe eklemek için <Link href="/login" className="font-semibold underline">giriş yapın</Link>.</p>}
       {session === "error" && <p role="alert" className="mt-3 text-sm">Oturum kontrol edilemedi. Sayfayı yenileyin.</p>}

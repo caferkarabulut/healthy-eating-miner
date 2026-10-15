@@ -16,12 +16,16 @@ public sealed class BiteRoutineDbContext(DbContextOptions<BiteRoutineDbContext> 
         modelBuilder.Entity<DiaryEntry>(entity =>
         {
             entity.ToTable("diary_entries", table =>
-                table.HasCheckConstraint("ck_diary_entries_grams", "grams >= 0.01 AND grams <= 10000"));
+            {
+                table.HasCheckConstraint("ck_diary_entries_grams", "grams >= 0.01 AND grams <= 10000");
+                table.HasCheckConstraint("ck_diary_entries_meal_slot", "meal_slot IN ('breakfast', 'lunch', 'dinner', 'snack', 'other')");
+            });
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Id).HasColumnName("id");
             entity.Property(x => x.UserId).HasColumnName("user_id").IsRequired();
             entity.Property(x => x.MealId).HasColumnName("meal_id");
             entity.Property(x => x.Date).HasColumnName("date");
+            entity.Property(x => x.MealSlot).HasColumnName("meal_slot").HasMaxLength(16).HasDefaultValue("other").IsRequired();
             entity.Property(x => x.Grams).HasColumnName("grams").HasPrecision(8, 2);
             entity.Property(x => x.CreatedAtUtc).HasColumnName("created_at_utc").HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(x => x.MealName).HasColumnName("meal_name").HasMaxLength(200).IsRequired();

@@ -29,7 +29,7 @@ public sealed class DiaryEntriesController(BiteRoutineDbContext db, UserManager<
 
         var entry = new DiaryEntry
         {
-            UserId = user.Id, MealId = meal.MealId, Date = request.Date!.Value, Grams = request.Grams,
+            UserId = user.Id, MealId = meal.MealId, MealSlot = request.MealSlot, Date = request.Date!.Value, Grams = request.Grams,
             MealName = meal.MealName, CaloriesKcalPer100G = meal.CaloriesKcalPer100G,
             ProteinGPer100G = meal.ProteinGPer100G, CarbsGPer100G = meal.CarbsGPer100G, FatGPer100G = meal.FatGPer100G,
             Source = meal.NutritionSource, SourceId = meal.NutritionSourceId, SourceUrl = meal.NutritionSourceUrl
@@ -48,10 +48,17 @@ public sealed class DiaryEntriesController(BiteRoutineDbContext db, UserManager<
             return ValidationProblem(ModelState);
         }
 
+        if (request.MealSlot is not null && request.MealSlot is not ("breakfast" or "lunch" or "dinner" or "snack" or "other"))
+        {
+            ModelState.AddModelError(nameof(request.MealSlot), "Geçerli bir öğün seçin.");
+            return ValidationProblem(ModelState);
+        }
+
         var user = await users.GetUserAsync(User);
         if (user is null) return Unauthorized();
         var entry = await db.DiaryEntries.SingleOrDefaultAsync(x => x.Id == id && x.UserId == user.Id, cancellationToken);
         if (entry is null) return NotFound();
+        if (request.MealSlot is not null) entry.MealSlot = request.MealSlot;
         entry.Grams = request.Grams;
         entry.Date = request.Date!.Value;
         try { await db.SaveChangesAsync(cancellationToken); }

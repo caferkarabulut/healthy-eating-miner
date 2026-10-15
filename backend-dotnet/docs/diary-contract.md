@@ -15,7 +15,7 @@ Tüm uç noktalar Identity oturumu gerektirir. Kullanıcı kimliği yalnız doğ
 ### POST `/me/diary-entries`
 
 ```json
-{ "mealId": 1, "grams": 150.25, "date": "2026-10-15" }
+{ "mealId": 1, "grams": 150.25, "date": "2026-10-15", "mealSlot": "breakfast" }
 ```
 
 `mealId` pozitif tamsayıdır. `grams` JSON sayısıdır; 0.01–10000 g aralığında ve en fazla iki ondalık basamakla kabul edilir (sessiz yuvarlama yapılmaz). `date` zorunludur. Başarılı yanıt `201` ve oluşturulan kayıttır; `Location` seçilen günün liste adresini gösterir. Tekrarlanan POST ayrı kayıt oluşturur; idempotency bu dilimde yoktur.
@@ -24,17 +24,17 @@ Tüm uç noktalar Identity oturumu gerektirir. Kullanıcı kimliği yalnız doğ
 
 Tarih zorunlu ve tam `yyyy-MM-dd` biçimindedir. `200` yanıtı `{ "date": "2026-10-15", "timeZone": "Europe/Istanbul", "items": [...], "summary": { "entryCount": 2, "caloriesKcal": 196.779209, "proteinG": 3.093024, "carbsG": 4.409559, "fatG": 0.83325 } }` biçimindedir. Yalnız oturum kullanıcısının o gündeki kayıtları, oluşturulma zamanı/kimlik sırasıyla döner; boş gün `items: []` verir.
 
-Kayıt alanları: `id`, `mealId`, `mealName`, `grams`, `date`, `createdAtUtc`, `nutrition` (`caloriesKcal`, `proteinG`, `carbsG`, `fatG`, `approximate: true`), `source`, `sourceId`, `sourceUrl`. Besin alanları tek tek nullable'dır; tümü eksikse de kayıt oluşturulabilir.
+Kayıt alanları: `id`, `mealId`, `mealName`, `grams`, `date`, `mealSlot`, `createdAtUtc`, `nutrition` (`caloriesKcal`, `proteinG`, `carbsG`, `fatG`, `approximate: true`), `source`, `sourceId`, `sourceUrl`. Besin alanları tek tek nullable'dır; tümü eksikse de kayıt oluşturulabilir.
 
-Hatalar: geçersiz/eksik alan veya tarih `400` (ProblemDetails), katalogda bulunmayan gıda `404`, oturumsuz istek `401`, çerezli POST/PATCH/DELETE'te eksik/geçersiz antiforgery `403`. Kullanıcı kimliği yanıta eklenmez. Web istemcisi aynı kökenli `/api/diary` geçidini kullanır; tarih, önbellek ve tekrar gönderim davranışı [web README](../../web/README.md) içindedir. Öğün türleri ve deployment kapsam dışıdır.
+Hatalar: geçersiz/eksik alan veya tarih `400` (ProblemDetails), katalogda bulunmayan gıda `404`, oturumsuz istek `401`, çerezli POST/PATCH/DELETE'te eksik/geçersiz antiforgery `403`. Kullanıcı kimliği yanıta eklenmez. Web istemcisi aynı kökenli `/api/diary` geçidini kullanır; tarih, önbellek ve tekrar gönderim davranışı [web README](../../web/README.md) içindedir. Deployment kapsam dışıdır.
 
 ### PATCH `/me/diary-entries/{id}`
 
 ```json
-{ "grams": 175.25, "date": "2026-10-16" }
+{ "grams": 175.25, "date": "2026-10-16", "mealSlot": "dinner" }
 ```
 
-Bu küçük sözleşmede iki alan birlikte zorunludur; JSON Merge Patch değildir. Oluşturmadaki sayı/aralık/iki ondalık ve tarih kuralları geçerlidir. `mealId`, `userId` veya başka alanlar kabul edilmez. Yalnız oturum kullanıcısına ait UUID kaydı düzenlenir; başkasının veya olmayan kaydın yanıtı aynı `404` olur. Başarı `200` ve güncel kayıttır. Gıda kimliği, kayıt anındaki ad, nullable 100 g besin değerleri, kaynak kopyaları ve `createdAtUtc` değişmez; yalnız gramaj ve tarih değişir. Yanıttaki porsiyon değerleri korunmuş kopyadan yeni gramajla hesaplanır.
+Bu küçük sözleşmede gramaj ve tarih birlikte zorunludur; JSON Merge Patch değildir. Oluşturmadaki sayı/aralık/iki ondalık ve tarih kuralları geçerlidir. `mealId`, `userId` veya başka alanlar kabul edilmez. Yalnız oturum kullanıcısına ait UUID kaydı düzenlenir; başkasının veya olmayan kaydın yanıtı aynı `404` olur. Başarı `200` ve güncel kayıttır. Gıda kimliği, kayıt anındaki ad, nullable 100 g besin değerleri, kaynak kopyaları ve `createdAtUtc` değişmez; yalnız gramaj, tarih ve isteğe bağlı `mealSlot` değişir. Yanıttaki porsiyon değerleri korunmuş kopyadan yeni gramajla hesaplanır.
 
 ### DELETE `/me/diary-entries/{id}`
 
@@ -46,4 +46,12 @@ Web aynı kökenli `PATCH/DELETE /api/diary/{id}` geçidini kullanır. Hem taray
 
 GET yanıtındaki `summary`, aynı sorgunun yalnız oturum kullanıcısı/seçilen gün için döndürdüğü `items` listesinden hesaplanır; ayrı bir katalog sorgusu veya saklanan toplam yoktur. `entryCount` tüm kayıtların sayısıdır. Dört besin toplamı, her kaydın **kayıt anındaki 100 g kopyası × gramaj / 100** değeri toplanarak decimal aritmetiğiyle üretilir; ara veya sonuç yuvarlaması yapılmaz. Web yalnız gösterimde Türkçe biçimlendirme yapar.
 
-Boş günde `entryCount` ve dört toplam `0` olur. Herhangi bir kayıtta bir besin eksikse yalnız o alanın toplamı `null` olur; eksik alan sıfır kabul edilmez, eksiksiz diğer alanlar hesaplanır. Gerçek sıfır `0` kalır. Ekleme, gramaj düzenleme, tarih taşıma ve silmeden sonraki GET güncel özeti döndürür; tarih taşındığında her iki günün özeti değişir. Mevcut oturum/kullanıcı ayrımı ve web geçidinin `private, no-store` / `Vary: Cookie` kuralları aynen geçerlidir. Web, eksik toplamda “Eksik veri” ve kısa nedenini gösterir; hedef/öneri/grafik içermez. Model veya migration değişikliği yoktur.
+Boş günde `entryCount` ve dört toplam `0` olur. Herhangi bir kayıtta bir besin eksikse yalnız o alanın toplamı `null` olur; eksik alan sıfır kabul edilmez, eksiksiz diğer alanlar hesaplanır. Gerçek sıfır `0` kalır. Ekleme, gramaj düzenleme, tarih taşıma ve silmeden sonraki GET güncel özeti döndürür; tarih taşındığında her iki günün özeti değişir. Mevcut oturum/kullanıcı ayrımı ve web geçidinin `private, no-store` / `Vary: Cookie` kuralları aynen geçerlidir. Web, eksik toplamda “Eksik veri” ve kısa nedenini gösterir; hedef/öneri/grafik içermez. Toplamlar tüm öğünleri kapsar; yalnız öğün değişince besin toplamları değişmez.
+
+### Öğün alanı ve migration
+
+`mealSlot`, günlük kaydının kullanıcının seçtiği öğünüdür; katalogdaki `mealType` ile ilişkili değildir. API yalnız `breakfast`, `lunch`, `dinner`, `snack`, `other` değerlerini kabul eder. Null, boş, farklı harf büyüklüğü veya tanımsız değer `400` döner. POST'ta atlanırsa `other`, PATCH'te atlanırsa mevcut öğün korunur. Yanıtlar her zaman `mealSlot` taşır.
+
+`AddDiaryMealSlot`, zorunlu `varchar(16)` `meal_slot` sütununu `other` varsayılanıyla ve izinli değer CHECK kısıtıyla ekler. Eski satırlar yalnız bu alanı kazanır; kullanıcı, tarih, gramaj, oluşturulma zamanı ve gıda/besin/kaynak kopyaları korunur. Migration öncesi bağlantının projenin geliştirme DB'si `bite_routine` olduğunu doğrulayın; test DB'sini geliştirme için kullanmayın. Gerçek PostgreSQL testi eski şemadaki dolu kaydı geçiş sonrasında yeni alan hariç JSON olarak karşılaştırır. Migration geri alındığında öğün bilgisi kaybolur.
+
+GET liste sırası değişmez. Web boş olmayan grupları Kahvaltı → Öğle → Akşam → Ara öğün → Diğer sırasıyla gösterir; grup içindeki kayıt sırasını korur. Öğün başına toplam veya otomatik saat tahmini yoktur.

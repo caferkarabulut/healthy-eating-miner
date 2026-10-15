@@ -30,12 +30,19 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Web liste üzerinde sade özet gösterir; null alanlar “Eksik veri” ve nedenini taşır. Aynı önbelleksiz liste yenilemesi ekleme/düzenleme/tarih taşıma/silme sonrası özeti de günceller.
 - Doğrulama: gerçek PostgreSQL kullanıcı/gün ayrımı, gramaj, snapshot, boş gün, null/sıfır ve mutasyon testleri; web test/build/lint, HTTP ve tarayıcı akışı.
 
-## Bu dal: web temizliği
+## Web temizliği (main)
 
 - 12 lint uyarısının nedenleri giderildi: kullanılmayan import/değişkenler kaldırıldı; eski API yardımcısında oturum bitişi ilgili sayfanın Next.js router'ına bırakıldı. Kurallar kapatılmadı; eski ekran dosyaları korundu.
 - Giriş/kayıt ekranlarına katalog dönüşü ve form etiketlerine alan bağlantıları eklendi. Kullanıcı metinleri sadeleşti; Europe/Istanbul tarih davranışı değişmedi. Yeni akış eski Python ekranlarına bağlantı vermiyor.
 - Doğrulama: 31 web testi, build ve sıfır uyarılı lint. 320 px tarayıcıda katalog, kayıt/giriş, uzun e-postalı hesap, günlük ekleme/düzenleme/silme/çıkış denendi; taşma veya kullanılamayan form bulunmadı. Backend/model değişmediği için yerel backend testleri tekrarlanmadı; PR #12'nin başarılı CI doğrulaması esas alındı.
 
+## Bu dal: günlük öğünleri
+
+- Günlük `mealSlot`: breakfast/lunch/dinner/snack/other; katalog mealType alanından bağımsız. POST'ta atlanırsa other, PATCH'te atlanırsa mevcut öğün korunur; geçersiz değerler 400. Yanıtlar öğünü taşır, sahiplik ve iki CSRF katmanı korunur.
+- AddDiaryMealSlot yalnız yeni sütun/varsayılan/CHECK ekler; eski kayıtlar other olur. Migration hedefi localhost PostgreSQL 17 bite_routine olarak doğrulandı ve uygulandı; kullanıcı/katalog/günlük içerikleri önce/sonra karşılaştırıldı. Dolu eski şemadan geçiş ayrıca gerçek PostgreSQL testinde doğrulandı.
+- Web ekleme/düzenlemede Türkçe öğün seçimi, listede sabit sırada gruplama. Günlük özeti tüm öğünleri kapsar; öğün değişimi besin toplamlarını değiştirmez.
+- Doğrulama: 77 gerçek PostgreSQL testi, 33 web testi, Release build, web build/lint, pending-model kontrolü ve geçici kopyada boş sonraki migration scaffold/derleme. Tarayıcıda beş öğüne ekleme, öğün taşıma, sıralama ve sayfa yenileme sonrası kalıcılık/toplamlar doğrulandı.
+
 ## Sıradaki iş
 
-Web temizliği PR'ını incelemek. Yeni özellik veya deployment yapılmadı.
+Öğün seçimi PR'ını incelemek. Merge veya deployment yapılmadı.
