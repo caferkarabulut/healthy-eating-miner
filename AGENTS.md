@@ -7,3 +7,4 @@
 - Migration değişirse `dotnet tool restore` ve `dotnet ef migrations has-pending-model-changes --project src/BiteRoutine.Api --no-build --configuration Release` çalıştır. Yeni migration için geçici kopyada scaffold ve derleme de doğrula. API uç noktası değişirse yerel HTTP kontrolü yap.
 - Sonuçta çalışan kontrolleri, kalan engeli ve gerçekten gereken manuel işlemi kısa raporla. Merge, deployment ve dal silme yalnız açık görev kapsamında yapılır.
 - Commit mesajlarını kısa tut; PR açıklamasını yapılan değişikliği ve gerekli doğrulamayı anlatan birkaç cümleyle yaz.
+- Kök README ürün tanıtımıdır; her görevde güncellenmez. Teknik ayrıntılar ilgili belgelerde tutulur.
