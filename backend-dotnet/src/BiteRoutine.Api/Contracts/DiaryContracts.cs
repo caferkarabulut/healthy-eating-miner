@@ -62,3 +62,6 @@ public sealed record DiarySummaryResponse(int EntryCount, decimal? CaloriesKcal,
 }
 
 public sealed record DiaryDayResponse(DateOnly Date, string TimeZone, IReadOnlyList<DiaryEntryResponse> Items, DiarySummaryResponse Summary);
+
+public sealed record DiarySummaryDayResponse(DateOnly Date, DiarySummaryResponse Summary);
+public sealed record DiaryHistoryResponse(DateOnly StartDate, DateOnly EndDate, string TimeZone, IReadOnlyList<DiarySummaryDayResponse> Days);

@@ -51,7 +51,7 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Web kataloğunda mevcut API ile 20 kayıt/sayfa ve önceki/sonraki bağlantıları vardır. Bağlantılar aramayı korur; arama formu ilk sayfaya döner. Tarayıcı ve HTTP ile 20+10 benzersiz kayda erişim ve Türkçe arama doğrulandı.
 - Doğrulama: 78 gerçek PostgreSQL testi, 35 web testi, Release build, web build/lint. PR #14 başarılı CI ve doğrulanan HEAD ile main'e birleşti; yerel main fast-forward güncellendi.
 
-## Bu dal: favori gıdalar
+## Favori gıdalar (main)
 
 - `favorite_meals` kullanıcı/gıda bileşik anahtarıyla benzersiz ilişki tutar. GET mevcut katalog sayfalamasını ve canlı besin bilgilerini kullanır; PUT/DELETE tekrar ve eşzamanlı eklemelerde güvenlidir. Kullanıcı yalnız oturumdan alınır; katalogda olmayan gıdaya PUT 404 döner. Günlük kopyaları değişmez. [Sözleşme](../backend-dotnet/docs/favorite-meals-contract.md).
 - Katalog kartlarında açık favori düğmeleri ve oturumsuz giriş bağlantısı; `/favorites` içinde mevcut gramaj/tarih/öğün formuyla günlüğe ekleme. Kişisel durum yalnız özel, önbelleksiz GET geçidinden okunur; değişikliklerde iki CSRF katmanı korunur.
@@ -59,6 +59,13 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Doğrulama: 88 gerçek PostgreSQL testi, 41 web testi, Release build, web build/lint, migration model kontrolü ve geçici kopyada sonraki migration scaffold/derleme. Yerel HTTP ve tarayıcıda favori ekleme/çıkarma/kalıcılık, günlük ekleme, iki kullanıcı ayrımı, CSRF ve bearer doğrulandı.
 - PR #15 doğrulanan HEAD ve başarılı CI ile main'e birleşti; yerel main fast-forward güncellendi.
 
+## Bu dal: günlük geçmişi
+
+- PR #16'nın `d14f071` HEAD'i ve iki başarılı CI işi doğrulandı; aynı HEAD koşuluyla main'e birleşti. Yerel main fast-forward güncellendi; `feat/diary-history` buradan açıldı.
+- Oturumlu `GET /me/diary-summary?endDate=yyyy-MM-dd`, bitiş dahil yedi takvim gününü artan sırada döndürür. Tek kullanıcı/aralık DB sorgusu ve mevcut snapshot/decimal günlük hesabı kullanılır; boş gün 0, eksik besin null kalır. Yeni tablo/migration yoktur.
+- `/history`, mevcut İstanbul günü yardımcısı, önceki/sonraki yedi gün, günlük bağlantıları, “Kayıt yok”/“Eksik veri”, yüklenme/oturum/hata durumları ve özel önbelleksiz geçit içerir. Grafik/hedef/ortalama/sağlık yorumu eklenmedi.
+- Doğrulama: 101 gerçek PostgreSQL testi (tek aralık sorgusu dahil), 45 web testi, uyarısız Release build, web build/lint ve değişiklik olmadığını bildiren migration model kontrolü. Çerezli HTTP kontrolü ekleme/düzenleme/tarih taşıma/silme sonrası geçmişi günlük özetiyle karşılaştırdı. Tarayıcıda boş/dolu günler, haftalık gezinme, günlüğe geçiş, yenileme, iki hesap ayrımı ve 375 px mobil görünüm doğrulandı.
+
 ## Sıradaki iş
 
-Favori gıdalar PR'ını incelemek. Bu yeni PR için merge veya deployment yapılmadı.
+Günlük geçmişi PR'ını incelemek. Yeni PR merge edilmedi; deployment yapılmadı. Migration veya manuel kurulum adımı gerekmiyor.

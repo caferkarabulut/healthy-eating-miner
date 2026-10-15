@@ -121,6 +121,7 @@ ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/BiteRoutine.Api --no
 | GET    | `/me` | `401` without a session; otherwise returns the caller's `userId` and `email` |
 | POST   | `/me/diary-entries` | Adds a catalog food with grams and an explicit Istanbul calendar date to the caller's diary |
 | GET    | `/me/diary-entries?date=yyyy-MM-dd` | Lists only the caller's entries and snapshot-based nutrition summary for the selected day |
+| GET    | `/me/diary-summary?endDate=yyyy-MM-dd` | Returns seven ascending calendar-day summaries, including empty days, scoped to the caller |
 | PATCH  | `/me/diary-entries/{id}` | Updates the caller's grams/date/mealSlot while preserving food/nutrition/source snapshots; unknown/other owner returns 404 |
 | DELETE | `/me/diary-entries/{id}` | Deletes only the caller's entry; 204 on success, unknown/other owner returns 404 |
 | GET | `/me/favorite-meals` | Caller-only favorites with live catalog values and the existing page/pageSize/search contract |
