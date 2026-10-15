@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { DiaryDay } from "@/lib/diary";
-import { isDiaryDate } from "@/lib/diary";
+import { groupDiaryEntries, isDiaryDate } from "@/lib/diary";
 import DiarySummary from "./DiarySummary";
 import DiaryEntryCard from "./DiaryEntryCard";
 import { useDiaryDate } from "@/lib/use-diary-date";
@@ -71,18 +71,23 @@ export default function DiaryView({ initialDate }: { initialDate?: string }) {
           {current.kind === "session" && <Link href="/login" className="mt-3 inline-block font-semibold underline">Giriş yap</Link>}
         </div>
       ) : current.day.items.length === 0 ? <p className="mt-6 rounded-2xl bg-white p-6">Bu gün için henüz kayıt yok. <Link href="/" className="font-semibold underline">Katalogdan gıda ekleyin.</Link></p> : (
-        <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-          {current.day.items.map((entry) => (
-            <li key={entry.id} className="rounded-2xl border border-[#d9e4dc] bg-white p-6">
-              <DiaryEntryCard disabled={busy} entry={entry} onBusyChange={busyChanged} onEditingChange={(value) => {
-                if (value) { editing.current.add(entry.id); selectDate(date); }
-                else editing.current.delete(entry.id);
-              }} onSaved={(notice) => {
-                editing.current.clear(); setMessage(notice); setRevision((value) => value + 1);
-              }} />
-            </li>
-          ))}
-        </ul>
+        <div className="mt-6 space-y-8">
+          {groupDiaryEntries(current.day.items).map((group) => <section key={group.value} aria-label={group.label}>
+            <h2 className="mb-4 text-2xl font-semibold">{group.label}</h2>
+            <ul className="grid gap-4 sm:grid-cols-2">
+              {group.items.map((entry) => (
+                <li key={entry.id} className="rounded-2xl border border-[#d9e4dc] bg-white p-6">
+                  <DiaryEntryCard disabled={busy} entry={entry} onBusyChange={busyChanged} onEditingChange={(value) => {
+                    if (value) { editing.current.add(entry.id); selectDate(date); }
+                    else editing.current.delete(entry.id);
+                  }} onSaved={(notice) => {
+                    editing.current.clear(); setMessage(notice); setRevision((value) => value + 1);
+                  }} />
+                </li>
+              ))}
+            </ul>
+          </section>)}
+        </div>
       )}
     </section>
   );

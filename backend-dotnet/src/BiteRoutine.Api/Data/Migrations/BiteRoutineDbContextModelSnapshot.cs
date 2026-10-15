@@ -70,6 +70,14 @@ namespace BiteRoutine.Api.Data.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("meal_name");
 
+                    b.Property<string>("MealSlot")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasDefaultValue("other")
+                        .HasColumnName("meal_slot");
+
                     b.Property<decimal?>("ProteinGPer100G")
                         .HasPrecision(8, 2)
                         .HasColumnType("numeric(8,2)")
@@ -104,6 +112,8 @@ namespace BiteRoutine.Api.Data.Migrations
                     b.ToTable("diary_entries", null, t =>
                         {
                             t.HasCheckConstraint("ck_diary_entries_grams", "grams >= 0.01 AND grams <= 10000");
+
+                            t.HasCheckConstraint("ck_diary_entries_meal_slot", "meal_slot IN ('breakfast', 'lunch', 'dinner', 'snack', 'other')");
                         });
                 });
 

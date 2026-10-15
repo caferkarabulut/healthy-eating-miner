@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using BiteRoutine.Api.Data;
 
@@ -9,21 +10,32 @@ namespace BiteRoutine.Api.Contracts;
 public sealed record CreateDiaryEntryRequest(
     [Range(1, int.MaxValue)] int MealId,
     [Range(typeof(decimal), "0.01", "10000", ParseLimitsInInvariantCulture = true)] decimal Grams,
-    [Required] DateOnly? Date);
+    [Required] DateOnly? Date,
+    [Required, AllowedValues("breakfast", "lunch", "dinner", "snack", "other")] string MealSlot = "other");
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 [JsonNumberHandling(JsonNumberHandling.Strict)]
 public sealed record UpdateDiaryEntryRequest(
     [Range(typeof(decimal), "0.01", "10000", ParseLimitsInInvariantCulture = true)] decimal Grams,
-    [Required] DateOnly? Date);
+    [Required] DateOnly? Date)
+{
+    private string? _mealSlot;
+
+    // Omission preserves the current slot; explicit JSON null is invalid.
+    public string? MealSlot
+    {
+        get => _mealSlot;
+        init => _mealSlot = value ?? throw new JsonException("mealSlot must be a supported string.");
+    }
+}
 
 public sealed record DiaryNutritionResponse(decimal? CaloriesKcal, decimal? ProteinG, decimal? CarbsG, decimal? FatG, bool Approximate);
 
 public sealed record DiaryEntryResponse(Guid Id, int MealId, string MealName, decimal Grams, DateOnly Date,
-    DateTimeOffset CreatedAtUtc, DiaryNutritionResponse Nutrition, string? Source, string? SourceId, string? SourceUrl)
+    string MealSlot, DateTimeOffset CreatedAtUtc, DiaryNutritionResponse Nutrition, string? Source, string? SourceId, string? SourceUrl)
 {
     public static DiaryEntryResponse From(DiaryEntry entry) => new(entry.Id, entry.MealId, entry.MealName,
-        entry.Grams, entry.Date, entry.CreatedAtUtc,
+        entry.Grams, entry.Date, entry.MealSlot, entry.CreatedAtUtc,
         new(entry.CaloriesKcalPer100G * entry.Grams / 100m, entry.ProteinGPer100G * entry.Grams / 100m,
             entry.CarbsGPer100G * entry.Grams / 100m, entry.FatGPer100G * entry.Grams / 100m, true),
         entry.Source, entry.SourceId, entry.SourceUrl);

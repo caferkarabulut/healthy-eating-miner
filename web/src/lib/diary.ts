@@ -1,9 +1,20 @@
 import type { NutritionValues } from "./portion.ts";
 
-export type DiaryInput = { mealId: number; grams: number; date: string };
-export type DiaryUpdate = Pick<DiaryInput, "grams" | "date">;
+export const MEAL_SLOTS = [
+  { value: "breakfast", label: "Kahvaltı" },
+  { value: "lunch", label: "Öğle" },
+  { value: "dinner", label: "Akşam" },
+  { value: "snack", label: "Ara öğün" },
+  { value: "other", label: "Diğer" },
+] as const;
+export type MealSlot = typeof MEAL_SLOTS[number]["value"];
+export function isMealSlot(value: unknown): value is MealSlot {
+  return MEAL_SLOTS.some((slot) => slot.value === value);
+}
+export type DiaryInput = { mealId: number; grams: number; date: string; mealSlot?: MealSlot };
+export type DiaryUpdate = Pick<DiaryInput, "grams" | "date" | "mealSlot">;
 export type DiaryEntry = DiaryInput & {
-  id: string; mealName: string; createdAtUtc: string;
+  mealSlot: MealSlot; id: string; mealName: string; createdAtUtc: string;
   nutrition: NutritionValues & { approximate: boolean };
 };
 export type DiarySummary = NutritionValues & { entryCount: number };
@@ -26,7 +37,8 @@ export function isDiaryDate(value: unknown): value is string {
 export function isDiaryInput(value: unknown): value is DiaryInput {
   if (!value || typeof value !== "object") return false;
   const input = value as Record<string, unknown>;
-  return Object.keys(input).every((key) => ["mealId", "grams", "date"].includes(key))
+  return Object.keys(input).every((key) => ["mealId", "grams", "date", "mealSlot"].includes(key))
+    && (!("mealSlot" in input) || isMealSlot(input.mealSlot))
     && typeof input.mealId === "number" && Number.isInteger(input.mealId) && input.mealId > 0 && input.mealId <= 2147483647
     && typeof input.grams === "number" && Number.isFinite(input.grams) && input.grams >= 0.01 && input.grams <= 10000
     && Number(input.grams.toFixed(2)) === input.grams && isDiaryDate(input.date);
@@ -35,6 +47,11 @@ export function isDiaryInput(value: unknown): value is DiaryInput {
 export function isDiaryUpdate(value: unknown): value is DiaryUpdate {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const input = value as Record<string, unknown>;
-  return Object.keys(input).every((key) => ["grams", "date"].includes(key))
+  return Object.keys(input).every((key) => ["grams", "date", "mealSlot"].includes(key))
     && isDiaryInput({ ...input, mealId: 1 });
+}
+
+export function groupDiaryEntries(entries: DiaryEntry[]) {
+  return MEAL_SLOTS.map((slot) => ({ ...slot, items: entries.filter((entry) => entry.mealSlot === slot.value) }))
+    .filter((group) => group.items.length > 0);
 }

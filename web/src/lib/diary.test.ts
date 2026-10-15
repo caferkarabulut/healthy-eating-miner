@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { isDiaryDate, isDiaryInput, istanbulDay } from "./diary.ts";
+import { groupDiaryEntries, isDiaryDate, isDiaryInput, isDiaryUpdate, istanbulDay, MEAL_SLOTS, type DiaryEntry } from "./diary.ts";
 import { parseGrams } from "./portion.ts";
 
 test("Istanbul day changes at 21:00 UTC, including month/year boundaries", () => {
@@ -28,4 +28,31 @@ test("dates are strict calendar days, without timestamp conversion", () => {
   for (const date of ["2026-02-29", "2026-02-30", "2026-1-01", "0000-01-01", "2026-10-15T21:00:00Z", "15.10.2026", null]) {
     assert.equal(isDiaryDate(date), false);
   }
+});
+
+test("meal slots accept exactly the API values and preserve omitted input compatibility", () => {
+  const input = { mealId: 1, grams: 150.25, date: "2026-10-15" };
+  assert.ok(isDiaryInput(input));
+  assert.ok(isDiaryUpdate({ grams: input.grams, date: input.date }));
+  for (const { value } of MEAL_SLOTS) {
+    assert.ok(isDiaryInput({ ...input, mealSlot: value }));
+    assert.ok(isDiaryUpdate({ grams: input.grams, date: input.date, mealSlot: value }));
+  }
+  for (const value of [null, undefined, 1, "", "Breakfast", " breakfast", "brunch"]) {
+    assert.equal(isDiaryInput({ ...input, mealSlot: value }), false);
+    assert.equal(isDiaryUpdate({ grams: input.grams, date: input.date, mealSlot: value }), false);
+  }
+});
+
+test("grouping keeps fixed Turkish order, entry order and all original nutrition values", () => {
+  const make = (id: string, mealSlot: DiaryEntry["mealSlot"]) => ({ id, mealSlot, nutrition: { caloriesKcal: 12.5 } } as DiaryEntry);
+  const entries = [make("a", "other"), make("b", "snack"), make("c", "dinner"), make("d", "breakfast"), make("e", "lunch"), make("f", "breakfast")];
+  const groups = groupDiaryEntries(entries);
+  assert.deepEqual(groups.map((g) => g.label), ["Kahvaltı", "Öğle", "Akşam", "Ara öğün", "Diğer"]);
+  assert.deepEqual(groups[0].items.map((e) => e.id), ["d", "f"]);
+  assert.equal(groups.flatMap((g) => g.items).length, entries.length);
+  assert.equal(groups[0].items[0], entries[3]);
+  entries[0].mealSlot = "breakfast";
+  assert.deepEqual(groupDiaryEntries(entries).map((g) => g.value), ["breakfast", "lunch", "dinner", "snack"]);
+  assert.deepEqual(groupDiaryEntries([]), []);
 });

@@ -3,7 +3,7 @@ import test from "node:test";
 import { diaryGet, diaryPost, diaryMutate } from "./diary-gateway.ts";
 import { IDENTITY_COOKIE } from "./session.ts";
 
-const input = { mealId: 1, grams: 150.25, date: "2026-10-15" };
+const input = { mealId: 1, grams: 150.25, date: "2026-10-15", mealSlot: "breakfast" };
 const token = "a".repeat(64);
 const cookie = `${IDENTITY_COOKIE}=opaque-session`;
 function request(body: unknown = input, csrf = true, identity = true) {
@@ -42,7 +42,7 @@ test("GET rejects anonymous access and propagates expiration without caching", a
 
 test("POST rejects CSRF, missing session and invalid payload before calling API", async () => {
   const fake: typeof fetch = async () => { throw new Error("must not call API"); };
-  for (const [req, status] of [[request(input, false), 403], [request(input, true, false), 401], [request({ ...input, grams: 1.234 }), 400], [request({ ...input, userId: "other" }), 400]] as const) {
+  for (const [req, status] of [[request(input, false), 403], [request(input, true, false), 401], [request({ ...input, grams: 1.234 }), 400], [request({ ...input, userId: "other" }), 400], [request({ ...input, mealSlot: "brunch" }), 400], [request({ ...input, mealSlot: null }), 400]] as const) {
     const response = await diaryPost(req, fake);
     assert.equal(response.status, status); privateResponse(response);
   }
@@ -81,7 +81,7 @@ test("lost POST response is uncertain and is never retried", async () => {
 });
 
 const entryId = "12345678-1234-1234-1234-123456789abc";
-function mutation(method: "PATCH" | "DELETE", body: unknown = { grams: 175.25, date: input.date }, csrf = true, identity = true, origin = "https://bite.test") {
+function mutation(method: "PATCH" | "DELETE", body: unknown = { grams: 175.25, date: input.date, mealSlot: "dinner" }, csrf = true, identity = true, origin = "https://bite.test") {
   const headers = new Headers(request(body, csrf, identity).headers);
   headers.set("origin", origin);
   return new Request(`https://bite.test/api/diary/${entryId}`, { method, headers, ...(method === "PATCH" ? { body: JSON.stringify(body) } : {}) });
@@ -98,7 +98,7 @@ test("PATCH and DELETE reject CSRF, foreign origins and anonymous sessions befor
       assert.equal(response.status, status); privateResponse(response);
     }
   }
-  for (const body of [{ grams: 1.234, date: input.date }, { grams: 0, date: input.date }, { grams: 100, date: "2026-02-30" }, { grams: "150,25", date: input.date }, { grams: 100, date: input.date, mealId: 2 }, { grams: 100 }, {}]) {
+  for (const body of [{ grams: 100, date: input.date, mealSlot: "brunch" }, { grams: 100, date: input.date, mealSlot: null }, { grams: 1.234, date: input.date }, { grams: 0, date: input.date }, { grams: 100, date: "2026-02-30" }, { grams: "150,25", date: input.date }, { grams: 100, date: input.date, mealId: 2 }, { grams: 100 }, {}]) {
     assert.equal((await diaryMutate(mutation("PATCH", body), entryId, fake)).status, 400);
   }
   assert.equal((await diaryMutate(mutation("DELETE"), "../auth/logout", fake)).status, 404);
@@ -118,7 +118,7 @@ test("PATCH and DELETE forward only session and both API CSRF parts without cach
       assert.equal(headers.get("x-bite-routine-api-csrf"), "api-token");
       assert.equal(headers.get("x-csrf-token"), null);
       if (method === "DELETE") { assert.equal(init?.body, undefined); return new Response(null, { status: 204 }); }
-      assert.deepEqual(JSON.parse(String(init?.body)), { grams: 175.25, date: input.date });
+      assert.deepEqual(JSON.parse(String(init?.body)), { grams: 175.25, date: input.date, mealSlot: "dinner" });
       return Response.json({ id: entryId, grams: 175.25 });
     };
     const response = await diaryMutate(mutation(method), entryId, fake);

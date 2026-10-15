@@ -65,7 +65,7 @@ assert.ok((await response.text()).includes(email), "account must display /me ema
 
 const catalog = await (await fetch(`${api}/meals?pageSize=1`)).json();
 assert.ok(catalog.items.length, "diary smoke requires seeded catalog");
-const diaryInput = { mealId: catalog.items[0].mealId, grams: 150.25, date: "2026-10-15" };
+const diaryInput = { mealId: catalog.items[0].mealId, grams: 150.25, date: "2026-10-15", mealSlot: "breakfast" };
 response = await fetch(`${base}/api/diary?date=${diaryInput.date}`);
 assert.equal(response.status, 401);
 assert.match(response.headers.get("cache-control"), /no-store/);
@@ -75,6 +75,7 @@ response = await post("/api/diary", diaryInput, { identity });
 assert.equal(response.status, 201, "diary gateway must create with both CSRF layers");
 assert.match(response.headers.get("cache-control"), /private.*no-store/);
 const saved = await response.json();
+assert.equal(saved.mealSlot, "breakfast");
 async function day(session, date = diaryInput.date) {
   const response = await fetch(`${base}/api/diary?date=${date}`, { headers: { Cookie: session }, cache: "no-store" });
   assert.equal(response.status, 200); assert.match(response.headers.get("cache-control"), /private.*no-store/);
@@ -103,6 +104,12 @@ assert.equal((await day(secondIdentity)).items[0].grams, 75);
 assert.equal((await day(identity)).items.length, 1, "first user's diary must stay separate");
 assert.equal((await day(identity)).items[0].grams, 150.25);
 
+const beforeSlotChange = await day(identity);
+assert.equal((await post(`/api/diary/${saved.id}`, { grams: diaryInput.grams, date: diaryInput.date, mealSlot: "dinner" }, { identity, method: "PATCH" })).status, 200);
+const afterSlotChange = await day(identity);
+assert.equal(afterSlotChange.items[0].mealSlot, "dinner");
+assert.deepEqual(afterSlotChange.summary, beforeSlotChange.summary, "slot-only change preserves all daily totals");
+
 const updatedInput = { grams: 175.25, date: "2026-10-17" };
 const entryPath = `/api/diary/${saved.id}`;
 for (const method of ["PATCH", "DELETE"]) {
@@ -120,6 +127,7 @@ assert.equal((await post(entryPath, updatedInput, { identity, method: "PATCH" })
 assert.equal((await day(identity)).items.length, 0, "edited date removes entry from old day");
 const edited = (await day(identity, updatedInput.date)).items[0];
 assert.equal(edited.grams, updatedInput.grams);
+assert.equal(edited.mealSlot, "dinner", "omitted PATCH slot preserves current value");
 assert.equal(edited.mealName, saved.mealName);
 assert.equal(edited.sourceUrl, saved.sourceUrl);
 assert.equal((await post(entryPath, {}, { identity, method: "DELETE" })).status, 204);
