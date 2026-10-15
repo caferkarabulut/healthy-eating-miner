@@ -4,9 +4,9 @@ Bite Routine is a nutrition tracking project being rebuilt for Turkey. The curre
 
 ## Current stack and scope
 
-- `backend-dotnet/`: .NET 10, EF Core, Npgsql and PostgreSQL 17. `GET /health/live`, `GET /meals` and `GET /meals/{mealId}` are implemented and covered by real-database integration tests.
+- `backend-dotnet/`: .NET 10, EF Core, Npgsql and PostgreSQL 17. The public health/catalog API and PostgreSQL-backed Identity registration, login and protected `GET /me` are covered by real-database integration tests. See [session design](backend-dotnet/docs/auth-session.md).
 - `web/`: Next.js 16 public catalog at `/`. Search and source-linked nutrition use the .NET API; portion previews scale the 100 g values in the browser without saving data.
-- `backend/`: earlier Python/Azure SQL prototype. It remains in the repository as prior work; its auth, logging and coaching features have **not** been ported to .NET. The corresponding older web pages still call that prototype API.
+- `backend/`: earlier Python/Azure SQL prototype. It remains in the repository as prior work; its meal logging and coaching features have **not** been ported to .NET. The older web login, dashboard, profile and coaching pages still call that prototype API; the new Identity API is not wired into those pages yet.
 - No mobile client or deployment is included yet.
 
 The development database is empty after migrations. An explicit, repeatable seed adds eight basic foods from [USDA FoodData Central](https://fdc.nal.usda.gov/api-guide/). Their numbers describe approximately **100 g of edible food**, not a serving. The older CSV is not imported because its nutrition units and usage rights have not been verified.

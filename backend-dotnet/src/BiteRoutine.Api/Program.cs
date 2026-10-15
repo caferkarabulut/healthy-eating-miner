@@ -1,5 +1,6 @@
 using BiteRoutine.Api.Data;
 using BiteRoutine.Api.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,10 +11,22 @@ builder.Services.AddDbContext<BiteRoutineDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("BiteRoutine")
         ?? throw new InvalidOperationException("ConnectionStrings:BiteRoutine must be configured.")));
 builder.Services.AddScoped<MealCatalogService>();
+builder.Services.AddAuthorization();
+builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
+    {
+        options.User.RequireUniqueEmail = true;
+        options.Password.RequiredLength = 8;
+    })
+    .AddEntityFrameworkStores<BiteRoutineDbContext>();
 
 var app = builder.Build();
 
-// Map attribute-routed controllers (e.g. HealthController, MealsController) to endpoints.
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapGroup("/auth").MapIdentityApi<IdentityUser>();
+
+// Map attribute-routed public catalog and protected profile controllers.
 app.MapControllers();
 
 app.Run();

@@ -56,7 +56,11 @@ jobs:
         run: |
           dotnet tool restore
           dotnet ef migrations has-pending-model-changes --project src/BiteRoutine.Api --no-build --configuration Release
-      - name: Test
+      - name: Test Identity registration and sessions
+        env:
+          BITE_ROUTINE_TEST_CONNECTION: Host=127.0.0.1;Port=5432;Database=bite_routine_test;Username=bite_routine;Password=ci_test_only
+        run: dotnet test BiteRoutine.slnx --no-build --configuration Release --filter FullyQualifiedName~AuthEndpointsTests
+      - name: Test full PostgreSQL suite
         env:
           BITE_ROUTINE_TEST_CONNECTION: Host=127.0.0.1;Port=5432;Database=bite_routine_test;Username=bite_routine;Password=ci_test_only
         run: dotnet test BiteRoutine.slnx --no-build --configuration Release
