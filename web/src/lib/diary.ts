@@ -14,11 +14,13 @@ export function isMealSlot(value: unknown): value is MealSlot {
 export type DiaryInput = { mealId: number; grams: number; date: string; mealSlot?: MealSlot };
 export type DiaryUpdate = Pick<DiaryInput, "grams" | "date" | "mealSlot">;
 export type DiaryEntry = DiaryInput & {
+  source?: string | null; sourceId?: string | null; sourceUrl?: string | null;
   mealSlot: MealSlot; id: string; mealName: string; createdAtUtc: string;
   nutrition: NutritionValues & { approximate: boolean };
 };
 export type DiarySummary = NutritionValues & { entryCount: number };
-export type DiaryDay = { date: string; timeZone: string; items: DiaryEntry[]; summary: DiarySummary };
+export type DiaryMealSummary = { mealSlot: MealSlot; summary: DiarySummary };
+export type DiaryDay = { date: string; timeZone: string; items: DiaryEntry[]; summary: DiarySummary; mealSummaries: DiaryMealSummary[] };
 
 export function istanbulDay(now = new Date()): string {
   const parts = new Intl.DateTimeFormat("en", {
@@ -54,4 +56,10 @@ export function isDiaryUpdate(value: unknown): value is DiaryUpdate {
 export function groupDiaryEntries(entries: DiaryEntry[]) {
   return MEAL_SLOTS.map((slot) => ({ ...slot, items: entries.filter((entry) => entry.mealSlot === slot.value) }))
     .filter((group) => group.items.length > 0);
+}
+
+export function groupDiaryDay(day: DiaryDay) {
+  return groupDiaryEntries(day.items).map((group) => ({ ...group,
+    summary: day.mealSummaries.find((item) => item.mealSlot === group.value)?.summary,
+  }));
 }

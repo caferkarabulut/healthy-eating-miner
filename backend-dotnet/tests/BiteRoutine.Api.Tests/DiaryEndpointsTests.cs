@@ -394,6 +394,64 @@ public sealed class DiaryEndpointsTests : IClassFixture<PostgresTestFactory>
         Assert.DoesNotContain((await DayAsync(other, Day)).Items, x => x.Id == original.Id);
     }
 
+    [Fact]
+    public async Task MealSummariesStayScopedAndReflectSnapshotGramsSlotDateAndDeletion()
+    {
+        using var owner = await UserAsync();
+        using var other = await UserAsync();
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<BiteRoutineDbContext>();
+            db.Meals.AddRange(
+                new Meal { MealId = 1501, MealName = "Complete meal", CaloriesKcalPer100G = 123.45m, ProteinGPer100G = 10, CarbsGPer100G = 0, FatGPer100G = 2.5m },
+                new Meal { MealId = 1502, MealName = "Missing protein", CaloriesKcalPer100G = 100, ProteinGPer100G = null, CarbsGPer100G = 20, FatGPer100G = 0 });
+            await db.SaveChangesAsync();
+        }
+        async Task<DiaryEntryResponse> Add(HttpClient client, int mealId, decimal grams, string date, string slot)
+        {
+            using var response = await client.PostAsJsonAsync("/me/diary-entries", new { mealId, grams, date, mealSlot = slot });
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            return (await response.Content.ReadFromJsonAsync<DiaryEntryResponse>())!;
+        }
+        DiarySummaryResponse Slot(DiaryDayResponse day, string slot) => Assert.Single(day.MealSummaries, x => x.MealSlot == slot).Summary;
+        var first = await Add(owner, 1501, 150.25m, Day, "breakfast");
+        var second = await Add(owner, 1502, 50, Day, "lunch");
+        await Add(owner, 1501, 33.33m, Day, "breakfast");
+        await Add(owner, 1501, 100, "2026-10-16", "breakfast");
+        await Add(other, 1502, 200, Day, "breakfast");
+        var initial = await DayAsync(owner, Day);
+        Assert.Equal(new[] { "breakfast", "lunch", "dinner", "snack", "other" }, initial.MealSummaries.Select(x => x.MealSlot));
+        Assert.Equal(new DiarySummaryResponse(2, 226.62951m, 18.358m, 0, 4.5895m), Slot(initial, "breakfast"));
+        Assert.Equal(new DiarySummaryResponse(1, 50, null, 10, 0), Slot(initial, "lunch"));
+        Assert.Null(initial.Summary.ProteinG);
+        Assert.Equal(0m, Slot(initial, "lunch").FatG);
+        Assert.Equal(new DiarySummaryResponse(0, 0, 0, 0, 0), Slot(initial, "dinner"));
+        Assert.Equal(200m, Slot(await DayAsync(other, Day), "breakfast").CaloriesKcal);
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<BiteRoutineDbContext>();
+            var meal = await db.Meals.SingleAsync(x => x.MealId == 1501);
+            meal.CaloriesKcalPer100G = 999;
+            await db.SaveChangesAsync();
+        }
+        using var slotChange = await owner.PatchAsJsonAsync($"/me/diary-entries/{second.Id}", new { grams = 50, date = Day, mealSlot = "breakfast" });
+        slotChange.EnsureSuccessStatusCode();
+        var moved = await DayAsync(owner, Day);
+        Assert.Equal(initial.Summary, moved.Summary);
+        Assert.Null(Slot(moved, "breakfast").ProteinG);
+        Assert.Equal(new DiarySummaryResponse(0, 0, 0, 0, 0), Slot(moved, "lunch"));
+        using var dateChange = await owner.PatchAsJsonAsync($"/me/diary-entries/{first.Id}", new { grams = 200, date = "2026-10-16", mealSlot = "dinner" });
+        dateChange.EnsureSuccessStatusCode();
+        Assert.Equal(246.9m, Slot(await DayAsync(owner, "2026-10-16"), "dinner").CaloriesKcal);
+        using var delete = await owner.DeleteAsync($"/me/diary-entries/{second.Id}");
+        Assert.Equal(HttpStatusCode.NoContent, delete.StatusCode);
+        var final = await DayAsync(owner, Day);
+        Assert.Equal(new DiarySummaryResponse(1, 41.145885m, 3.333m, 0, 0.83325m), Slot(final, "breakfast"));
+        Assert.Equal(final.Summary, Slot(final, "breakfast"));
+        var empty = await DayAsync(owner, "2026-10-17");
+        Assert.All(empty.MealSummaries, item => Assert.Equal(new DiarySummaryResponse(0, 0, 0, 0, 0), item.Summary));
+    }
+
     private static async Task<DiaryDayResponse> DayAsync(HttpClient client, string day) =>
         (await client.GetFromJsonAsync<DiaryDayResponse>($"/me/diary-entries?date={day}"))!;
 

@@ -61,7 +61,18 @@ public sealed record DiarySummaryResponse(int EntryCount, decimal? CaloriesKcal,
     }
 }
 
-public sealed record DiaryDayResponse(DateOnly Date, string TimeZone, IReadOnlyList<DiaryEntryResponse> Items, DiarySummaryResponse Summary);
+public sealed record DiaryDayResponse(DateOnly Date, string TimeZone, IReadOnlyList<DiaryEntryResponse> Items, IReadOnlyList<DiaryMealSummaryResponse> MealSummaries, DiarySummaryResponse Summary);
 
 public sealed record DiarySummaryDayResponse(DateOnly Date, DiarySummaryResponse Summary);
 public sealed record DiaryHistoryResponse(DateOnly StartDate, DateOnly EndDate, string TimeZone, IReadOnlyList<DiarySummaryDayResponse> Days);
+
+public sealed record DiaryMealSummaryResponse(string MealSlot, DiarySummaryResponse Summary)
+{
+    public static IReadOnlyList<DiaryMealSummaryResponse> From(IReadOnlyList<DiaryEntryResponse> entries)
+    {
+        var groups = entries.ToLookup(x => x.MealSlot);
+        return new[] { "breakfast", "lunch", "dinner", "snack", "other" }
+            .Select(slot => new DiaryMealSummaryResponse(slot, DiarySummaryResponse.From(groups[slot].ToArray())))
+            .ToArray();
+    }
+}

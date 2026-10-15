@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import type { DiaryEntry } from "@/lib/diary";
+import { foodLabel } from "@/lib/catalog-presentation";
 import MealSlotSelect from "./MealSlotSelect";
 import { isDiaryDate } from "@/lib/diary";
 import { changeDiaryEntry, DiaryError } from "@/lib/diary-client";
@@ -14,6 +15,8 @@ export default function DiaryEntryCard({ entry, onBusyChange, onEditingChange, o
   entry: DiaryEntry; disabled: boolean; onBusyChange: (busy: boolean) => void;
   onEditingChange: (editing: boolean) => void; onSaved: (message: string) => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
+  const label = foodLabel(entry.mealName);
   const [mode, setMode] = useState<"view" | "edit" | "delete">("view");
   const [gramsInput, setGramsInput] = useState(String(entry.grams).replace(".", ","));
   const [date, setDate] = useState(entry.date);
@@ -38,21 +41,22 @@ export default function DiaryEntryCard({ entry, onBusyChange, onEditingChange, o
 
   return (
     <article aria-label={entry.mealName}>
-      <h3 className="text-xl font-semibold">{entry.mealName}</h3>
-      <p className="mt-2 text-[#5b7166]">{grams.format(entry.grams)} g · Yaklaşık besin değerleri</p>
-      <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
-        <div><dt>Enerji</dt><dd className="mt-1 font-semibold">{formatMetric(entry.nutrition.caloriesKcal, "kcal")}</dd></div>
-        <div><dt>Protein</dt><dd className="mt-1 font-semibold">{formatMetric(entry.nutrition.proteinG, "g")}</dd></div>
-        <div><dt>Karbonhidrat</dt><dd className="mt-1 font-semibold">{formatMetric(entry.nutrition.carbsG, "g")}</dd></div>
-        <div><dt>Yağ</dt><dd className="mt-1 font-semibold">{formatMetric(entry.nutrition.fatG, "g")}</dd></div>
-      </dl>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-3 gap-y-2">
+        <div className="min-w-0">
+          <h3 className="break-words text-sm font-semibold">{label.name}</h3>
+          {label.preparation && <p className="mt-0.5 break-words text-xs text-[#5b7166]">{label.preparation}</p>}
+        </div>
+        <p className="whitespace-nowrap text-sm text-[#5b7166]">{grams.format(entry.grams)} g</p>
+        <p className="whitespace-nowrap text-sm font-semibold">{formatMetric(entry.nutrition.caloriesKcal, "kcal")}</p>
+      </div>
       {mode === "view" ? (
-        <div className="mt-5 flex gap-4">
+        <div className="mt-2 flex flex-wrap gap-4 text-xs">
+          <button type="button" disabled={locked} aria-expanded={expanded} onClick={() => setExpanded(!expanded)} className="font-semibold underline">{expanded ? "Ayrıntıları kapat" : "Ayrıntılar"}</button>
           <button type="button" disabled={locked} onClick={() => { setMode("edit"); onEditingChange(true); }} className="font-semibold underline">Düzenle</button>
           <button type="button" disabled={locked} onClick={() => { setMode("delete"); onEditingChange(true); }} className="font-semibold text-[#a33c35] underline">Sil</button>
         </div>
       ) : (
-        <form className="mt-5 border-t border-[#d9e4dc] pt-4" onSubmit={(event) => { event.preventDefault(); void submit(); }}>
+        <form className="mt-3 border-t border-[#d9e4dc] pt-4" onSubmit={(event) => { event.preventDefault(); void submit(); }}>
           {mode === "edit" ? (
             <>
               <label htmlFor={`edit-grams-${entry.id}`} className="block text-sm font-medium">Gramaj (g)</label>
@@ -77,6 +81,16 @@ export default function DiaryEntryCard({ entry, onBusyChange, onEditingChange, o
           </div>
         </form>
       )}
+      {expanded && <div className="mt-3 rounded-lg bg-[#f7f8f4] p-3 text-xs">
+        <p className="text-[#5b7166]">Kayıt anındaki yaklaşık besin değerleri</p>
+        <dl className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div><dt>Enerji</dt><dd className="font-semibold">{formatMetric(entry.nutrition.caloriesKcal, "kcal")}</dd></div>
+          <div><dt>Protein</dt><dd className="font-semibold">{formatMetric(entry.nutrition.proteinG, "g")}</dd></div>
+          <div><dt>Karbonhidrat</dt><dd className="font-semibold">{formatMetric(entry.nutrition.carbsG, "g")}</dd></div>
+          <div><dt>Yağ</dt><dd className="font-semibold">{formatMetric(entry.nutrition.fatG, "g")}</dd></div>
+        </dl>
+        {entry.sourceUrl && <a href={entry.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block font-semibold underline">Kaynak: {entry.source ?? "Gıda kaynağı"}</a>}
+      </div>}
       {error && <div className="mt-4 text-sm text-[#a33c35]" role="alert">
         <p>{error.message}</p>
         {error.uncertain && <p>Yenile düğmesiyle sonucu kontrol edin; işlem otomatik tekrarlanmaz.</p>}

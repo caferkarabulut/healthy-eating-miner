@@ -63,3 +63,11 @@ Oturum gerektirir. Zorunlu `endDate`, mevcut tam `yyyy-MM-dd` takvim günü söz
 Yanıt: `{ "startDate": "2026-12-28", "endDate": "2027-01-03", "timeZone": "Europe/Istanbul", "days": [{ "date": "2026-12-28", "summary": { "entryCount": 0, "caloriesKcal": 0, "proteinG": 0, "carbsG": 0, "fatG": 0 } }, ...] }`. Bitiş günü dahil tam yedi gün, artan tarih sırasında ve kayıtsız günler dahil döner. Kayıtsız gün yalnız veri bulunmadığını belirtir; beslenmeye ilişkin bir çıkarım değildir.
 
 Yalnız oturum kullanıcısının aralıktaki günlük kayıtları tek `AsNoTracking` DB sorgusuyla alınır; gün başına sorgu veya katalog okuması yapılmaz. Her gün mevcut `DiarySummaryResponse.From` hesabını kullanır: kayıt anındaki kopya × gramaj / 100, decimal toplama, yuvarlamasız sonuç. Eksik alan null, gerçek sıfır ve boş gün toplamı 0 kalır. Ekleme/düzenleme/tarih taşıma/silme sonraki okumada görünür. Yeni tablo/migration yoktur. API `no-store`, aynı kökenli web geçidi `private, no-store` ve `Vary: Cookie` kullanır; bearer ve HttpOnly oturum düzeni korunur.
+
+### Öğün özetleri
+
+Günlük GET yanıtı ayrıca `mealSummaries: [{ "mealSlot": "breakfast", "summary": { "entryCount": 0, "caloriesKcal": 0, "proteinG": 0, "carbsG": 0, "fatG": 0 } }, ...]` alanını taşır. Beş öğün breakfast → lunch → dinner → snack → other sırasıyla, boşlar dahil döner. Web yalnız dolu öğünleri gösterir.
+
+Mevcut kullanıcı/gün sorgusundan alınan aynı `items`, bellekte öğüne ayrılır; öğün başına DB/katalog sorgusu yoktur. Her grup mevcut `DiarySummaryResponse.From` hesabını kullanır: snapshot × gramaj / 100 ve yuvarlanmayan decimal toplamları. Eksik besin yalnız bulunduğu öğünün ilgili alanını null yapar; diğer öğün/alanlar hesaplanır. Günlük `summary` eski hesabını korur (dolayısıyla herhangi bir öğündeki eksik alan günlük toplamda da null kalır). Boş öğün 0, gerçek sıfır 0'dır. Yeni tablo veya migration yoktur.
+
+Web günlük toplamı kompakt, dolu öğün başlıklarında API toplamlarını ve sabit sıradaki kayıtları satır olarak gösterir. Ad/hazırlama, gramaj ve kcal daima görünür; makro/kaynak ve mevcut düzenleme formu seçimle açılır. Oluşturulma zamanı tüketim saati olarak kullanılmaz. Başarılı düzenleme/öğün veya tarih taşıma/silme aynı no-store GET ile günlük ve öğün toplamlarını birlikte yeniler; mevcut iki CSRF katmanı, silme onayı ve belirsiz istek kilidi korunur.
