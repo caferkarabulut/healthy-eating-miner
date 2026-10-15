@@ -73,13 +73,21 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Port çakışmasında mevcut süreç korunur; hazır olma sonrası adres gösterilir. SIGINT/SIGTERM ve hatalarda yalnız başlatılan süreç grupları kapatılır. [Komut ve sorun giderme](local-setup.md).
 - Doğrulama: 4 başlatıcı testi, 106 backend testi, uyarısız Release build. Gerçek ortamda başlatma, API/web hazır olma, ikinci başlatmada port hatası, SIGINT sonrası iki portun boşalması; HTTP ve tarayıcıda katalog/giriş/favoriler/günlük/geçmiş akışı doğrulandı. Geçici hesaplar temizlendi, 30 katalog kaydı korundu. Model/migration ve web ekranları değişmedi.
 
-## Bu dal: kayıt hata geri bildirimi
+## Kayıt hata geri bildirimi (main)
 
 - Yeniden üretim: zayıf parola API tarafından reddediliyor, geçit tüm hataları tek mesaja indiriyor ve alan değişince eski hata kalıyordu. Düzeltilen e-posta/parolayla yenilemeden kayıt mevcut kodda da başarılı oldu; kalıcı yüklenme/CSRF kilidi gözlenmedi. CSRF her gönderimde yeniden alınıyor.
 - Tanınan Identity kodları güvenli Türkçe alan mesajlarına çevrilir; ham açıklamalar/teknik ayrıntılar gönderilmez. Düzeltilen alanın hatası ve genel hata temizlenir, diğer alan hatası korunur. Başarısızlık yüklenmeyi kaldırır; eşzamanlı gönderim engellenir. Başarı sonrası zamanlı yönlendirme yerine açık Giriş yap bağlantısı vardır.
 - Parola politikası, e-posta doğrulama kuralları ve uzantı kabulü değişmedi. Regresyon testi gerçek kullanılan form reducer + istemci + geçitte başarısız gönderim/düzeltme/yeniden gönderim/başarı akışını kapsar; CI HTTP smoke aynı akışı gerçek Identity ile doğrular.
 - Doğrulama: 49 web testi, web build/lint; gerçek tarayıcıda zayıf parola mesajları, düzeltince temizlenme, yenilemeden başarı, .net/.technology adresleri ve açık giriş bağlantısı. İki geçici hesap temizlendi. Backend/model değişmediği için yerel backend testleri tekrarlanmadı.
 
+## Bu dal: katalog ve ilk kullanım akışı
+
+- PR #19'un `74aebb0` HEAD'i ve başarılı CI doğrulandı; aynı HEAD koşuluyla merge edildi. Yerel main fast-forward güncellendi, `ui/catalog-flow` buradan açıldı.
+- Giriş, HttpOnly oturumu `/api/auth/me` üzerinden doğruladıktan sonra kataloğa döner. Katalogdaki kişisel karşılama ayrı no-store istemci okumasıyla gelir; hesap sayfası menüde kalır. Kayıt/giriş krem, beyaz ve yeşil uygulama renklerini kullanır. Favori seçimi zorunlu değildir.
+- Küçük katalog kartları tam gıda adını, ayrı hazırlama bilgisini ve kısa enerjiyi gösterir. 1280 px'de beş, 1920 px'de altı sütun; 375 px'de tek sütun vardır. Gıda seçimi makrolar ve mevcut gramaj/tarih/öğün ekleme formunu yerel dialog penceresinde açar; diğer kartların boyu değişmez. Klavye/fokus ve Escape davranışı native dialog ile korunur, gönderim sırasında kapatma engellenir.
+- Ortak `/sources` sayfası ve görünür katalog bağlantıları USDA/CC0, 100 g yenilebilir kısım ve yaklaşık değer bilgisini taşır. Gıdaya özel kaynak detayda kalır. Backend, DB, besin hesabı ve günlük ekranı değişmedi.
+- Doğrulama: 52 web testi, build/lint, gerçek HTTP kontrolü. Tarayıcıda 375/1280/1920 px, girişten doğrulanmış katalog dönüşü/karşılama, arama/sayfalama, favori, kaynak sayfası ve 150,25 g ile günlük ekleme kontrol edildi; yatay taşma yok. Katalog/giriş ekran görüntüleri kaydedildi. Geçici test hesapları temizlendi; backend değişmediği için yerel backend testleri tekrarlanmadı.
+
 ## Sıradaki iş
 
-Kayıt geri bildirimi PR'ını incelemek. Merge veya deployment yapılmadı.
+Katalog akışı PR'ını incelemek. Yeni PR merge edilmedi; deployment yapılmadı.

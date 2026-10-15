@@ -65,11 +65,11 @@ export default function FavoriteCatalog({ meals }: { meals?: CatalogMeal[] }) {
     </div>
     {!meals && current?.kind === "ready" && displayed.length === 0 && <p className="rounded-2xl bg-white p-6">Henüz favori gıdanız yok. <Link href="/" className="font-semibold underline">Katalogdan favori ekleyin.</Link></p>}
     <MealCatalog meals={displayed} disabled={busy} onBusyChange={(value) => { diaryPending.current = value; }} renderFavorite={(meal, saving) => current?.kind === "anonymous" ? (
-      <Link href="/login" className="mt-4 block text-sm font-semibold underline">Favoriye eklemek için giriş yap</Link>
+      <Link href="/login" className="mt-2 block text-xs font-semibold underline">Favoriye eklemek için giriş yap</Link>
     ) : (
       <button type="button" disabled={saving || busy || current?.kind !== "ready" || Boolean(notice?.error)}
         aria-pressed={favorites.has(meal.mealId)} onClick={() => void change(meal)}
-        className="mt-4 block w-full rounded-xl border border-[#b8d6c2] px-4 py-3 text-sm font-semibold disabled:opacity-50">
+        className="mt-2 block w-full rounded-lg border border-[#b8d6c2] px-2 py-2.5 text-xs font-semibold disabled:opacity-50">
         {busy ? "İşleniyor..." : favorites.has(meal.mealId) ? "Favorilerden çıkar" : "Favoriye ekle"}
       </button>
     )} />

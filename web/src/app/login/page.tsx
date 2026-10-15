@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { authPost } from '@/lib/auth-client';
+import { loginToCatalog } from '@/lib/login-flow';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -18,8 +18,8 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            await authPost('/api/auth/login', { email, password });
-            router.replace('/account');
+            const destination = await loginToCatalog({ email, password });
+            router.replace(destination);
             router.refresh();
         } catch (reason) {
             setError(reason instanceof Error ? reason.message : 'Giriş yapılamadı.');
@@ -28,16 +28,16 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-            <div className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-700">
+        <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-[#f7f8f4] text-[#18312c]">
+            <div className="bg-white p-8 rounded-2xl shadow-sm w-full max-w-md border border-[#d9e4dc]">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2">🥗 Bite Routine</h1>
-                    <p className="text-gray-400">Giriş Yap</p>
+                    <h1 className="text-3xl font-bold text-[#18312c] mb-2">Bite Routine</h1>
+                    <p className="text-[#5b7166]">Giriş Yap</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                        <label htmlFor="email" className="block text-sm font-medium text-[#18312c] mb-2">
                             E-posta
                         </label>
                         <input
@@ -46,14 +46,14 @@ export default function LoginPage() {
                             autoComplete="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                            className="w-full px-4 py-3 bg-white border border-[#b8d6c2] rounded-lg text-[#18312c] placeholder-[#698074] focus:outline-none focus:ring-2 focus:ring-[#277f64] focus:border-transparent transition"
                             placeholder="ornek@email.com"
                             required
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                        <label htmlFor="password" className="block text-sm font-medium text-[#18312c] mb-2">
                             Şifre
                         </label>
                         <input
@@ -62,14 +62,14 @@ export default function LoginPage() {
                             autoComplete="current-password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                            className="w-full px-4 py-3 bg-white border border-[#b8d6c2] rounded-lg text-[#18312c] placeholder-[#698074] focus:outline-none focus:ring-2 focus:ring-[#277f64] focus:border-transparent transition"
                             placeholder="••••••••"
                             required
                         />
                     </div>
 
                     {error && (
-                        <div className="bg-red-500/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg text-sm">
+                        <div className="bg-[#fff3f1] border border-[#e4b8b0] text-[#a33c35] px-4 py-3 rounded-lg text-sm">
                             {error}
                         </div>
                     )}
@@ -77,17 +77,17 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition disabled:opacity-50"
+                        className="w-full py-3 px-4 bg-[#277f64] text-white font-semibold rounded-lg hover:bg-[#205942] focus:outline-none focus:ring-2 focus:ring-[#277f64] focus:ring-offset-2 focus:ring-offset-white transition disabled:opacity-50"
                     >
                         {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
                     </button>
                 </form>
 
                 <div className="mt-6 text-center">
-                    <Link href="/" className="mb-4 inline-block text-green-400 hover:text-green-300">Yemek kataloğuna dön</Link>
-                    <p className="text-gray-400">
+                    <Link href="/" className="mb-4 inline-block text-[#246b53] hover:text-[#173f34]">Yemek kataloğuna dön</Link>
+                    <p className="text-[#5b7166]">
                         Hesabın yok mu?{' '}
-                        <Link href="/register" className="text-green-400 hover:text-green-300 font-medium">
+                        <Link href="/register" className="text-[#246b53] hover:text-[#173f34] font-medium">
                             Kayıt Ol
                         </Link>
                     </p>

@@ -23,22 +23,22 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-            <div className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-700">
+        <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-[#f7f8f4] text-[#18312c]">
+            <div className="bg-white p-8 rounded-2xl shadow-sm w-full max-w-md border border-[#d9e4dc]">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2">🥗 Bite Routine</h1>
-                    <p className="text-gray-400">Kayıt Ol</p>
+                    <h1 className="text-3xl font-bold text-[#18312c] mb-2">Bite Routine</h1>
+                    <p className="text-[#5b7166]">Kayıt Ol</p>
                 </div>
 
                 {success ? (
-                    <div className="bg-green-500/20 border border-green-500 text-green-400 px-4 py-3 rounded-lg text-center">
+                    <div className="bg-[#e5f3e9] border border-[#b8d6c2] text-[#205942] px-4 py-3 rounded-lg text-center">
                         <p role="status">Kayıt başarılı! Şimdi giriş yapabilirsiniz.</p>
-                        <Link href="/login" className="mt-4 inline-block rounded-lg bg-green-600 px-5 py-3 font-semibold text-white">Giriş yap</Link>
+                        <Link href="/login" className="mt-4 inline-block rounded-lg bg-[#277f64] px-5 py-3 font-semibold text-white">Giriş yap</Link>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                            <label htmlFor="email" className="block text-sm font-medium text-[#18312c] mb-2">
                                 E-posta
                             </label>
                             <input
@@ -50,15 +50,15 @@ export default function RegisterPage() {
                                 disabled={loading}
                                 aria-invalid={Boolean(fieldErrors.email)}
                                 aria-describedby={fieldErrors.email ? 'email-error' : undefined}
-                                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                                className="w-full px-4 py-3 bg-white border border-[#b8d6c2] rounded-lg text-[#18312c] placeholder-[#698074] focus:outline-none focus:ring-2 focus:ring-[#277f64] focus:border-transparent transition"
                                 placeholder="ornek@email.com"
                                 required
                             />
-                            {fieldErrors.email && <p id="email-error" role="alert" className="mt-2 text-sm text-red-400">{fieldErrors.email}</p>}
+                            {fieldErrors.email && <p id="email-error" role="alert" className="mt-2 text-sm text-[#a33c35]">{fieldErrors.email}</p>}
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                            <label htmlFor="password" className="block text-sm font-medium text-[#18312c] mb-2">
                                 Şifre
                             </label>
                             <input
@@ -70,16 +70,16 @@ export default function RegisterPage() {
                                 disabled={loading}
                                 aria-invalid={Boolean(fieldErrors.password)}
                                 aria-describedby={fieldErrors.password ? 'password-error' : undefined}
-                                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                                className="w-full px-4 py-3 bg-white border border-[#b8d6c2] rounded-lg text-[#18312c] placeholder-[#698074] focus:outline-none focus:ring-2 focus:ring-[#277f64] focus:border-transparent transition"
                                 placeholder="••••••••"
                                 required
                                 minLength={8}
                             />
-                            {fieldErrors.password && <p id="password-error" role="alert" className="mt-2 text-sm text-red-400">{fieldErrors.password}</p>}
+                            {fieldErrors.password && <p id="password-error" role="alert" className="mt-2 text-sm text-[#a33c35]">{fieldErrors.password}</p>}
                         </div>
 
                         {error && (
-                            <div role="alert" className="bg-red-500/20 border border-red-500 text-red-400 px-4 py-3 rounded-lg text-sm">
+                            <div role="alert" className="bg-[#fff3f1] border border-[#e4b8b0] text-[#a33c35] px-4 py-3 rounded-lg text-sm">
                                 {error}
                             </div>
                         )}
@@ -87,7 +87,7 @@ export default function RegisterPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition disabled:opacity-50"
+                            className="w-full py-3 px-4 bg-[#277f64] text-white font-semibold rounded-lg hover:bg-[#205942] focus:outline-none focus:ring-2 focus:ring-[#277f64] focus:ring-offset-2 focus:ring-offset-white transition disabled:opacity-50"
                         >
                             {loading ? 'Kayıt yapılıyor...' : 'Kayıt Ol'}
                         </button>
@@ -95,10 +95,10 @@ export default function RegisterPage() {
                 )}
 
                 <div className="mt-6 text-center">
-                    <Link href="/" className="mb-4 inline-block text-green-400 hover:text-green-300">Yemek kataloğuna dön</Link>
-                    <p hidden={success} className="text-gray-400">
+                    <Link href="/" className="mb-4 inline-block text-[#246b53] hover:text-[#173f34]">Yemek kataloğuna dön</Link>
+                    <p hidden={success} className="text-[#5b7166]">
                         Zaten hesabın var mı?{' '}
-                        <Link href="/login" className="text-green-400 hover:text-green-300 font-medium">
+                        <Link href="/login" className="text-[#246b53] hover:text-[#173f34] font-medium">
                             Giriş Yap
                         </Link>
                     </p>
