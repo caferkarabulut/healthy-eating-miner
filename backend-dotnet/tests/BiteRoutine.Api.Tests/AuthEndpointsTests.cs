@@ -120,6 +120,34 @@ public sealed class AuthEndpointsTests : IClassFixture<PostgresTestFactory>
     }
 
     [Fact]
+    public async Task Logout_EndsCookieSession()
+    {
+        using var client = _factory.CreateClient();
+        var email = NewEmail();
+        await RegisterAsync(client, email, "TestPassword1!");
+
+        using var login = await client.PostAsJsonAsync("/auth/login?useCookies=true", new
+        {
+            email,
+            password = "TestPassword1!"
+        });
+        Assert.Equal(HttpStatusCode.OK, login.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/me")).StatusCode);
+
+        using var logout = await client.PostAsync("/auth/logout", null);
+        Assert.Equal(HttpStatusCode.NoContent, logout.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/me")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Logout_WithoutCookie_IsUnauthorized()
+    {
+        using var client = _factory.CreateClient();
+        using var response = await client.PostAsync("/auth/logout", null);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Me_WithoutSession_IsUnauthorized_WhileCatalogStaysPublic()
     {
         using var client = _factory.CreateClient();

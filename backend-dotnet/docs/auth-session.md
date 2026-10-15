@@ -6,10 +6,10 @@ Kullanıcılar PostgreSQL'de ASP.NET Core Identity'nin EF Core tablolarında tut
 
 ## İstemci seçimi
 
-- **Web:** `POST /auth/login?useCookies=true` ile Identity'nin HttpOnly oturum çerezini kullan. Tarayıcı JavaScript'ine bearer/yenileme tokenı verme veya bunları `localStorage`'a koyma. Web arayüzü bağlanırken API'yi aynı kökenli bir sunucu geçidi üzerinden sun; çerezli durum değiştiren istekler için CSRF korumasını ve HTTPS ayarlarını o adımda tamamla. Bu PR web giriş ekranını değiştirmez.
+- **Web:** `POST /auth/login?useCookies=true` ile Identity'nin HttpOnly oturum çerezini kullan. Next.js sunucu geçidi `/api/auth/*` isteklerini aynı kökende karşılar; tarayıcıya bearer/yenileme tokenı verilmez. Giriş, kayıt ve çıkış POST'ları için hem aynı köken Origin/Fetch Metadata kontrolü hem HttpOnly çerez ve istek başlığında eşleşen rastgele CSRF belirteci gerekir. HTTPS üzerinde web çerezi `Secure` olur. Hesap sayfası sunucuda `/me` ile oturumu doğrular. Eski Python takip ekranları bu akışa taşınmadı.
 - **Gelecekteki mobil istemci:** çerez yerine varsayılan Identity bearer tokenı kullan; erişim tokenını `Authorization: Bearer` başlığında gönder, `/auth/refresh` ile yenile, cihazın güvenli saklama alanını kullan. Identity tokenları yalnız bu API içindir; üçüncü taraf OAuth/OIDC kimliği veya JWT gerekecekse ayrı bir sağlayıcı kararı gerekir.
 
-E-posta gönderimi bu adımda kurulmadı; e-posta doğrulama ve parola kurtarma akışları kullanıma hazır sayılmamalı. Herkese açık dağıtımdan önce e-posta teslimi, HTTPS, web CSRF akışı, kimlik uç noktalarının hız sınırları ve Identity çerez/tokenlarının kullandığı Data Protection anahtarlarının kalıcı/paylaşımlı saklanması ayrıca tamamlanmalıdır. Seçilen yerleşik davranışlar için [Microsoft'un Identity API belgeleri](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity-api-authorization?view=aspnetcore-10.0) temel alınmıştır.
+E-posta gönderimi bu adımda kurulmadı; e-posta doğrulama ve parola kurtarma akışları kullanıma hazır sayılmamalı. Herkese açık dağıtımdan önce e-posta teslimi, HTTPS sonlandırması, kimlik uç noktalarının hız sınırları ve Identity çerez/tokenlarının kullandığı Data Protection anahtarlarının kalıcı/paylaşımlı saklanması ayrıca tamamlanmalıdır. Seçilen yerleşik davranışlar için [Microsoft'un Identity API belgeleri](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity-api-authorization?view=aspnetcore-10.0) temel alınmıştır.
 
 ## Yerel doğrulama
 

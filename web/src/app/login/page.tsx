@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { login } from '@/lib/api';
+import { authPost } from '@/lib/auth-client';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -17,12 +17,12 @@ export default function LoginPage() {
         setError('');
         setLoading(true);
 
-        const result = await login(email, password);
-
-        if (result) {
-            router.push('/dashboard');
-        } else {
-            setError('E-posta veya şifre hatalı');
+        try {
+            await authPost('/api/auth/login', { email, password });
+            router.replace('/account');
+            router.refresh();
+        } catch (reason) {
+            setError(reason instanceof Error ? reason.message : 'Giriş yapılamadı.');
         }
         setLoading(false);
     };
@@ -31,7 +31,7 @@ export default function LoginPage() {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
             <div className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-700">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2">🥗 Healthy Eating</h1>
+                    <h1 className="text-3xl font-bold text-white mb-2">🥗 Bite Routine</h1>
                     <p className="text-gray-400">Giriş Yap</p>
                 </div>
 
@@ -42,6 +42,7 @@ export default function LoginPage() {
                         </label>
                         <input
                             type="email"
+                            autoComplete="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
@@ -56,6 +57,7 @@ export default function LoginPage() {
                         </label>
                         <input
                             type="password"
+                            autoComplete="current-password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"

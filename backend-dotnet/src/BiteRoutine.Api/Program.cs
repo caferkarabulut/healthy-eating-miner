@@ -1,5 +1,6 @@
 using BiteRoutine.Api.Data;
 using BiteRoutine.Api.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGroup("/auth").MapIdentityApi<IdentityUser>();
+app.MapPost("/auth/logout", async (HttpContext context, SignInManager<IdentityUser> signInManager) =>
+    {
+        var session = await context.AuthenticateAsync(IdentityConstants.ApplicationScheme);
+        if (!session.Succeeded) return Results.Unauthorized();
+        await signInManager.SignOutAsync();
+        return Results.NoContent();
+    });
 
 // Map attribute-routed public catalog and protected profile controllers.
 app.MapControllers();

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { register } from '@/lib/api';
+import { authPost } from '@/lib/auth-client';
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -18,13 +18,12 @@ export default function RegisterPage() {
         setError('');
         setLoading(true);
 
-        const ok = await register(email, password);
-
-        if (ok) {
+        try {
+            await authPost('/api/auth/register', { email, password });
             setSuccess(true);
             setTimeout(() => router.push('/login'), 2000);
-        } else {
-            setError('Bu e-posta zaten kayıtlı veya bir hata oluştu');
+        } catch (reason) {
+            setError(reason instanceof Error ? reason.message : 'Kayıt oluşturulamadı.');
         }
         setLoading(false);
     };
@@ -33,7 +32,7 @@ export default function RegisterPage() {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
             <div className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-700">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2">🥗 Healthy Eating</h1>
+                    <h1 className="text-3xl font-bold text-white mb-2">🥗 Bite Routine</h1>
                     <p className="text-gray-400">Kayıt Ol</p>
                 </div>
 
@@ -49,6 +48,7 @@ export default function RegisterPage() {
                             </label>
                             <input
                                 type="email"
+                                autoComplete="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
@@ -63,12 +63,13 @@ export default function RegisterPage() {
                             </label>
                             <input
                                 type="password"
+                                autoComplete="new-password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                                 placeholder="••••••••"
                                 required
-                                minLength={6}
+                                minLength={8}
                             />
                         </div>
 
