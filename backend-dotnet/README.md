@@ -121,6 +121,8 @@ ASPNETCORE_ENVIRONMENT=Development dotnet run --project src/BiteRoutine.Api --no
 | GET    | `/me` | `401` without a session; otherwise returns the caller's `userId` and `email` |
 | POST   | `/me/diary-entries` | Adds a catalog food with grams and an explicit Istanbul calendar date to the caller's diary |
 | GET    | `/me/diary-entries?date=yyyy-MM-dd` | Lists only the caller's entries for the selected day |
+| PATCH  | `/me/diary-entries/{id}` | Updates the caller's grams/date while preserving food/nutrition/source snapshots; unknown/other owner returns 404 |
+| DELETE | `/me/diary-entries/{id}` | Deletes only the caller's entry; 204 on success, unknown/other owner returns 404 |
 
 See [diary model and HTTP contract](docs/diary-contract.md) for validation, nutrition snapshots and date semantics. Apply the new migration explicitly before using these endpoints; the API never migrates on startup.
 

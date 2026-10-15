@@ -11,6 +11,12 @@ public sealed record CreateDiaryEntryRequest(
     [Range(typeof(decimal), "0.01", "10000", ParseLimitsInInvariantCulture = true)] decimal Grams,
     [Required] DateOnly? Date);
 
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+[JsonNumberHandling(JsonNumberHandling.Strict)]
+public sealed record UpdateDiaryEntryRequest(
+    [Range(typeof(decimal), "0.01", "10000", ParseLimitsInInvariantCulture = true)] decimal Grams,
+    [Required] DateOnly? Date);
+
 public sealed record DiaryNutritionResponse(decimal? CaloriesKcal, decimal? ProteinG, decimal? CarbsG, decimal? FatG, bool Approximate);
 
 public sealed record DiaryEntryResponse(Guid Id, int MealId, string MealName, decimal Grams, DateOnly Date,

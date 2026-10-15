@@ -17,7 +17,7 @@ async function post(path, body = {}, extra = {}) {
   assert.equal(csrfResponse.status, 200);
   const { token } = await csrfResponse.json();
   return fetch(`${base}${path}`, {
-    method: "POST",
+    method: extra.method ?? "POST",
     redirect: "manual",
     headers: {
       Origin: extra.origin ?? base,
@@ -94,6 +94,30 @@ assert.equal((await day(secondIdentity)).items[0].grams, 75);
 assert.equal((await day(identity)).items.length, 1, "first user's diary must stay separate");
 assert.equal((await day(identity)).items[0].grams, 150.25);
 
+const updatedInput = { grams: 175.25, date: "2026-10-17" };
+const entryPath = `/api/diary/${saved.id}`;
+for (const method of ["PATCH", "DELETE"]) {
+  assert.equal((await post(entryPath, updatedInput, { identity, method, noCsrf: true })).status, 403);
+  assert.equal((await post(entryPath, updatedInput, { identity, method, origin: "https://evil.test" })).status, 403);
+  assert.equal((await post(entryPath, updatedInput, { identity: secondIdentity, method })).status, 404, "other users must not mutate entries");
+  const direct = await fetch(`${api}/me/diary-entries/${saved.id}`, {
+    method, headers: { Cookie: identity, "Content-Type": "application/json" },
+    ...(method === "PATCH" ? { body: JSON.stringify(updatedInput) } : {}),
+  });
+  assert.equal(direct.status, 403, "direct cookie mutation requires API antiforgery");
+}
+assert.equal((await post(entryPath, { ...updatedInput, grams: 1.234 }, { identity, method: "PATCH" })).status, 400);
+assert.equal((await post(entryPath, updatedInput, { identity, method: "PATCH" })).status, 200);
+assert.equal((await day(identity)).items.length, 0, "edited date removes entry from old day");
+const edited = (await day(identity, updatedInput.date)).items[0];
+assert.equal(edited.grams, updatedInput.grams);
+assert.equal(edited.mealName, saved.mealName);
+assert.equal(edited.sourceUrl, saved.sourceUrl);
+assert.equal((await post(entryPath, {}, { identity, method: "DELETE" })).status, 204);
+assert.equal((await day(identity, updatedInput.date)).items.length, 0, "deletion must persist after GET");
+assert.equal((await post(entryPath, {}, { identity, method: "DELETE" })).status, 404);
+assert.equal((await day(secondIdentity)).items.length, 1, "other user's record is preserved");
+
 response = await fetch(`${api}/auth/logout`, {
   method: "POST",
   headers: { Cookie: identity, Origin: base },
@@ -129,4 +153,4 @@ assert.match(response.headers.getSetCookie().join(";"), /expires=Thu, 01 Jan 197
 response = await fetch(`${base}/account`, { redirect: "manual" });
 assert.equal(response.status, 307, "after logout, anonymous account access must redirect");
 
-console.log("HTTP smoke passed: auth, diary create/persistence/date/user isolation, direct API CSRF rejection, mobile bearer.");
+console.log("HTTP smoke passed: auth, diary create/edit/delete/persistence/date/user isolation, direct API CSRF rejection, mobile bearer.");
