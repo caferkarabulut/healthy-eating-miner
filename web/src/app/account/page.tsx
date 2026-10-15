@@ -28,7 +28,7 @@ export default async function AccountPage() {
       <div className="mx-auto max-w-xl rounded-3xl bg-white p-8 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#277f64]">Bite Routine</p>
         <h1 className="mt-3 text-3xl font-semibold">Hesabım</h1>
-        <p className="mt-3 text-[#5b7166]">Oturumunuz doğrulandı. Yemek günlüğü henüz eklenmedi.</p>
+        <p className="mt-3 text-[#5b7166]">Oturumunuz doğrulandı. <Link href="/diary" className="font-semibold underline">Yemek günlüğünü aç</Link>.</p>
         <dl className="mt-8 rounded-xl bg-[#f2f7f1] p-5">
           <dt className="text-sm text-[#5b7166]">E-posta</dt>
           <dd className="mt-1 font-medium">{profile.email ?? "E-posta bilgisi yok"}</dd>

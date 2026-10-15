@@ -33,6 +33,7 @@ export default async function HomePage({
           </div>
           <nav aria-label="Hesap" className="flex items-center gap-4 text-sm font-semibold text-[#276b51]">
             <Link href="/login" className="hover:underline">Giriş yap</Link>
+            <Link href="/diary" className="hover:underline">Günlüğüm</Link>
             <Link href="/account" className="rounded-full bg-[#e5f3e9] px-4 py-2 hover:bg-[#d7ebdd]">Hesabım</Link>
           </nav>
         </header>
@@ -40,7 +41,7 @@ export default async function HomePage({
         <section className="mt-10 rounded-3xl bg-[#173f34] px-6 py-9 text-white sm:px-10">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#a6dbc0]">Küçük bir başlangıç</p>
           <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">Ne yediğini daha kolay gör.</h2>
-          <p className="mt-4 max-w-2xl text-[#d4e9db]">Temel gıdaları ara, gramaj seçerek yaklaşık besin değerlerini gör. Kişisel takip sonraki adımda eklenecek.</p>
+          <p className="mt-4 max-w-2xl text-[#d4e9db]">Temel gıdaları ara, gramajına göre yaklaşık besin değerlerini gör ve kendi günlüğüne ekle.</p>
           <form action="/" className="mt-7 flex max-w-xl flex-col gap-3 sm:flex-row">
             <label htmlFor="food-search" className="sr-only">Gıda ara</label>
             <input id="food-search" name="q" defaultValue={search} placeholder="Örneğin mercimek, yoğurt, elma..." className="min-w-0 flex-1 rounded-xl bg-white px-4 py-3 text-[#18312c] outline-none focus:ring-2 focus:ring-[#a6dbc0]" />

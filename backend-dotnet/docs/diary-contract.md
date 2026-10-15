@@ -26,4 +26,4 @@ Tarih zorunlu ve tam `yyyy-MM-dd` biçimindedir. `200` yanıtı `{ "date": "2026
 
 Kayıt alanları: `id`, `mealId`, `mealName`, `grams`, `date`, `createdAtUtc`, `nutrition` (`caloriesKcal`, `proteinG`, `carbsG`, `fatG`, `approximate: true`), `source`, `sourceId`, `sourceUrl`. Besin alanları tek tek nullable'dır; tümü eksikse de kayıt oluşturulabilir.
 
-Hatalar: geçersiz/eksik alan veya tarih `400` (ProblemDetails), katalogda bulunmayan gıda `404`, oturumsuz istek `401`, çerezli POST'ta eksik/geçersiz antiforgery `403`. Kullanıcı kimliği yanıta eklenmez. Düzenleme/silme, öğün türleri, günlük toplamı, web ekranı ve deployment kapsam dışıdır.
+Hatalar: geçersiz/eksik alan veya tarih `400` (ProblemDetails), katalogda bulunmayan gıda `404`, oturumsuz istek `401`, çerezli POST'ta eksik/geçersiz antiforgery `403`. Kullanıcı kimliği yanıta eklenmez. Web istemcisi aynı kökenli `/api/diary` geçidini kullanır; tarih, önbellek ve tekrar gönderim davranışı [web README](../../web/README.md) içindedir. Düzenleme/silme, öğün türleri, günlük toplamı ve deployment kapsam dışıdır.

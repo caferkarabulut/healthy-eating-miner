@@ -10,8 +10,12 @@ export function identityCookieFromResponse(response: Response): string | null {
   return header?.split(";", 1)[0].slice(IDENTITY_COOKIE.length + 1) ?? null;
 }
 
-export async function apiCsrf(identityCookie?: string): Promise<{ token: string; cookie: string }> {
-  const response = await fetch(apiUrl("/auth/antiforgery"), {
+export function requestIdentityCookie(request: Request): string | undefined {
+  return request.headers.get("cookie")?.split(";").map((part) => part.trim()).find((part) => part.startsWith(`${IDENTITY_COOKIE}=`));
+}
+
+export async function apiCsrf(identityCookie?: string, fetcher: typeof fetch = fetch): Promise<{ token: string; cookie: string }> {
+  const response = await fetcher(apiUrl("/auth/antiforgery"), {
     headers: identityCookie ? { Cookie: identityCookie } : {},
     cache: "no-store",
   });
