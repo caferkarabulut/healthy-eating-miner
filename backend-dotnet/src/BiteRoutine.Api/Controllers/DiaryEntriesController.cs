@@ -1,0 +1,58 @@
+using System.Globalization;
+using BiteRoutine.Api.Contracts;
+using BiteRoutine.Api.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace BiteRoutine.Api.Controllers;
+
+[ApiController]
+[Authorize]
+[Route("me/diary-entries")]
+public sealed class DiaryEntriesController(BiteRoutineDbContext db, UserManager<IdentityUser> users) : ControllerBase
+{
+    [HttpPost]
+    public async Task<ActionResult<DiaryEntryResponse>> Create(CreateDiaryEntryRequest request, CancellationToken cancellationToken)
+    {
+        if (decimal.Round(request.Grams, 2) != request.Grams)
+        {
+            ModelState.AddModelError(nameof(request.Grams), "Gramaj en fazla iki ondalık basamak içerebilir.");
+            return ValidationProblem(ModelState);
+        }
+
+        var user = await users.GetUserAsync(User);
+        if (user is null) return Unauthorized();
+        var meal = await db.Meals.AsNoTracking().SingleOrDefaultAsync(x => x.MealId == request.MealId, cancellationToken);
+        if (meal is null) return NotFound();
+
+        var entry = new DiaryEntry
+        {
+            UserId = user.Id, MealId = meal.MealId, Date = request.Date!.Value, Grams = request.Grams,
+            MealName = meal.MealName, CaloriesKcalPer100G = meal.CaloriesKcalPer100G,
+            ProteinGPer100G = meal.ProteinGPer100G, CarbsGPer100G = meal.CarbsGPer100G, FatGPer100G = meal.FatGPer100G,
+            Source = meal.NutritionSource, SourceId = meal.NutritionSourceId, SourceUrl = meal.NutritionSourceUrl
+        };
+        db.DiaryEntries.Add(entry);
+        await db.SaveChangesAsync(cancellationToken);
+        return Created($"/me/diary-entries?date={entry.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}", DiaryEntryResponse.From(entry));
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<DiaryDayResponse>> List([FromQuery] string? date, CancellationToken cancellationToken)
+    {
+        if (!DateOnly.TryParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var day))
+        {
+            ModelState.AddModelError(nameof(date), "Tarih yyyy-MM-dd biçiminde zorunludur.");
+            return ValidationProblem(ModelState);
+        }
+
+        var user = await users.GetUserAsync(User);
+        if (user is null) return Unauthorized();
+        var entries = await db.DiaryEntries.AsNoTracking()
+            .Where(x => x.UserId == user.Id && x.Date == day)
+            .OrderBy(x => x.CreatedAtUtc).ThenBy(x => x.Id).ToListAsync(cancellationToken);
+        return Ok(new DiaryDayResponse(day, "Europe/Istanbul", entries.Select(DiaryEntryResponse.From).ToArray()));
+    }
+}
