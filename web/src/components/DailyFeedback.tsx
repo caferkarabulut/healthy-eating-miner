@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 
 interface Warning {
     type: 'warning' | 'info' | 'success';

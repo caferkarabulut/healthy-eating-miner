@@ -24,12 +24,18 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Web kartlarında düzenleme, silme onayı ve aynı kökenli PATCH/DELETE geçidi. İki CSRF katmanı ve önbelleksiz kişisel yanıtlar korunur. Başarı listeyi yeniler; belirsiz istekler otomatik tekrarlanmaz.
 - PR #11 doğrulanan HEAD ve başarılı CI ile main'e birleşti. Gerçek PostgreSQL ve HTTP/tarayıcı kontrolleri sahiplik, snapshot, doğrulama, silme ve kalıcılığı doğrular.
 
-## Bu dal: günlük özeti
+## Günlük özeti (main)
 
 - Günlük liste yanıtında `summary`: kayıt sayısı ve dört besin toplamı. Yalnız kullanıcı/gün kayıtlarının gramaj uygulanmış besin kopyaları decimal aritmetiğiyle, yuvarlanmadan toplanır. Eksik alan kendi toplamını null yapar; boş gün sıfırdır. Model/migration değişmez.
 - Web liste üzerinde sade özet gösterir; null alanlar “Eksik veri” ve nedenini taşır. Aynı önbelleksiz liste yenilemesi ekleme/düzenleme/tarih taşıma/silme sonrası özeti de günceller.
 - Doğrulama: gerçek PostgreSQL kullanıcı/gün ayrımı, gramaj, snapshot, boş gün, null/sıfır ve mutasyon testleri; web test/build/lint, HTTP ve tarayıcı akışı.
 
+## Bu dal: web temizliği
+
+- 12 lint uyarısının nedenleri giderildi: kullanılmayan import/değişkenler kaldırıldı; eski API yardımcısında oturum bitişi ilgili sayfanın Next.js router'ına bırakıldı. Kurallar kapatılmadı; eski ekran dosyaları korundu.
+- Giriş/kayıt ekranlarına katalog dönüşü ve form etiketlerine alan bağlantıları eklendi. Kullanıcı metinleri sadeleşti; Europe/Istanbul tarih davranışı değişmedi. Yeni akış eski Python ekranlarına bağlantı vermiyor.
+- Doğrulama: 31 web testi, build ve sıfır uyarılı lint. 320 px tarayıcıda katalog, kayıt/giriş, uzun e-postalı hesap, günlük ekleme/düzenleme/silme/çıkış denendi; taşma veya kullanılamayan form bulunmadı. Backend/model değişmediği için yerel backend testleri tekrarlanmadı; PR #12'nin başarılı CI doğrulaması esas alındı.
+
 ## Sıradaki iş
 
-Günlük özeti PR'ını incelemek. Kalori hedefi, öneri, grafik, koçluk, eski Python ekranları ve mobil istemci bu işin kapsamı dışındadır. Deployment yapılmadı.
+Web temizliği PR'ını incelemek. Yeni özellik veya deployment yapılmadı.

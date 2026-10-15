@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { apiRequest } from '@/lib/api';
 
 interface ProfileSetupProps {

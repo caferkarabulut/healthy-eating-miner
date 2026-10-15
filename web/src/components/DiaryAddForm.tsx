@@ -37,7 +37,7 @@ export default function DiaryAddForm({ mealId, grams, onBusyChange }: {
 
   return (
     <div className="mt-5 border-t border-[#cce3d2] pt-4">
-      <label htmlFor={`diary-date-${mealId}`} className="block text-sm font-medium">Günlük tarihi (İstanbul)</label>
+      <label htmlFor={`diary-date-${mealId}`} className="block text-sm font-medium">Kayıt tarihi</label>
       <input id={`diary-date-${mealId}`} type="date" value={date} onChange={(event) => selectDate(event.target.value)} disabled={busy}
         className="mt-2 w-full rounded-lg border border-[#b8d6c2] bg-white px-3 py-2" />
       {session === "loading" && <p className="mt-3 text-sm" role="status">Oturum kontrol ediliyor...</p>}
