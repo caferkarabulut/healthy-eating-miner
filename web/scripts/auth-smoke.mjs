@@ -33,6 +33,13 @@ async function post(path, body = {}, extra = {}) {
 let response = await fetch(`${base}/account`, { redirect: "manual" });
 assert.equal(response.status, 307, "anonymous account access must redirect to login");
 
+response = await post("/api/auth/register", { email, password: "abcdefgh" });
+assert.equal(response.status, 400);
+const weakRegistration = await response.json();
+assert.match(weakRegistration.fieldErrors.password, /rakam/);
+assert.match(weakRegistration.fieldErrors.password, /büyük harf/);
+assert.doesNotMatch(JSON.stringify(weakRegistration), /PasswordRequires|abcdefgh/);
+// Same browser workflow can immediately correct and submit again with a fresh CSRF pair.
 response = await post("/api/auth/register", { email, password });
 assert.equal(response.status, 200, "registration must succeed");
 
