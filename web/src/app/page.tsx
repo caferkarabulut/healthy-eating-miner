@@ -1,4 +1,4 @@
-import MealCatalog from "@/components/MealCatalog";
+import FavoriteCatalog from "@/components/FavoriteCatalog";
 import Link from "next/link";
 import type { CatalogMeal } from "@/lib/portion";
 import { catalogPages, catalogQuery, CATALOG_PAGE_SIZE } from "@/lib/catalog";
@@ -33,9 +33,10 @@ export default async function HomePage({
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#277f64]">Bite Routine</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Yemek kataloğu</h1>
           </div>
-          <nav aria-label="Hesap" className="flex items-center gap-4 text-sm font-semibold text-[#276b51]">
+          <nav aria-label="Hesap" className="flex flex-wrap items-center gap-4 text-sm font-semibold text-[#276b51]">
             <Link href="/login" className="hover:underline">Giriş yap</Link>
             <Link href="/diary" className="hover:underline">Günlüğüm</Link>
+            <Link href="/favorites" className="hover:underline">Favorilerim</Link>
             <Link href="/account" className="rounded-full bg-[#e5f3e9] px-4 py-2 hover:bg-[#d7ebdd]">Hesabım</Link>
           </nav>
         </header>
@@ -61,7 +62,7 @@ export default async function HomePage({
           ) : catalog.items.length === 0 ? (
             <div className="rounded-2xl bg-white p-7">{catalog.totalCount > 0 ? "Bu sayfada gıda yok. Önceki sayfaya dönebilirsiniz." : search ? "Bu aramayla eşleşen gıda yok." : "Katalog henüz boş."}</div>
           ) : (
-            <MealCatalog meals={catalog.items} />
+            <FavoriteCatalog meals={catalog.items} />
           )}
           {pages && (pages.previous || pages.next) && <nav aria-label="Katalog sayfaları" className="mt-6 flex flex-wrap items-center gap-5 text-sm font-semibold">
             {pages.previous && <Link href={pages.previous} className="rounded-xl bg-[#e5f3e9] px-5 py-3 hover:underline">Önceki</Link>}

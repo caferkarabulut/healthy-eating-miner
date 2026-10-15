@@ -117,6 +117,23 @@ namespace BiteRoutine.Api.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BiteRoutine.Api.Data.FavoriteMeal", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.Property<int>("MealId")
+                        .HasColumnType("integer")
+                        .HasColumnName("meal_id");
+
+                    b.HasKey("UserId", "MealId");
+
+                    b.HasIndex("MealId");
+
+                    b.ToTable("favorite_meals", (string)null);
+                });
+
             modelBuilder.Entity("BiteRoutine.Api.Data.Meal", b =>
                 {
                     b.Property<int>("MealId")
@@ -323,6 +340,21 @@ namespace BiteRoutine.Api.Data.Migrations
                         .WithMany()
                         .HasForeignKey("MealId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BiteRoutine.Api.Data.FavoriteMeal", b =>
+                {
+                    b.HasOne("BiteRoutine.Api.Data.Meal", null)
+                        .WithMany()
+                        .HasForeignKey("MealId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)

@@ -43,7 +43,7 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Web ekleme/düzenlemede Türkçe öğün seçimi, listede sabit sırada gruplama. Günlük özeti tüm öğünleri kapsar; öğün değişimi besin toplamlarını değiştirmez.
 - Doğrulama: 77 gerçek PostgreSQL testi, 33 web testi, Release build, web build/lint, pending-model kontrolü ve geçici kopyada boş sonraki migration scaffold/derleme. Tarayıcıda beş öğüne ekleme, öğün taşıma, sıralama ve sayfa yenileme sonrası kalıcılık/toplamlar doğrulandı.
 
-## Bu dal: katalog genişletme
+## Katalog genişletme (main)
 
 - Başlangıç kataloğu 30 kaynaklı temel gıdaya genişletildi. USDA Food Details yanıtındaki kimlik/açıklama/birim/100 g miktarlar doğrulandı; ham seçilmiş alanlar ve [kaynak eşlemesi](../backend-dotnet/docs/usda-catalog-sources.md) eklendi. Geleneksel yemek veya tahmini tarif yoktur.
 - Eski sekiz kaynak kimliği/gıda kimliği korunur; katalogdaki kaba yuvarlamalar resmî ayrıntı değerleriyle düzeltilir. Seed yalnız katalog ad/besin/kaynak alanlarını günceller; geçmiş günlük kopyalarına dokunmaz. Model/migration değişmedi.
@@ -51,6 +51,14 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Web kataloğunda mevcut API ile 20 kayıt/sayfa ve önceki/sonraki bağlantıları vardır. Bağlantılar aramayı korur; arama formu ilk sayfaya döner. Tarayıcı ve HTTP ile 20+10 benzersiz kayda erişim ve Türkçe arama doğrulandı.
 - Doğrulama: 78 gerçek PostgreSQL testi, 35 web testi, Release build, web build/lint. PR #14 başarılı CI ve doğrulanan HEAD ile main'e birleşti; yerel main fast-forward güncellendi.
 
+## Bu dal: favori gıdalar
+
+- `favorite_meals` kullanıcı/gıda bileşik anahtarıyla benzersiz ilişki tutar. GET mevcut katalog sayfalamasını ve canlı besin bilgilerini kullanır; PUT/DELETE tekrar ve eşzamanlı eklemelerde güvenlidir. Kullanıcı yalnız oturumdan alınır; katalogda olmayan gıdaya PUT 404 döner. Günlük kopyaları değişmez. [Sözleşme](../backend-dotnet/docs/favorite-meals-contract.md).
+- Katalog kartlarında açık favori düğmeleri ve oturumsuz giriş bağlantısı; `/favorites` içinde mevcut gramaj/tarih/öğün formuyla günlüğe ekleme. Kişisel durum yalnız özel, önbelleksiz GET geçidinden okunur; değişikliklerde iki CSRF katmanı korunur.
+- AddFavoriteMeals migration'ı hedefi doğrulanan localhost PostgreSQL 17 `bite_routine` geliştirme DB'sine uygulandı; kullanıcı/katalog/günlük içerikleri önce/sonra aynı kaldı. Testler ayrı `bite_routine_test` şemalarındadır.
+- Doğrulama: 88 gerçek PostgreSQL testi, 41 web testi, Release build, web build/lint, migration model kontrolü ve geçici kopyada sonraki migration scaffold/derleme. Yerel HTTP ve tarayıcıda favori ekleme/çıkarma/kalıcılık, günlük ekleme, iki kullanıcı ayrımı, CSRF ve bearer doğrulandı.
+- PR #15 doğrulanan HEAD ve başarılı CI ile main'e birleşti; yerel main fast-forward güncellendi.
+
 ## Sıradaki iş
 
-Katalog genişletme PR'ını incelemek. Bu yeni PR için merge veya deployment yapılmadı.
+Favori gıdalar PR'ını incelemek. Bu yeni PR için merge veya deployment yapılmadı.

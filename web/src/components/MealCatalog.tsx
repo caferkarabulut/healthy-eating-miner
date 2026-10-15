@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import DiaryAddForm from "./DiaryAddForm";
 import {
   calculatePortion,
@@ -11,7 +11,10 @@ import {
 
 const gramFormatter = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 2 });
 
-export default function MealCatalog({ meals }: { meals: CatalogMeal[] }) {
+export default function MealCatalog({ meals, renderFavorite, disabled = false, onBusyChange }: {
+  meals: CatalogMeal[]; renderFavorite?: (meal: CatalogMeal, saving: boolean) => ReactNode;
+  disabled?: boolean; onBusyChange?: (busy: boolean) => void;
+}) {
   const [selectedMealId, setSelectedMealId] = useState<number | null>(null);
   const [gramsInput, setGramsInput] = useState("100");
   const [saving, setSaving] = useState(false);
@@ -47,9 +50,10 @@ export default function MealCatalog({ meals }: { meals: CatalogMeal[] }) {
             ) : (
               <p className="mt-5 border-t border-[#e7eee8] pt-4 text-sm text-[#698074]">Besin değeri henüz eklenmedi.</p>
             )}
+            {renderFavorite?.(meal, saving)}
             <button
               type="button"
-              disabled={saving}
+              disabled={saving || disabled}
               aria-expanded={selected}
               onClick={() => {
                 setSelectedMealId(selected ? null : meal.mealId);
@@ -70,7 +74,7 @@ export default function MealCatalog({ meals }: { meals: CatalogMeal[] }) {
                   autoComplete="off"
                   maxLength={10}
                   value={gramsInput}
-                  disabled={saving}
+                  disabled={saving || disabled}
                   onChange={(event) => setGramsInput(event.target.value)}
                   aria-invalid={grams === null}
                   aria-describedby={`grams-help-${meal.mealId}`}
@@ -95,7 +99,7 @@ export default function MealCatalog({ meals }: { meals: CatalogMeal[] }) {
                     Geçerli bir gramaj girin (en fazla iki ondalık basamak).
                   </p>
                 )}
-                <DiaryAddForm mealId={meal.mealId} grams={grams} onBusyChange={setSaving} />
+                <DiaryAddForm mealId={meal.mealId} grams={grams} disabled={disabled} onBusyChange={(value) => { setSaving(value); onBusyChange?.(value); }} />
               </div>
             )}
           </article>

@@ -26,3 +26,9 @@ Before using the diary, explicitly apply `AddDiaryEntries` and `AddDiaryMealSlot
 ## Catalog pagination
 
 The public catalog uses the existing API with 20 foods per page. Previous/next links preserve the Turkish search query in the URL; submitting the search form omits the page and starts at page 1. Out-of-range pages offer a link back to the last valid page. The 30 sourced foods and original USDA descriptions/100 g values are documented in [the source mapping](../backend-dotnet/docs/usda-catalog-sources.md).
+
+## Favorites
+
+Catalog cards have labeled add/remove favorite buttons; anonymous visitors get a login link. `/favorites` uses the same portion/date/meal-slot diary form as the catalog. Favorites read current catalog names/nutrients and never update diary snapshots. The browser loads only the caller's favorites through same-origin `/api/favorites` (paginated GET, PUT/DELETE by meal ID), with no-store requests and private no-store responses. The public server-rendered catalog never embeds personal favorite state. Existing HttpOnly Identity and both CSRF layers apply; no token/email is added to localStorage. Loading, empty, session-expired and error states are explicit. Writes lock repeated actions, successful changes reload favorites, and uncertain failures are not automatically retried. Apply `AddFavoriteMeals` only to the verified development DB before use. [API/data contract](../backend-dotnet/docs/favorite-meals-contract.md).
+
+Tests cover private paginated reads, gateway CSRF/session/error behavior and single-attempt mutations. The existing CI HTTP smoke now also checks favorite repeat operations, user isolation, direct API cookie rejection and mobile bearer changes. Local browser verification covers add/remove/reload persistence and adding a favorite to the diary with Turkish grams and a meal slot.

@@ -7,8 +7,8 @@ import { type MealSlot, isDiaryDate } from "@/lib/diary";
 import { addDiaryEntry, DiaryError } from "@/lib/diary-client";
 import { useDiaryDate } from "@/lib/use-diary-date";
 
-export default function DiaryAddForm({ mealId, grams, onBusyChange }: {
-  mealId: number; grams: number | null; onBusyChange: (value: boolean) => void;
+export default function DiaryAddForm({ mealId, grams, onBusyChange, disabled = false }: {
+  mealId: number; grams: number | null; onBusyChange: (value: boolean) => void; disabled?: boolean;
 }) {
   const { date, selectDate } = useDiaryDate();
   const [session, setSession] = useState<"loading" | "authenticated" | "anonymous" | "error">("loading");
@@ -26,7 +26,7 @@ export default function DiaryAddForm({ mealId, grams, onBusyChange }: {
   }, []);
 
   async function save() {
-    if (busy || grams === null || !isDiaryDate(date) || session !== "authenticated" || current?.locked) return;
+    if (busy || disabled || grams === null || !isDiaryDate(date) || session !== "authenticated" || current?.locked) return;
     setBusy(true); onBusyChange(true);
     try {
       await addDiaryEntry({ mealId, grams, date, mealSlot });
@@ -40,13 +40,13 @@ export default function DiaryAddForm({ mealId, grams, onBusyChange }: {
   return (
     <div className="mt-5 border-t border-[#cce3d2] pt-4">
       <label htmlFor={`diary-date-${mealId}`} className="block text-sm font-medium">Kayıt tarihi</label>
-      <input id={`diary-date-${mealId}`} type="date" value={date} onChange={(event) => selectDate(event.target.value)} disabled={busy}
+      <input id={`diary-date-${mealId}`} type="date" value={date} onChange={(event) => selectDate(event.target.value)} disabled={busy || disabled}
         className="mt-2 w-full rounded-lg border border-[#b8d6c2] bg-white px-3 py-2" />
-      <MealSlotSelect id={`diary-slot-${mealId}`} value={mealSlot} disabled={busy} onChange={setMealSlot} />
+      <MealSlotSelect id={`diary-slot-${mealId}`} value={mealSlot} disabled={busy || disabled} onChange={setMealSlot} />
       {session === "loading" && <p className="mt-3 text-sm" role="status">Oturum kontrol ediliyor...</p>}
       {session === "anonymous" && <p className="mt-3 text-sm">Günlüğe eklemek için <Link href="/login" className="font-semibold underline">giriş yapın</Link>.</p>}
       {session === "error" && <p role="alert" className="mt-3 text-sm">Oturum kontrol edilemedi. Sayfayı yenileyin.</p>}
-      <button type="button" onClick={save} disabled={busy || session !== "authenticated" || grams === null || !isDiaryDate(date) || Boolean(current?.locked)}
+      <button type="button" onClick={save} disabled={busy || disabled || session !== "authenticated" || grams === null || !isDiaryDate(date) || Boolean(current?.locked)}
         className="mt-4 w-full rounded-xl bg-[#173f34] px-4 py-3 font-semibold text-white disabled:opacity-50">
         {busy ? "Ekleniyor..." : "Günlüğe ekle"}
       </button>
