@@ -1,18 +1,19 @@
 import MealCatalog from "@/components/MealCatalog";
 import Link from "next/link";
 import type { CatalogMeal } from "@/lib/portion";
+import { catalogPages, catalogQuery, CATALOG_PAGE_SIZE } from "@/lib/catalog";
 
 type MealList = { items: CatalogMeal[]; totalCount: number };
 
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  const { q } = await searchParams;
-  const search = typeof q === "string" ? q.trim() : "";
+  const { search, page } = catalogQuery(await searchParams);
   const url = new URL("/meals", process.env.BITE_ROUTINE_API_URL ?? "http://127.0.0.1:5080");
-  url.searchParams.set("pageSize", "100");
+  url.searchParams.set("pageSize", String(CATALOG_PAGE_SIZE));
+  url.searchParams.set("page", String(page));
   if (search) url.searchParams.set("search", search);
 
   let catalog: MealList | null = null;
@@ -22,6 +23,7 @@ export default async function HomePage({
   } catch {
     // Keep the page accessible when the local API is stopped.
   }
+  const pages = catalog ? catalogPages(search, page, catalog.totalCount) : null;
 
   return (
     <main className="min-h-screen bg-[#f7f8f4] text-[#18312c]">
@@ -57,10 +59,15 @@ export default async function HomePage({
           {!catalog ? (
             <div className="rounded-2xl bg-white p-7">Katalog şu anda yüklenemiyor. Lütfen biraz sonra yeniden deneyin.</div>
           ) : catalog.items.length === 0 ? (
-            <div className="rounded-2xl bg-white p-7">{search ? "Bu aramayla eşleşen gıda yok." : "Katalog henüz boş."}</div>
+            <div className="rounded-2xl bg-white p-7">{catalog.totalCount > 0 ? "Bu sayfada gıda yok. Önceki sayfaya dönebilirsiniz." : search ? "Bu aramayla eşleşen gıda yok." : "Katalog henüz boş."}</div>
           ) : (
             <MealCatalog meals={catalog.items} />
           )}
+          {pages && (pages.previous || pages.next) && <nav aria-label="Katalog sayfaları" className="mt-6 flex flex-wrap items-center gap-5 text-sm font-semibold">
+            {pages.previous && <Link href={pages.previous} className="rounded-xl bg-[#e5f3e9] px-5 py-3 hover:underline">Önceki</Link>}
+            <span>Sayfa {page} / {pages.lastPage}</span>
+            {pages.next && <Link href={pages.next} className="rounded-xl bg-[#e5f3e9] px-5 py-3 hover:underline">Sonraki</Link>}
+          </nav>}
         </section>
       </div>
     </main>

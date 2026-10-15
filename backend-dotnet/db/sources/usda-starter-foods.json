@@ -1,0 +1,1057 @@
+{
+  "retrievedAt": "2026-10-15",
+  "source": "USDA Food Details API /fdc/v1/foods (full foodNutrients; not search summaries)",
+  "foods": [
+    {
+      "fdcId": 171287,
+      "description": "Egg, whole, raw, fresh",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Yumurta (çiğ)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=171287",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "143.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "12.56000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "0.72000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "9.51000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 172421,
+      "description": "Lentils, mature seeds, cooked, boiled, without salt",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Mercimek (haşlanmış, tuzsuz)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=172421",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "116.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "9.02000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "20.13000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.38000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 173757,
+      "description": "Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, without salt",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Nohut (haşlanmış, tuzsuz)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=173757",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "164.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "8.86000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "27.42000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "2.59000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 2259793,
+      "description": "Yogurt, plain, whole milk",
+      "dataType": "Foundation",
+      "publicationDate": "4/28/2022",
+      "turkishName": "Yoğurt (sade, tam yağlı)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=Foundation&query=2259793",
+      "nutrients": [
+        {
+          "id": 2047,
+          "name": "Energy (Atwater General Factors)",
+          "unit": "kcal",
+          "amount": "77.95240000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "3.82417200"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "5.57492800"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "4.48400000"
+        }
+      ]
+    },
+    {
+      "fdcId": 1750340,
+      "description": "Apples, fuji, with skin, raw",
+      "dataType": "Foundation",
+      "publicationDate": "10/30/2020",
+      "turkishName": "Fuji elma (çiğ, kabuklu)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=Foundation&query=1750340",
+      "nutrients": [
+        {
+          "id": 2047,
+          "name": "Energy (Atwater General Factors)",
+          "unit": "kcal",
+          "amount": "64.66090000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "0.14843750"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "15.65116250"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.16250000",
+          "loq": "0.1"
+        }
+      ]
+    },
+    {
+      "fdcId": 2708408,
+      "description": "Rice, white, cooked, no added fat",
+      "dataType": "Survey (FNDDS)",
+      "publicationDate": "10/31/2024",
+      "turkishName": "Beyaz pirinç (pişmiş, yağ eklenmemiş)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=Survey%20%28FNDDS%29&query=2708408",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "129"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "2.67"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "28.0"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.280"
+        }
+      ]
+    },
+    {
+      "fdcId": 171477,
+      "description": "Chicken, broilers or fryers, breast, meat only, cooked, roasted",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Tavuk göğsü (derisiz, fırınlanmış)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=171477",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "165.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "31.02000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "0E-8"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "3.57000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 170457,
+      "description": "Tomatoes, red, ripe, raw, year round average",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Domates (çiğ)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170457",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "18.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "0.88000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "3.89000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.20000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 171265,
+      "description": "Milk, whole, 3.25% milkfat, with added vitamin D",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Süt (%3,25 yağlı, D vitamini eklenmiş)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=171265",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "61.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "3.15000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "4.80000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "3.25000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 173420,
+      "description": "Cheese, feta",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Feta peyniri",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=173420",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "265.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "14.21000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "3.88000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "21.49000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 169705,
+      "description": "Oats (Includes foods for USDA's Food Distribution Program)",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Yulaf (pişirilmemiş)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=169705",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "389.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "16.89000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "66.27000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "6.90000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 170287,
+      "description": "Bulgur, cooked",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Bulgur (pişmiş)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170287",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "83.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "3.08000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "18.58000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.24000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 172688,
+      "description": "Bread, whole-wheat, commercially prepared",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Tam buğday ekmeği (ticari)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=172688",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "252.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "12.45000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "42.71000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "3.50000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 168927,
+      "description": "Pasta, dry, unenriched",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Makarna (kuru, zenginleştirilmemiş)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=168927",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "371.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "13.04000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "74.67000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "1.51000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 175167,
+      "description": "Fish, salmon, Atlantic, farmed, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Atlantik somonu (çiftlik, çiğ)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=175167",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "208.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "20.42000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "0E-8"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "13.42000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 174032,
+      "description": "Beef, ground, 85% lean meat / 15% fat, patty, cooked, broiled",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Sığır kıyması (%15 yağlı, yassı parça, üstten ızgara)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=174032",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "250.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "25.93000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "0E-8"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "15.41000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 170026,
+      "description": "Potatoes, flesh and skin, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Patates (çiğ, kabuklu)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170026",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "77.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "2.05000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "17.49000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.09000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 170393,
+      "description": "Carrots, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Havuç (çiğ)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170393",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "41.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "0.93000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "9.58000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.24000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 168409,
+      "description": "Cucumber, with peel, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Salatalık (çiğ, kabuklu)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=168409",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "15.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "0.65000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "3.63000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.11000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 170000,
+      "description": "Onions, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Kuru soğan (çiğ)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170000",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "40.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "1.10000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "9.34000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.10000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 170379,
+      "description": "Broccoli, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Brokoli (çiğ)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170379",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "34.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "2.82000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "6.64000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.37000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 168462,
+      "description": "Spinach, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Ispanak (çiğ)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=168462",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "23.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "2.86000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "3.63000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.39000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 173944,
+      "description": "Bananas, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Muz (çiğ)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=173944",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "89.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "1.09000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "22.84000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.33000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 169097,
+      "description": "Oranges, raw, all commercial varieties",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Portakal (çiğ)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=169097",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "47.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "0.94000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "11.75000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.12000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 167762,
+      "description": "Strawberries, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Çilek (çiğ)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=167762",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "32.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "0.67000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "7.68000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.30000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 171413,
+      "description": "Oil, olive, salad or cooking",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Zeytinyağı (salata veya pişirme için)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=171413",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "884.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "0E-8"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "0E-8"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "100.00000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 170567,
+      "description": "Nuts, almonds",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Badem (iç)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170567",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "579.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "21.15000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "21.55000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "49.93000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 170187,
+      "description": "Nuts, walnuts, english",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Ceviz (İngiliz cevizi, iç)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170187",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "654.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "15.23000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "13.71000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "65.21000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 172420,
+      "description": "Lentils, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Mercimek (kuru, pişirilmemiş)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=172420",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "352.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "24.63000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "63.35000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "1.06000000"
+        }
+      ]
+    },
+    {
+      "fdcId": 175202,
+      "description": "Beans, white, mature seeds, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "turkishName": "Beyaz fasulye (kuru, pişirilmemiş)",
+      "basisGrams": 100,
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=175202",
+      "nutrients": [
+        {
+          "id": 1008,
+          "name": "Energy",
+          "unit": "kcal",
+          "amount": "333.00000000"
+        },
+        {
+          "id": 1003,
+          "name": "Protein",
+          "unit": "g",
+          "amount": "23.36000000"
+        },
+        {
+          "id": 1005,
+          "name": "Carbohydrate, by difference",
+          "unit": "g",
+          "amount": "60.27000000"
+        },
+        {
+          "id": 1004,
+          "name": "Total lipid (fat)",
+          "unit": "g",
+          "amount": "0.85000000"
+        }
+      ]
+    }
+  ]
+}
