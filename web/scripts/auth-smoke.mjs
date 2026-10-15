@@ -63,6 +63,37 @@ response = await fetch(`${base}/account`, { redirect: "manual", headers: { Cooki
 assert.equal(response.status, 200, "account must be accessible with cookie");
 assert.ok((await response.text()).includes(email), "account must display /me email");
 
+const catalog = await (await fetch(`${api}/meals?pageSize=1`)).json();
+assert.ok(catalog.items.length, "diary smoke requires seeded catalog");
+const diaryInput = { mealId: catalog.items[0].mealId, grams: 150.25, date: "2026-10-15" };
+response = await fetch(`${base}/api/diary?date=${diaryInput.date}`);
+assert.equal(response.status, 401);
+assert.match(response.headers.get("cache-control"), /no-store/);
+response = await post("/api/diary", diaryInput, { identity, noCsrf: true });
+assert.equal(response.status, 403);
+response = await post("/api/diary", diaryInput, { identity });
+assert.equal(response.status, 201, "diary gateway must create with both CSRF layers");
+assert.match(response.headers.get("cache-control"), /private.*no-store/);
+const saved = await response.json();
+async function day(session, date = diaryInput.date) {
+  const response = await fetch(`${base}/api/diary?date=${date}`, { headers: { Cookie: session }, cache: "no-store" });
+  assert.equal(response.status, 200); assert.match(response.headers.get("cache-control"), /private.*no-store/);
+  return response.json();
+}
+assert.equal((await day(identity)).items[0].id, saved.id, "GET after POST must preserve entry");
+assert.equal((await day(identity)).items[0].grams, 150.25);
+assert.equal((await day(identity, "2026-10-16")).items.length, 0, "another day must be empty");
+const secondEmail = email.replace("@", "-second@");
+assert.equal((await post("/api/auth/register", { email: secondEmail, password })).status, 200);
+response = await post("/api/auth/login", { email: secondEmail, password });
+assert.equal(response.status, 200);
+const secondIdentity = cookie(response, ".AspNetCore.Identity.Application");
+assert.equal((await day(secondIdentity)).items.length, 0, "second user must not see first user's entry");
+assert.equal((await post("/api/diary", { ...diaryInput, grams: 75 }, { identity: secondIdentity })).status, 201);
+assert.equal((await day(secondIdentity)).items[0].grams, 75);
+assert.equal((await day(identity)).items.length, 1, "first user's diary must stay separate");
+assert.equal((await day(identity)).items[0].grams, 150.25);
+
 response = await fetch(`${api}/auth/logout`, {
   method: "POST",
   headers: { Cookie: identity, Origin: base },
@@ -98,4 +129,4 @@ assert.match(response.headers.getSetCookie().join(";"), /expires=Thu, 01 Jan 197
 response = await fetch(`${base}/account`, { redirect: "manual" });
 assert.equal(response.status, 307, "after logout, anonymous account access must redirect");
 
-console.log("Auth HTTP smoke passed: gateway session, direct API CSRF rejection, mobile bearer login/refresh.");
+console.log("HTTP smoke passed: auth, diary create/persistence/date/user isolation, direct API CSRF rejection, mobile bearer.");

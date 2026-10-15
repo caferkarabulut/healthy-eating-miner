@@ -74,11 +74,12 @@ jobs:
         run: |
           npm ci
           npm run build
-      - name: Smoke test same-origin Identity session
+      - name: Smoke test same-origin Identity and diary
         env:
           ConnectionStrings__BiteRoutine: Host=127.0.0.1;Port=5432;Database=bite_routine_test;Username=bite_routine;Password=ci_test_only
         run: |
           dotnet ef database update --project src/BiteRoutine.Api --no-build --configuration Release
+          PGPASSWORD=ci_test_only psql -h 127.0.0.1 -p 5432 -U bite_routine -d bite_routine_test -v ON_ERROR_STOP=1 -f db/seed-usda-starter.sql
           dotnet run --project src/BiteRoutine.Api --no-build --no-launch-profile --configuration Release --urls http://127.0.0.1:5080 > /tmp/bite-api.log 2>&1 &
           api_pid=$!
           (cd ../web && npm run start -- --hostname 127.0.0.1 > /tmp/bite-web.log 2>&1) &
