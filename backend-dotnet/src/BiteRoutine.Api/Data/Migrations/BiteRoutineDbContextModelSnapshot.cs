@@ -134,6 +134,78 @@ namespace BiteRoutine.Api.Data.Migrations
                     b.ToTable("favorite_meals", (string)null);
                 });
 
+            modelBuilder.Entity("BiteRoutine.Api.Data.FoodPortion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 8)
+                        .HasColumnType("numeric(18,8)")
+                        .HasColumnName("amount");
+
+                    b.Property<decimal>("GramWeight")
+                        .HasPrecision(18, 8)
+                        .HasColumnType("numeric(18,8)")
+                        .HasColumnName("gram_weight");
+
+                    b.Property<int>("MealId")
+                        .HasColumnType("integer")
+                        .HasColumnName("meal_id");
+
+                    b.Property<string>("MeasureName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("measure_name");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("source");
+
+                    b.Property<string>("SourceDescription")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("source_description");
+
+                    b.Property<string>("SourceFoodId")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("source_food_id");
+
+                    b.Property<string>("SourceId")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("source_id");
+
+                    b.Property<string>("SourceUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("source_url");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MealId");
+
+                    b.HasIndex("Source", "SourceId")
+                        .IsUnique();
+
+                    b.ToTable("food_portions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_food_portions_positive", "amount > 0 AND gram_weight > 0");
+                        });
+                });
+
             modelBuilder.Entity("BiteRoutine.Api.Data.Meal", b =>
                 {
                     b.Property<int>("MealId")
@@ -360,6 +432,15 @@ namespace BiteRoutine.Api.Data.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BiteRoutine.Api.Data.FoodPortion", b =>
+                {
+                    b.HasOne("BiteRoutine.Api.Data.Meal", null)
+                        .WithMany()
+                        .HasForeignKey("MealId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

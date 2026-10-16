@@ -1,0 +1,2303 @@
+{
+  "retrievedAt": "2026-10-16",
+  "endpoint": "USDA Food Details /fdc/v1/foods (full)",
+  "license": "CC0",
+  "foods": [
+    {
+      "fdcId": 171287,
+      "description": "Egg, whole, raw, fresh",
+      "dataType": "SR Legacy",
+      "turkishName": "Yumurta (çiğ)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=171287",
+      "reviewedPortions": [
+        {
+          "id": 88374,
+          "gramWeight": "50.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "large",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Büyük adet",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "50"
+        },
+        {
+          "id": 88375,
+          "gramWeight": "56.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "extra large",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Çok büyük adet (extra large)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "56"
+        },
+        {
+          "id": 88376,
+          "gramWeight": "63.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "jumbo",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Jumbo adet",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "63"
+        },
+        {
+          "id": 88377,
+          "gramWeight": "243.0",
+          "sequenceNumber": 5,
+          "amount": "1.0",
+          "modifier": "cup (4.86 large eggs)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 88378,
+          "gramWeight": "44.0",
+          "sequenceNumber": 6,
+          "amount": "1.0",
+          "modifier": "medium",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Orta adet",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "44"
+        },
+        {
+          "id": 88379,
+          "gramWeight": "38.0",
+          "sequenceNumber": 7,
+          "amount": "1.0",
+          "modifier": "small",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Küçük adet",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "38"
+        }
+      ]
+    },
+    {
+      "fdcId": 172421,
+      "description": "Lentils, mature seeds, cooked, boiled, without salt",
+      "dataType": "SR Legacy",
+      "turkishName": "Mercimek (haşlanmış, tuzsuz)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=172421",
+      "reviewedPortions": [
+        {
+          "id": 90596,
+          "gramWeight": "198.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "198"
+        },
+        {
+          "id": 90597,
+          "gramWeight": "12.3",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "tbsp",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Yemek kaşığı (USDA tbsp)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "12.3"
+        }
+      ]
+    },
+    {
+      "fdcId": 173757,
+      "description": "Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, without salt",
+      "dataType": "SR Legacy",
+      "turkishName": "Nohut (haşlanmış, tuzsuz)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=173757",
+      "reviewedPortions": [
+        {
+          "id": 93226,
+          "gramWeight": "164.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "164"
+        }
+      ]
+    },
+    {
+      "fdcId": 2259793,
+      "description": "Yogurt, plain, whole milk",
+      "dataType": "Foundation",
+      "turkishName": "Yoğurt (sade, tam yağlı)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=Foundation&query=2259793",
+      "reviewedPortions": [
+        {
+          "id": 312622,
+          "dataPoints": 0,
+          "gramWeight": "170.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "measureUnit": {
+            "id": 1121,
+            "name": "RACC",
+            "abbreviation": "RACC"
+          },
+          "accepted": false,
+          "exclusionReason": "RACC is a regulatory reference, not a household measure"
+        }
+      ]
+    },
+    {
+      "fdcId": 1750340,
+      "description": "Apples, fuji, with skin, raw",
+      "dataType": "Foundation",
+      "turkishName": "Fuji elma (çiğ, kabuklu)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=Foundation&query=1750340",
+      "reviewedPortions": [
+        {
+          "id": 312671,
+          "dataPoints": 0,
+          "gramWeight": "140.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "measureUnit": {
+            "id": 1121,
+            "name": "RACC",
+            "abbreviation": "RACC"
+          },
+          "accepted": false,
+          "exclusionReason": "RACC is a regulatory reference, not a household measure"
+        }
+      ]
+    },
+    {
+      "fdcId": 2708408,
+      "description": "Rice, white, cooked, no added fat",
+      "dataType": "Survey (FNDDS)",
+      "turkishName": "Beyaz pirinç (pişmiş, yağ eklenmemiş)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=Survey%20%28FNDDS%29&query=2708408",
+      "reviewedPortions": [
+        {
+          "id": 302892,
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "modifier": "10043",
+          "gramWeight": 158,
+          "portionDescription": "1 cup, cooked",
+          "sequenceNumber": 1,
+          "accepted": true,
+          "measureName": "cup, pişmiş (USDA ölçüsü)",
+          "amountUsed": "1",
+          "amountOrigin": "portionDescription: explicit 1 cup, cooked",
+          "gramsPerUnit": "158"
+        },
+        {
+          "id": 302893,
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "modifier": "90000",
+          "gramWeight": 118,
+          "portionDescription": "Quantity not specified",
+          "sequenceNumber": 2,
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        }
+      ]
+    },
+    {
+      "fdcId": 171477,
+      "description": "Chicken, broilers or fryers, breast, meat only, cooked, roasted",
+      "dataType": "SR Legacy",
+      "turkishName": "Tavuk göğsü (derisiz, fırınlanmış)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=171477",
+      "reviewedPortions": [
+        {
+          "id": 88817,
+          "gramWeight": "140.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup, chopped or diced",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup, doğranmış veya küp (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "140"
+        },
+        {
+          "id": 88818,
+          "gramWeight": "52.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "unit (yield from 1 lb ready-to-cook chicken)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 88819,
+          "gramWeight": "86.0",
+          "sequenceNumber": 3,
+          "amount": "0.5",
+          "modifier": "breast, bone and skin removed",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Göğüs, kemiksiz ve derisiz",
+          "amountUsed": "0.5",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "172"
+        }
+      ]
+    },
+    {
+      "fdcId": 170457,
+      "description": "Tomatoes, red, ripe, raw, year round average",
+      "dataType": "SR Legacy",
+      "turkishName": "Domates (çiğ)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170457",
+      "reviewedPortions": [
+        {
+          "id": 86681,
+          "gramWeight": "149.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup cherry tomatoes",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86682,
+          "gramWeight": "180.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "cup, chopped or sliced",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup, doğranmış veya dilimli (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "180"
+        },
+        {
+          "id": 86683,
+          "gramWeight": "62.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "Italian tomato",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86684,
+          "gramWeight": "17.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "cherry",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86685,
+          "gramWeight": "182.0",
+          "sequenceNumber": 5,
+          "amount": "1.0",
+          "modifier": "large whole (3\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Büyük adet (3 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "182"
+        },
+        {
+          "id": 86686,
+          "gramWeight": "123.0",
+          "sequenceNumber": 6,
+          "amount": "1.0",
+          "modifier": "medium whole (2-3/5\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Orta adet (2-3/5 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "123"
+        },
+        {
+          "id": 86687,
+          "gramWeight": "20.0",
+          "sequenceNumber": 7,
+          "amount": "1.0",
+          "modifier": "slice, medium (1/4\" thick)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Orta dilim (1/4 inç kalınlık)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "20"
+        },
+        {
+          "id": 86688,
+          "gramWeight": "62.0",
+          "sequenceNumber": 8,
+          "amount": "1.0",
+          "modifier": "plum tomato",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86689,
+          "gramWeight": "91.0",
+          "sequenceNumber": 9,
+          "amount": "1.0",
+          "modifier": "small whole (2-2/5\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Küçük adet (2-2/5 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "91"
+        },
+        {
+          "id": 86690,
+          "gramWeight": "27.0",
+          "sequenceNumber": 10,
+          "amount": "1.0",
+          "modifier": "slice, thick/large (1/2\" thick)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86691,
+          "gramWeight": "31.0",
+          "sequenceNumber": 11,
+          "amount": "1.0",
+          "modifier": "wedge (1/4 of medium tomato)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86692,
+          "gramWeight": "15.0",
+          "sequenceNumber": 12,
+          "amount": "1.0",
+          "modifier": "slice, thin/small",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86693,
+          "gramWeight": "148.0",
+          "sequenceNumber": 13,
+          "amount": "1.0",
+          "modifier": "NLEA serving",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        }
+      ]
+    },
+    {
+      "fdcId": 171265,
+      "description": "Milk, whole, 3.25% milkfat, with added vitamin D",
+      "dataType": "SR Legacy",
+      "turkishName": "Süt (%3,25 yağlı, D vitamini eklenmiş)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=171265",
+      "reviewedPortions": [
+        {
+          "id": 88314,
+          "gramWeight": "244.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "244"
+        },
+        {
+          "id": 88315,
+          "gramWeight": "30.5",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "fl oz",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 88316,
+          "gramWeight": "15.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "tbsp",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Yemek kaşığı (USDA tbsp)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "15"
+        },
+        {
+          "id": 88317,
+          "gramWeight": "976.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "quart",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        }
+      ]
+    },
+    {
+      "fdcId": 173420,
+      "description": "Cheese, feta",
+      "dataType": "SR Legacy",
+      "turkishName": "Feta peyniri",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=173420",
+      "reviewedPortions": [
+        {
+          "id": 92489,
+          "gramWeight": "150.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup, crumbled",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup, ufalanmış (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "150"
+        },
+        {
+          "id": 92490,
+          "gramWeight": "28.35",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "oz",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 92491,
+          "gramWeight": "17.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "cubic inch",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 92492,
+          "gramWeight": "38.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "wedge (1.33 oz)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        }
+      ]
+    },
+    {
+      "fdcId": 169705,
+      "description": "Oats (Includes foods for USDA's Food Distribution Program)",
+      "dataType": "SR Legacy",
+      "turkishName": "Yulaf (pişirilmemiş)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=169705",
+      "reviewedPortions": [
+        {
+          "id": 85379,
+          "gramWeight": "156.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "156"
+        }
+      ]
+    },
+    {
+      "fdcId": 170287,
+      "description": "Bulgur, cooked",
+      "dataType": "SR Legacy",
+      "turkishName": "Bulgur (pişmiş)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170287",
+      "reviewedPortions": [
+        {
+          "id": 86370,
+          "gramWeight": "182.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "182"
+        },
+        {
+          "id": 86371,
+          "gramWeight": "8.4",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "tbsp",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Yemek kaşığı (USDA tbsp)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "8.4"
+        }
+      ]
+    },
+    {
+      "fdcId": 172688,
+      "description": "Bread, whole-wheat, commercially prepared",
+      "dataType": "SR Legacy",
+      "turkishName": "Tam buğday ekmeği (ticari)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=172688",
+      "reviewedPortions": [
+        {
+          "id": 91108,
+          "dataPoints": 19,
+          "gramWeight": "32.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "slice",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Dilim",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "32"
+        },
+        {
+          "id": 91109,
+          "gramWeight": "28.35",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "oz",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        }
+      ]
+    },
+    {
+      "fdcId": 168927,
+      "description": "Pasta, dry, unenriched",
+      "dataType": "SR Legacy",
+      "turkishName": "Makarna (kuru, zenginleştirilmemiş)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=168927",
+      "reviewedPortions": [
+        {
+          "id": 84000,
+          "dataPoints": 12,
+          "gramWeight": "91.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup spaghetti",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup, spagetti (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "91"
+        },
+        {
+          "id": 84001,
+          "gramWeight": "57.0",
+          "sequenceNumber": 2,
+          "amount": "2.0",
+          "modifier": "oz",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 84002,
+          "dataPoints": 18,
+          "gramWeight": "122.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "cup elbows",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 84003,
+          "dataPoints": 16,
+          "gramWeight": "95.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "cup penne",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup, penne (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "95"
+        },
+        {
+          "id": 84004,
+          "dataPoints": 9,
+          "gramWeight": "81.0",
+          "sequenceNumber": 5,
+          "amount": "1.0",
+          "modifier": "cup farfalle",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 84005,
+          "dataPoints": 10,
+          "gramWeight": "96.0",
+          "sequenceNumber": 6,
+          "amount": "1.0",
+          "modifier": "cup rotini",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 84006,
+          "dataPoints": 22,
+          "gramWeight": "64.0",
+          "sequenceNumber": 7,
+          "amount": "1.0",
+          "modifier": "cup shells",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 84007,
+          "dataPoints": 18,
+          "gramWeight": "90.0",
+          "sequenceNumber": 8,
+          "amount": "1.0",
+          "modifier": "cup lasagna",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        }
+      ]
+    },
+    {
+      "fdcId": 175167,
+      "description": "Fish, salmon, Atlantic, farmed, raw",
+      "dataType": "SR Legacy",
+      "turkishName": "Atlantik somonu (çiftlik, çiğ)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=175167",
+      "reviewedPortions": [
+        {
+          "id": 95786,
+          "gramWeight": "85.0",
+          "sequenceNumber": 1,
+          "amount": "3.0",
+          "modifier": "oz",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 95787,
+          "gramWeight": "198.0",
+          "sequenceNumber": 2,
+          "amount": "0.5",
+          "modifier": "fillet",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Fileto",
+          "amountUsed": "0.5",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "396"
+        }
+      ]
+    },
+    {
+      "fdcId": 174032,
+      "description": "Beef, ground, 85% lean meat / 15% fat, patty, cooked, broiled",
+      "dataType": "SR Legacy",
+      "turkishName": "Sığır kıyması (%15 yağlı, yassı parça, üstten ızgara)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=174032",
+      "reviewedPortions": [
+        {
+          "id": 93665,
+          "dataPoints": 1,
+          "gramWeight": "85.0",
+          "sequenceNumber": 1,
+          "amount": "3.0",
+          "modifier": "oz",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 93666,
+          "dataPoints": 42,
+          "gramWeight": "77.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "patty (yield from 1/4 lb raw meat)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Yassı parça (1/4 lb çiğ etten pişmiş verim)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "77"
+        }
+      ]
+    },
+    {
+      "fdcId": 170026,
+      "description": "Potatoes, flesh and skin, raw",
+      "dataType": "SR Legacy",
+      "turkishName": "Patates (çiğ, kabuklu)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170026",
+      "reviewedPortions": [
+        {
+          "id": 85917,
+          "gramWeight": "75.0",
+          "sequenceNumber": 1,
+          "amount": "0.5",
+          "modifier": "cup, diced",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup, küp doğranmış (USDA ölçüsü)",
+          "amountUsed": "0.5",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "150"
+        },
+        {
+          "id": 85918,
+          "gramWeight": "369.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "Potato large (3\" to 4-1/4\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Büyük adet (3–4-1/4 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "369"
+        },
+        {
+          "id": 85919,
+          "gramWeight": "213.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "Potato medium (2-1/4\" to 3-1/4\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Orta adet (2-1/4–3-1/4 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "213"
+        },
+        {
+          "id": 85920,
+          "gramWeight": "170.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "Potato small (1-3/4\" to 2-1/2\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Küçük adet (1-3/4–2-1/2 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "170"
+        }
+      ]
+    },
+    {
+      "fdcId": 170393,
+      "description": "Carrots, raw",
+      "dataType": "SR Legacy",
+      "turkishName": "Havuç (çiğ)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170393",
+      "reviewedPortions": [
+        {
+          "id": 86555,
+          "gramWeight": "128.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup chopped",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86556,
+          "gramWeight": "110.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "cup grated",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86557,
+          "gramWeight": "122.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "cup strips or slices",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86558,
+          "gramWeight": "72.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "large (7-1/4\" to 8-/1/2\" long)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86559,
+          "gramWeight": "61.0",
+          "sequenceNumber": 5,
+          "amount": "1.0",
+          "modifier": "medium",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Orta adet",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "61"
+        },
+        {
+          "id": 86560,
+          "gramWeight": "50.0",
+          "sequenceNumber": 6,
+          "amount": "1.0",
+          "modifier": "small (5-1/2\" long)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Küçük adet (5-1/2 inç uzunluk)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "50"
+        },
+        {
+          "id": 86561,
+          "gramWeight": "3.0",
+          "sequenceNumber": 7,
+          "amount": "1.0",
+          "modifier": "slice",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86562,
+          "gramWeight": "7.0",
+          "sequenceNumber": 8,
+          "amount": "1.0",
+          "modifier": "strip large (3\" long)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86563,
+          "gramWeight": "4.0",
+          "sequenceNumber": 9,
+          "amount": "1.0",
+          "modifier": "strip medium",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        }
+      ]
+    },
+    {
+      "fdcId": 168409,
+      "description": "Cucumber, with peel, raw",
+      "dataType": "SR Legacy",
+      "turkishName": "Salatalık (çiğ, kabuklu)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=168409",
+      "reviewedPortions": [
+        {
+          "id": 83049,
+          "gramWeight": "52.0",
+          "sequenceNumber": 1,
+          "amount": "0.5",
+          "modifier": "cup slices",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup, dilimli (USDA ölçüsü)",
+          "amountUsed": "0.5",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "104"
+        },
+        {
+          "id": 83050,
+          "gramWeight": "301.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "cucumber (8-1/4\")",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Adet (8-1/4 inç uzunluk)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "301"
+        }
+      ]
+    },
+    {
+      "fdcId": 170000,
+      "description": "Onions, raw",
+      "dataType": "SR Legacy",
+      "turkishName": "Kuru soğan (çiğ)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170000",
+      "reviewedPortions": [
+        {
+          "id": 85855,
+          "gramWeight": "160.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup, chopped",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 85856,
+          "gramWeight": "115.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "cup, sliced",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 85857,
+          "gramWeight": "10.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "tbsp chopped",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 85858,
+          "gramWeight": "150.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "large",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Büyük adet",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "150"
+        },
+        {
+          "id": 85859,
+          "gramWeight": "38.0",
+          "sequenceNumber": 5,
+          "amount": "1.0",
+          "modifier": "slice, large (1/4\" thick)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 85860,
+          "gramWeight": "110.0",
+          "sequenceNumber": 6,
+          "amount": "1.0",
+          "modifier": "medium (2-1/2\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Orta adet (2-1/2 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "110"
+        },
+        {
+          "id": 85861,
+          "gramWeight": "14.0",
+          "sequenceNumber": 7,
+          "amount": "1.0",
+          "modifier": "slice, medium (1/8\" thick)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 85862,
+          "gramWeight": "70.0",
+          "sequenceNumber": 8,
+          "amount": "1.0",
+          "modifier": "small",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Küçük adet",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "70"
+        },
+        {
+          "id": 85863,
+          "gramWeight": "9.0",
+          "sequenceNumber": 9,
+          "amount": "1.0",
+          "modifier": "slice, thin",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 85864,
+          "gramWeight": "60.0",
+          "sequenceNumber": 10,
+          "amount": "10.0",
+          "modifier": "rings",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Halka",
+          "amountUsed": "10.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "6"
+        }
+      ]
+    },
+    {
+      "fdcId": 170379,
+      "description": "Broccoli, raw",
+      "dataType": "SR Legacy",
+      "turkishName": "Brokoli (çiğ)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170379",
+      "reviewedPortions": [
+        {
+          "id": 86528,
+          "dataPoints": 9,
+          "gramWeight": "91.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup chopped",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup, doğranmış (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "91"
+        },
+        {
+          "id": 86529,
+          "gramWeight": "608.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "bunch",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86530,
+          "gramWeight": "31.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "spear (about 5\" long)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86531,
+          "gramWeight": "151.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "stalk",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86532,
+          "gramWeight": "44.0",
+          "sequenceNumber": 5,
+          "amount": "0.5",
+          "modifier": "cup, chopped or diced",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86533,
+          "gramWeight": "148.0",
+          "sequenceNumber": 6,
+          "amount": "1.0",
+          "modifier": "NLEA serving",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        }
+      ]
+    },
+    {
+      "fdcId": 168462,
+      "description": "Spinach, raw",
+      "dataType": "SR Legacy",
+      "turkishName": "Ispanak (çiğ)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=168462",
+      "reviewedPortions": [
+        {
+          "id": 83132,
+          "gramWeight": "30.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "30"
+        },
+        {
+          "id": 83133,
+          "gramWeight": "340.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "bunch",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 83134,
+          "gramWeight": "10.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "leaf",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Yaprak",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "10"
+        },
+        {
+          "id": 83135,
+          "gramWeight": "284.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "package (10 oz)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        }
+      ]
+    },
+    {
+      "fdcId": 173944,
+      "description": "Bananas, raw",
+      "dataType": "SR Legacy",
+      "turkishName": "Muz (çiğ)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=173944",
+      "reviewedPortions": [
+        {
+          "id": 93511,
+          "gramWeight": "225.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup, mashed",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 93512,
+          "gramWeight": "150.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "cup, sliced",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 93513,
+          "gramWeight": "81.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "extra small (less than 6\" long)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Çok küçük adet (6 inçten kısa)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "81"
+        },
+        {
+          "id": 93514,
+          "gramWeight": "101.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "small (6\" to 6-7/8\" long)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Küçük adet (6–6-7/8 inç uzunluk)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "101"
+        },
+        {
+          "id": 93515,
+          "gramWeight": "118.0",
+          "sequenceNumber": 5,
+          "amount": "1.0",
+          "modifier": "medium (7\" to 7-7/8\" long)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Orta adet (7–7-7/8 inç uzunluk)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "118"
+        },
+        {
+          "id": 93516,
+          "gramWeight": "136.0",
+          "sequenceNumber": 6,
+          "amount": "1.0",
+          "modifier": "large (8\" to 8-7/8\" long)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Büyük adet (8–8-7/8 inç uzunluk)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "136"
+        },
+        {
+          "id": 93517,
+          "gramWeight": "152.0",
+          "sequenceNumber": 7,
+          "amount": "1.0",
+          "modifier": "extra large (9\" or longer)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Çok büyük adet (en az 9 inç uzunluk)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "152"
+        },
+        {
+          "id": 93518,
+          "gramWeight": "126.0",
+          "sequenceNumber": 8,
+          "amount": "1.0",
+          "modifier": "NLEA serving",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        }
+      ]
+    },
+    {
+      "fdcId": 169097,
+      "description": "Oranges, raw, all commercial varieties",
+      "dataType": "SR Legacy",
+      "turkishName": "Portakal (çiğ)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=169097",
+      "reviewedPortions": [
+        {
+          "id": 84227,
+          "gramWeight": "180.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup, sections",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 84228,
+          "gramWeight": "184.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "large (3-1/16\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Büyük adet (3-1/16 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "184"
+        },
+        {
+          "id": 84229,
+          "gramWeight": "96.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "small (2-3/8\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Küçük adet (2-3/8 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "96"
+        },
+        {
+          "id": 84230,
+          "gramWeight": "131.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "fruit (2-5/8\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Adet (2-5/8 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "131"
+        }
+      ]
+    },
+    {
+      "fdcId": 167762,
+      "description": "Strawberries, raw",
+      "dataType": "SR Legacy",
+      "turkishName": "Çilek (çiğ)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=167762",
+      "reviewedPortions": [
+        {
+          "id": 81919,
+          "gramWeight": "152.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup, halves",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 81920,
+          "gramWeight": "232.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "cup, pureed",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 81921,
+          "gramWeight": "166.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "cup, sliced",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 81922,
+          "gramWeight": "144.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "cup, whole",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 81923,
+          "gramWeight": "27.0",
+          "sequenceNumber": 5,
+          "amount": "1.0",
+          "modifier": "extra large (1-5/8\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Çok büyük adet (1-5/8 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "27"
+        },
+        {
+          "id": 81924,
+          "gramWeight": "18.0",
+          "sequenceNumber": 6,
+          "amount": "1.0",
+          "modifier": "large (1-3/8\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Büyük adet (1-3/8 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "18"
+        },
+        {
+          "id": 81925,
+          "gramWeight": "12.0",
+          "sequenceNumber": 7,
+          "amount": "1.0",
+          "modifier": "medium (1-1/4\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Orta adet (1-1/4 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "12"
+        },
+        {
+          "id": 81926,
+          "gramWeight": "357.0",
+          "sequenceNumber": 8,
+          "amount": "1.0",
+          "modifier": "pint as purchased, yields",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 81927,
+          "gramWeight": "7.0",
+          "sequenceNumber": 9,
+          "amount": "1.0",
+          "modifier": "small (1\" dia)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Küçük adet (1 inç çap)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "7"
+        },
+        {
+          "id": 81928,
+          "gramWeight": "147.0",
+          "sequenceNumber": 10,
+          "amount": "1.0",
+          "modifier": "NLEA serving",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        }
+      ]
+    },
+    {
+      "fdcId": 171413,
+      "description": "Oil, olive, salad or cooking",
+      "dataType": "SR Legacy",
+      "turkishName": "Zeytinyağı (salata veya pişirme için)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=171413",
+      "reviewedPortions": [
+        {
+          "id": 88667,
+          "gramWeight": "13.5",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "tablespoon",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Yemek kaşığı (USDA tablespoon)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "13.5"
+        },
+        {
+          "id": 88668,
+          "gramWeight": "216.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "cup",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "216"
+        },
+        {
+          "id": 88669,
+          "gramWeight": "4.5",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "tsp",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Çay kaşığı (USDA tsp)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "4.5"
+        }
+      ]
+    },
+    {
+      "fdcId": 170567,
+      "description": "Nuts, almonds",
+      "dataType": "SR Legacy",
+      "turkishName": "Badem (iç)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170567",
+      "reviewedPortions": [
+        {
+          "id": 86863,
+          "dataPoints": 23,
+          "gramWeight": "143.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup, whole",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86864,
+          "dataPoints": 4,
+          "gramWeight": "92.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "cup, sliced",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86865,
+          "gramWeight": "108.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "cup, slivered",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86866,
+          "gramWeight": "95.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "cup, ground",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86867,
+          "gramWeight": "28.35",
+          "sequenceNumber": 5,
+          "amount": "1.0",
+          "modifier": "oz (23 whole kernels)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86868,
+          "gramWeight": "1.2",
+          "sequenceNumber": 6,
+          "amount": "1.0",
+          "modifier": "almond",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Badem içi, adet",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "1.2"
+        }
+      ]
+    },
+    {
+      "fdcId": 170187,
+      "description": "Nuts, walnuts, english",
+      "dataType": "SR Legacy",
+      "turkishName": "Ceviz (İngiliz cevizi, iç)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=170187",
+      "reviewedPortions": [
+        {
+          "id": 86201,
+          "dataPoints": 12,
+          "gramWeight": "117.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup, chopped",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup, doğranmış (USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "117"
+        },
+        {
+          "id": 86202,
+          "gramWeight": "80.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "cup, ground",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86203,
+          "gramWeight": "28.0",
+          "sequenceNumber": 3,
+          "amount": "1.0",
+          "modifier": "cup, in shell, edible yield (7 nuts)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86204,
+          "gramWeight": "100.0",
+          "sequenceNumber": 4,
+          "amount": "1.0",
+          "modifier": "cup shelled (50 halves)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup, kabuksuz (50 yarım; USDA ölçüsü)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "100"
+        },
+        {
+          "id": 86205,
+          "gramWeight": "120.0",
+          "sequenceNumber": 5,
+          "amount": "1.0",
+          "modifier": "cup pieces or chips",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        },
+        {
+          "id": 86206,
+          "gramWeight": "28.35",
+          "sequenceNumber": 6,
+          "amount": "1.0",
+          "modifier": "oz (14 halves)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": false,
+          "exclusionReason": "Not selected in this initial slice; no substitute or inferred unit added"
+        }
+      ]
+    },
+    {
+      "fdcId": 172420,
+      "description": "Lentils, raw",
+      "dataType": "SR Legacy",
+      "turkishName": "Mercimek (kuru, pişirilmemiş)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=172420",
+      "reviewedPortions": [
+        {
+          "id": 90594,
+          "gramWeight": "192.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup (USDA ölçüsü; kuru)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "192"
+        },
+        {
+          "id": 90595,
+          "gramWeight": "12.0",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "tablespoon",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Yemek kaşığı (USDA tablespoon; kuru)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "12"
+        }
+      ]
+    },
+    {
+      "fdcId": 175202,
+      "description": "Beans, white, mature seeds, raw",
+      "dataType": "SR Legacy",
+      "turkishName": "Beyaz fasulye (kuru, pişirilmemiş)",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=175202",
+      "reviewedPortions": [
+        {
+          "id": 95836,
+          "gramWeight": "202.0",
+          "sequenceNumber": 1,
+          "amount": "1.0",
+          "modifier": "cup",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "cup (USDA ölçüsü; kuru)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "202"
+        },
+        {
+          "id": 95837,
+          "gramWeight": "12.6",
+          "sequenceNumber": 2,
+          "amount": "1.0",
+          "modifier": "tbsp",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          },
+          "accepted": true,
+          "measureName": "Yemek kaşığı (USDA tbsp; kuru)",
+          "amountUsed": "1.0",
+          "amountOrigin": "amount",
+          "gramsPerUnit": "12.6"
+        }
+      ]
+    }
+  ]
+}

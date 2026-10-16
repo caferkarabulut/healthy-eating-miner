@@ -21,6 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="../../db/seed-usda-portions.sql" LogicalName="PortionSeed.sql" />
+    <EmbeddedResource Include="../../db/sources/usda-food-portions.json" LogicalName="PortionSources.json" />
     <EmbeddedResource Include="../../db/seed-usda-starter.sql" LogicalName="CatalogSeed.sql" />
     <EmbeddedResource Include="../../db/sources/usda-starter-foods.json" LogicalName="CatalogSources.json" />
   </ItemGroup>
