@@ -1,0 +1,41 @@
+name: Bite Routine mobile CI
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/mobile-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/mobile-ci.yml'
+permissions:
+  contents: read
+jobs:
+  mobile:
+    name: Mobile TypeScript, tests and bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: mobile
+    env:
+      CI: '1'
+      EXPO_NO_TELEMETRY: '1'
+      # Public sample address; bundling does not contact this host.
+      EXPO_PUBLIC_API_URL: http://127.0.0.1:5080
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - run: npm run check:deps
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test -- --ci
+      # Metro JS/assets only, not an Xcode build or Simulator test.
+      - run: npm run export:ios
