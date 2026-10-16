@@ -2,7 +2,7 @@
 
 ## Kapsam ve kaynak
 
-16 Ekim 2026 tarihinde mevcut 30 kataloğun aynı FDC kimliklerine ait resmî Food Details yanıtları incelendi. 28 gıda için 64 adet/ev ölçüsü seçildi. Çiğ/pişmiş ve farklı gıda kayıtları arasında ölçü aktarılmaz. Kaynağın küçük/orta/büyük ayrımı korunur; ortalama ağırlık üretilmez. Bu dilim web formunu ve günlük oluşturma/düzenleme sözleşmesini değiştirmez.
+16 Ekim 2026 tarihinde mevcut 30 kataloğun aynı FDC kimliklerine ait resmî Food Details yanıtları incelendi. 28 gıda için 64 adet/ev ölçüsü seçildi. Çiğ/pişmiş ve farklı gıda kayıtları arasında ölçü aktarılmaz. Kaynağın küçük/orta/büyük ayrımı korunur; ortalama ağırlık üretilmez. Günlükte ölçü seçimi ve kayıt anındaki dönüşüm kopyası [günlük sözleşmesinde](diary-contract.md) açıklanır.
 
 - [USDA API rehberi ve CC0](https://fdc.nal.usda.gov/api-guide/): `/fdc/v1/foods`, full yanıt.
 - [Resmî alan tanımları](https://fdc.nal.usda.gov/docs/Download_Field_Descriptions_Oct2020.pdf), food_portion (s. 6): amount ölçü adedi, gram_weight bu miktarın toplam gramıdır. SR Legacy ölçü açıklaması modifier içindedir; `undetermined` tek başına ölçü adı değildir.
@@ -25,7 +25,7 @@ Herkese açık `GET /meals/{mealId}/portions`:
 {"mealId":1,"items":[{"id":1,"mealId":1,"measureName":"Büyük adet","amount":1,"gramWeight":50,"gramsPerUnit":50,"approximate":true,"source":"USDA FoodData Central","sourceFoodId":"171287","sourceId":"88374","sourceDescription":"large","sourceUrl":"https://fdc.nal.usda.gov/food-search?type=SR%20Legacy&query=171287"}]}
 ```
 
-Örnek kimlikler temsili yerel kimliklerdir; kaynak kimlikleri sabittir. Liste yerel ölçü kimliği sırasındadır. Mevcut gıdanın doğrulanmış ölçüsü yoksa 200 ve boş items; olmayan gıda 404, pozitif olmayan/geçersiz kimlik 400 döner. Günlük API'si hâlâ gram alır; bu yanıttaki ölçü kimliği henüz günlük sözleşmesine eklenmez.
+Örnek kimlikler temsili yerel kimliklerdir; kaynak kimlikleri sabittir. Liste yerel ölçü kimliği sırasındadır. Mevcut gıdanın doğrulanmış ölçüsü yoksa 200 ve boş items; olmayan gıda 404, pozitif olmayan/geçersiz kimlik 400 döner. Günlük API'si geriye uyumlu gram girişine ek olarak portionId ve quantity kabul eder; dönüşümü sunucu yapar.
 
 ## Uygulama ve güvenlik
 

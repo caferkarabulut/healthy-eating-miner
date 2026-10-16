@@ -35,7 +35,7 @@ public sealed class DiaryMealSlotMigrationTests
             await using var beforeCommand = new NpgsqlCommand("SELECT to_jsonb(d)::text FROM diary_entries d", admin);
             var before = (string)(await beforeCommand.ExecuteScalarAsync())!;
             await db.Database.MigrateAsync();
-            await using var afterCommand = new NpgsqlCommand("SELECT (to_jsonb(d) - 'meal_slot')::text FROM diary_entries d", admin);
+            await using var afterCommand = new NpgsqlCommand("SELECT (to_jsonb(d) - 'meal_slot' - 'portion')::text FROM diary_entries d", admin);
             Assert.Equal(before, (string)(await afterCommand.ExecuteScalarAsync())!);
             Assert.Equal("other", (await db.DiaryEntries.SingleAsync()).MealSlot);
             await using var invalid = new NpgsqlCommand("UPDATE diary_entries SET meal_slot = 'invalid'", admin);

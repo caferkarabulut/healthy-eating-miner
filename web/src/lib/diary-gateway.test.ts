@@ -145,3 +145,21 @@ test("mutation errors preserve 400/401/403/404 and uncertain failures are never 
     }
   }
 });
+
+test("portion writes forward only source ID and quantity, and date/slot-only edits omit amount", async () => {
+  for (const method of ["POST", "PATCH"]) {
+    const amount = method === "POST" ? { mealId: 1, portionId: 11, quantity: 1.5, date: input.date } : { date: input.date, mealSlot: "lunch" };
+    let mutations = 0;
+    const fake: typeof fetch = async (url, init) => {
+      if (String(url).endsWith("/auth/antiforgery")) return new Response(JSON.stringify({ requestToken: "api-token" }), { headers: { "Set-Cookie": "bite_routine_api_csrf=opaque; Path=/" } });
+      mutations++;
+      assert.deepEqual(JSON.parse(String(init?.body)), amount);
+      assert.equal(init?.cache, "no-store");
+      return Response.json({ id: "00000000-0000-0000-0000-000000000001" }, { status: method === "POST" ? 201 : 200 });
+    };
+    const req = request(amount);
+    const response = method === "POST" ? await diaryPost(req, fake) : await diaryMutate(new Request(req, { method: "PATCH" }), "00000000-0000-0000-0000-000000000001", fake);
+    assert.equal(response.status, method === "POST" ? 201 : 200);
+    assert.equal(mutations, 1); privateResponse(response);
+  }
+});

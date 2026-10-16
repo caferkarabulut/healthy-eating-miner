@@ -419,6 +419,50 @@ namespace BiteRoutine.Api.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.OwnsOne("BiteRoutine.Api.Data.DiaryPortionSnapshot", "Portion", b1 =>
+                        {
+                            b1.Property<Guid>("DiaryEntryId");
+
+                            b1.Property<string>("MeasureName")
+                                .IsRequired();
+
+                            b1.Property<long>("PortionId");
+
+                            b1.Property<decimal>("Quantity");
+
+                            b1.Property<string>("Source")
+                                .IsRequired();
+
+                            b1.Property<decimal>("SourceAmount");
+
+                            b1.Property<string>("SourceDescription")
+                                .IsRequired();
+
+                            b1.Property<string>("SourceFoodId")
+                                .IsRequired();
+
+                            b1.Property<decimal>("SourceGramWeight");
+
+                            b1.Property<string>("SourceId")
+                                .IsRequired();
+
+                            b1.Property<string>("SourceUrl")
+                                .IsRequired();
+
+                            b1.HasKey("DiaryEntryId");
+
+                            b1.ToTable("diary_entries");
+
+                            b1
+                                .ToJson("portion")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DiaryEntryId");
+                        });
+
+                    b.Navigation("Portion");
                 });
 
             modelBuilder.Entity("BiteRoutine.Api.Data.FavoriteMeal", b =>
