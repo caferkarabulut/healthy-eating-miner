@@ -25,12 +25,14 @@ public sealed class FoodPortionMigrationTests
             db.Users.Add(new IdentityUser { Id = "legacy-portion-user", UserName = "legacy-portion" });
             db.Meals.Add(new Meal { MealId = 1, MealName = "Existing food", CaloriesKcalPer100G = 123.45m });
             db.FavoriteMeals.Add(new FavoriteMeal { UserId = "legacy-portion-user", MealId = 1 });
-            db.DiaryEntries.Add(new DiaryEntry { UserId = "legacy-portion-user", MealId = 1, MealName = "Snapshot food", Grams = 150.25m,
-                Date = new DateOnly(2026, 10, 16), MealSlot = "lunch", CaloriesKcalPer100G = 121.23m, ProteinGPer100G = null, CarbsGPer100G = 0 });
             await db.SaveChangesAsync();
+            await db.Database.ExecuteSqlRawAsync("""
+                INSERT INTO diary_entries (id, user_id, meal_id, date, grams, meal_name, meal_slot, calories_kcal_per_100g, carbs_g_per_100g)
+                VALUES ('00000000-0000-0000-0000-000000000002', 'legacy-portion-user', 1, '2026-10-16', 150.25, 'Snapshot food', 'lunch', 121.23, 0)
+                """);
             async Task<string> Snapshot(string table)
             {
-                await using var command = new NpgsqlCommand($"SELECT jsonb_agg(to_jsonb(t))::text FROM {table} t", admin);
+                await using var command = new NpgsqlCommand($"SELECT jsonb_agg(to_jsonb(t) - 'portion')::text FROM {table} t", admin);
                 return (string)(await command.ExecuteScalarAsync())!;
             }
             var tables = new[] { "meals", "\"AspNetUsers\"", "favorite_meals", "diary_entries" };

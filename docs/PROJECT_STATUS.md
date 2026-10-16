@@ -95,13 +95,20 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Günlük kompakt öğün listesi oldu: başlıkta öğün toplamları, satırda tam ad/hazırlama, gramaj ve kcal; detay ve düzenleme seçimle açılır. Günlük toplam da kompaktlaştı. Mevcut sıra, silme onayı, belirsiz istek kilidi, kullanıcı/CSRF ve önbellek kuralları korunur. Oluşturulma zamanı tüketim saati gibi gösterilmez; adet/porsiyon eklenmedi.
 - Doğrulama: 107 gerçek PostgreSQL testi, 53 web testi, Release build, web build/lint ve gerçek HTTP smoke. Kullanıcı/gün ayrımı, tek kayıt sorgusu, öğün null/sıfır ve snapshot toplamları, gramaj/öğün/tarih taşıma/silme doğrulandı. Tarayıcıda aynı değişikliklerle iki toplamın yenilenmesi, ayrıntılar, silmeden vazgeçme/onaylama ve 375 px/masaüstü taşmasız görünüm kontrol edildi; ekran görüntüleri kaydedildi. Geçici test hesapları temizlendi.
 
-## Bu dal: kaynaklı adet ve ev ölçüleri
+## Kaynaklı adet ve ev ölçüleri (main)
 
 - PR #21'in `99c44e6` HEAD'i ve başarılı CI doğrulandı; aynı HEAD koşuluyla main'e birleşti. Yerel main fast-forward güncellendi; `feat/food-portions` buradan açıldı.
 - Mevcut 30 USDA kaydı incelendi; 28 gıda için 64 ayrı kaynak ölçüsü eklendi. Yoğurt/Fuji elmadaki RACC adet sayılmadı; bu gıdalar gramla kalır. Kaynak amount/gramWeight saklanır, gramsPerUnit bölmeyle hesaplanır. Boyut ve hazırlama farkları korunur. [Model, HTTP ve kaynak tablosu](../backend-dotnet/docs/food-portions-contract.md).
 - Yeni tablo/migration ve kaynak kimliğiyle tekrar uygulanabilir seed; herkese açık GET /meals/{mealId}/portions. Günlük sözleşmesi ve web değişmedi.
 - Doğrulama: 115 gerçek PostgreSQL testi, uyarısız Release build, pending-model kontrolü, geçici kopyada boş sonraki migration scaffold/derleme. Hedefi doğrulanan geliştirme DB'sine migration ve seed iki kez uygulandı; katalog/kullanıcı/günlük/favori içerikleri aynı kaldı. Gerçek HTTP ile tüm 30 gıda/64 ölçü, normalizasyon, boş liste ve 400/404 doğrulandı. Web değişmediği için yerel web testleri tekrarlanmadı.
 
+## Bu dal: günlükte ölçülü miktar girişi
+
+- PR #22'nin `3bb855f` HEAD'i ve iki başarılı CI işi doğrulandı; aynı HEAD koşuluyla main'e birleşti. Yerel main fast-forward güncellendi; `feat/diary-portion-input` buradan açıldı.
+- Katalog, favoriler ve günlük düzenleme gram veya aynı gıdanın kaynak ölçüsünü kullanır. Türkçe virgül/kesirli adet, boyut ayrımları, yaklaşık gram/besin önizlemesi; ölçü yok/hata durumunda gram desteği vardır. [Web akışı](../web/docs/portion-input.md).
+- API grams ile geriye uyumludur; ölçülü portionId/quantity sunucuda doğrulanır ve decimal dönüşüm nihai gramda iki ondalığa AwayFromZero ile normalize edilir. Günlükte nullable JSONB ölçü kopyası korunur. Tarih/öğün-only PATCH miktarı tekrar hesaplamaz. [Sözleşme](../backend-dotnet/docs/diary-contract.md).
+- Doğrulama: 122 gerçek PostgreSQL testi, 60 web testi, uyarısız Release build, web build/lint, pending-model kontrolü ve geçici kopyada boş sonraki migration scaffold/derleme. Gerçek HTTP ve 375 px tarayıcı akışları başarılı. Migration yalnız doğrulanan geliştirme DB'sine uygulandı; eski katalog/kullanıcı/günlük/favoriler korundu. Geçici test hesabı temizlendi.
+
 ## Sıradaki iş
 
-Kaynaklı ölçü API temelinin PR incelemesi; ardından ayrı dilimde web ölçü seçicisini bağlamak. Yeni özellik PR'ı merge edilmedi; deployment yapılmadı.
+Günlük ölçü girişi PR'ını incelemek. Yeni özellik PR'ı merge edilmedi; deployment yapılmadı.

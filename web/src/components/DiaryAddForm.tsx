@@ -2,20 +2,21 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { AmountInput } from "@/lib/food-amount";
 import MealSlotSelect from "./MealSlotSelect";
 import { type MealSlot, isDiaryDate } from "@/lib/diary";
 import { addDiaryEntry, DiaryError } from "@/lib/diary-client";
 import { useDiaryDate } from "@/lib/use-diary-date";
 
-export default function DiaryAddForm({ mealId, grams, onBusyChange, disabled = false }: {
-  mealId: number; grams: number | null; onBusyChange: (value: boolean) => void; disabled?: boolean;
+export default function DiaryAddForm({ mealId, amount, onBusyChange, disabled = false }: {
+  mealId: number; amount: AmountInput | null; onBusyChange: (value: boolean) => void; disabled?: boolean;
 }) {
   const { date, selectDate } = useDiaryDate();
   const [session, setSession] = useState<"loading" | "authenticated" | "anonymous" | "error">("loading");
   const [mealSlot, setMealSlot] = useState<MealSlot>("other");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ key: string; message: string; locked: boolean; success: boolean } | null>(null);
-  const key = `${mealId}/${grams}/${date}/${mealSlot}`;
+  const key = `${mealId}/${JSON.stringify(amount)}/${date}/${mealSlot}`;
   const current = result?.key === key ? result : null;
   useEffect(() => {
     const controller = new AbortController();
@@ -26,10 +27,10 @@ export default function DiaryAddForm({ mealId, grams, onBusyChange, disabled = f
   }, []);
 
   async function save() {
-    if (busy || disabled || grams === null || !isDiaryDate(date) || session !== "authenticated" || current?.locked) return;
+    if (busy || disabled || amount === null || !isDiaryDate(date) || session !== "authenticated" || current?.locked) return;
     setBusy(true); onBusyChange(true);
     try {
-      await addDiaryEntry({ mealId, grams, date, mealSlot });
+      await addDiaryEntry({ mealId, ...amount, date, mealSlot });
       setResult({ key, message: "Günlüğe eklendi.", locked: true, success: true });
     } catch (reason) {
       if (reason instanceof DiaryError && reason.status === 401) setSession("anonymous");
@@ -46,7 +47,7 @@ export default function DiaryAddForm({ mealId, grams, onBusyChange, disabled = f
       {session === "loading" && <p className="mt-3 text-sm" role="status">Oturum kontrol ediliyor...</p>}
       {session === "anonymous" && <p className="mt-3 text-sm">Günlüğe eklemek için <Link href="/login" className="font-semibold underline">giriş yapın</Link>.</p>}
       {session === "error" && <p role="alert" className="mt-3 text-sm">Oturum kontrol edilemedi. Sayfayı yenileyin.</p>}
-      <button type="button" onClick={save} disabled={busy || disabled || session !== "authenticated" || grams === null || !isDiaryDate(date) || Boolean(current?.locked)}
+      <button type="button" onClick={save} disabled={busy || disabled || session !== "authenticated" || amount === null || !isDiaryDate(date) || Boolean(current?.locked)}
         className="mt-4 w-full rounded-xl bg-[#173f34] px-4 py-3 font-semibold text-white disabled:opacity-50">
         {busy ? "Ekleniyor..." : "Günlüğe ekle"}
       </button>

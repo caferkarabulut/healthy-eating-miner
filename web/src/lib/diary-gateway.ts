@@ -26,7 +26,7 @@ export async function diaryPost(request: Request, fetcher: typeof fetch = fetch)
   if (!cookie) return reply({ error: "Günlüğe eklemek için giriş yapın." }, 401);
   if (!request.headers.get("content-type")?.startsWith("application/json")) return reply({ error: "Geçersiz istek." }, 415);
   const input: unknown = await request.json().catch(() => null);
-  if (!isDiaryInput(input)) return reply({ error: "Öğün, tarih ve gramajı kontrol edin. Gramaj 0,01–10.000 g ve en fazla iki ondalık basamak olmalı." }, 400);
+  if (!isDiaryInput(input)) return reply({ error: "Öğün, tarih ve miktarı kontrol edin. Gram karşılığı 0,01–10.000 g; gram girişinde en fazla iki ondalık basamak olmalı." }, 400);
   let csrf: { token: string; cookie: string };
   try { csrf = await apiCsrf(cookie, fetcher); }
   catch { return reply({ error: "Kimlik hizmetine ulaşılamadı; kayıt gönderilmedi." }, 503); }
@@ -38,7 +38,7 @@ export async function diaryPost(request: Request, fetcher: typeof fetch = fetch)
     if (response.status === 401) return reply({ error: "Oturumunuz sona erdi. Yeniden giriş yapın." }, 401);
     if (response.status === 403) return reply({ error: "Güvenlik doğrulaması başarısız. Sayfayı yenileyin." }, 403);
     if (response.status === 404) return reply({ error: "Bu gıda artık katalogda bulunmuyor." }, 404);
-    if (response.status === 400) return reply({ error: "Kayıt kabul edilmedi. Öğün, tarih ve gramajı kontrol edin." }, 400);
+    if (response.status === 400) return reply({ error: "Kayıt kabul edilmedi. Öğün, tarih ve miktarı kontrol edin." }, 400);
     if (response.status !== 201) throw new Error("Unexpected diary response");
     return reply(await response.json(), 201);
   } catch {
@@ -57,7 +57,7 @@ export async function diaryMutate(request: Request, id: string, fetcher: typeof 
   if (method === "PATCH") {
     if (!request.headers.get("content-type")?.startsWith("application/json")) return reply({ error: "Geçersiz istek." }, 415);
     input = await request.json().catch(() => null);
-    if (!isDiaryUpdate(input)) return reply({ error: "Öğün, tarih ve gramajı kontrol edin. Gramaj 0,01–10.000 g ve en fazla iki ondalık basamak olmalı." }, 400);
+    if (!isDiaryUpdate(input)) return reply({ error: "Öğün, tarih ve miktarı kontrol edin. Gram karşılığı 0,01–10.000 g; gram girişinde en fazla iki ondalık basamak olmalı." }, 400);
   }
   let csrf: { token: string; cookie: string };
   try { csrf = await apiCsrf(cookie, fetcher); }
@@ -70,7 +70,7 @@ export async function diaryMutate(request: Request, id: string, fetcher: typeof 
     if (response.status === 401) return reply({ error: "Oturumunuz sona erdi. Yeniden giriş yapın." }, 401);
     if (response.status === 403) return reply({ error: "Güvenlik doğrulaması başarısız. Sayfayı yenileyin." }, 403);
     if (response.status === 404) return reply({ error: "Kayıt bulunamadı. Günlüğü yenileyin." }, 404);
-    if (response.status === 400) return reply({ error: "Değişiklik kabul edilmedi. Öğün, tarih ve gramajı kontrol edin." }, 400);
+    if (response.status === 400) return reply({ error: "Değişiklik kabul edilmedi. Öğün, tarih ve miktarı kontrol edin." }, 400);
     if (method === "DELETE" && response.status === 204) return new Response(null, { status: 204, headers: PRIVATE_HEADERS });
     if (method !== "PATCH" || response.status !== 200) throw new Error("Unexpected diary response");
     return reply(await response.json());

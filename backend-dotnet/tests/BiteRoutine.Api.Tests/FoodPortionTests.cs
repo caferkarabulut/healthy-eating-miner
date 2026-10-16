@@ -36,10 +36,14 @@ public sealed class FoodPortionTests : IClassFixture<PostgresTestFactory>
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<BiteRoutineDbContext>();
         var egg = await db.Meals.SingleAsync(x => x.NutritionSourceId == "171287");
+        var measure = await db.FoodPortions.AsNoTracking().FirstAsync(x => x.SourceId == "88374");
         var user = new IdentityUser { Id = $"portion-{Guid.NewGuid():N}", UserName = $"portion-{Guid.NewGuid():N}" };
         db.Users.Add(user);
         db.FavoriteMeals.Add(new FavoriteMeal { UserId = user.Id, MealId = egg.MealId });
         db.DiaryEntries.Add(new DiaryEntry { UserId = user.Id, MealId = egg.MealId, MealName = "Original snapshot", Grams = 111.25m,
+            Portion = new DiaryPortionSnapshot { PortionId = measure.Id, Quantity = 2.225m, MeasureName = measure.MeasureName,
+                SourceAmount = measure.Amount, SourceGramWeight = measure.GramWeight, Source = measure.Source, SourceFoodId = measure.SourceFoodId,
+                SourceId = measure.SourceId, SourceDescription = measure.SourceDescription, SourceUrl = measure.SourceUrl },
             Date = new DateOnly(2026, 10, 16), CaloriesKcalPer100G = 12.34m, ProteinGPer100G = null, CarbsGPer100G = 0, FatGPer100G = 1.2m });
         await db.SaveChangesAsync();
         async Task<string> Existing() => JsonSerializer.Serialize(new {

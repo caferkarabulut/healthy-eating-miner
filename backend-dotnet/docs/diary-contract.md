@@ -4,6 +4,8 @@
 
 `diary_entries`: UUID kimlik, Identity kullanıcı FK'sı, katalog gıda FK'sı, `date` türünde günlük günü, `numeric(8,2)` gramaj ve PostgreSQL'in `CURRENT_TIMESTAMP` ile ürettiği UTC `timestamptz` oluşturulma zamanı. Kullanıcı/gün bileşik indeksi listelemeyi destekler. Kullanıcı silinince kayıtları silinir; günlükte kullanılan katalog gıdasının silinmesi engellenir.
 
+`portion` nullable JSONB alanı seçilen ölçünün kayıt anındaki kopyasını tutar; eski/gram kayıtlarında null kalır.
+
 Gıda adı, dört nullable 100 g besin değeri ve kaynak bilgileri kayıt anında kopyalanır. Katalog sonradan değişse de geçmiş günlük değişmez. Yanıttaki besin değerleri bu kopyadan `grams / 100` oranıyla hesaplanır; eksik alanlar `null`, gerçek sıfırlar `0` kalır. Değerler yaklaşık olarak sunulur.
 
 Gün, kullanıcının **Europe/Istanbul takvimindeki** seçtiği `yyyy-MM-dd` tarihidir. İstek açık tarih taşır; UTC gece yarısına veya sunucu saat dilimine dönüştürülmez. İstemci ileride “bugün” seçerken Europe/Istanbul kullanmalıdır. `createdAtUtc` kayıt zamanıdır, günlük gününü belirlemez. Geçmiş/gelecek gün seçimi serbesttir.
@@ -20,11 +22,35 @@ Tüm uç noktalar Identity oturumu gerektirir. Kullanıcı kimliği yalnız doğ
 
 `mealId` pozitif tamsayıdır. `grams` JSON sayısıdır; 0.01–10000 g aralığında ve en fazla iki ondalık basamakla kabul edilir (sessiz yuvarlama yapılmaz). `date` zorunludur. Başarılı yanıt `201` ve oluşturulan kayıttır; `Location` seçilen günün liste adresini gösterir. Tekrarlanan POST ayrı kayıt oluşturur; idempotency bu dilimde yoktur.
 
+### Ölçülü miktar ve geriye uyumluluk
+
+POST örneği (portionId yerel ölçü listesinden alınır):
+
+```json
+{ "mealId": 1, "portionId": 4, "quantity": 1.5, "date": "2026-10-16", "mealSlot": "breakfast" }
+```
+
+Yalnız `grams` **veya** `portionId` + `quantity` kabul edilir. Birlikte, yarım, null, sıfır/negatif miktar ve tanımsız alanlar 400'dür. Eski gram istekleri aynı iki ondalık/aralık kurallarıyla çalışır. Ölçü kimliği pozitif tamsayı, quantity pozitif JSON decimal sayısıdır; Türkçe virgül web tarafından JSON sayısına çevrilir. Sunucu ölçünün aynı gıdaya ait olduğunu sorgular; başka gıdanın veya olmayan ölçünün kullanımı 400'dür. İstemciden gramWeight, gramsPerUnit gibi karşılık alanları kabul edilmez.
+
+Sunucu `quantity × kaynak gramWeight / kaynak amount` hesabını decimal ile yapar. Yalnız nihai gram **iki ondalığa MidpointRounding.AwayFromZero** ile normalize edilir; pozitif tam yarım değer yukarı gider: 1.005 → 1.01 g, 0.005 → 0.01 g. Ardından 0.01–10000 g sınırı uygulanır (0.004 → 0 reddedilir; 10000.004 → 10000 kabul edilir). Taşma/geçersiz sonuç 400 olur. Doğrudan gram girişi sessiz yuvarlanmaz. Besinler ve toplamlar bu nihai gramla mevcut snapshot hesabını kullanır; ek besin yuvarlaması yapılmaz.
+
+Yanıtta `grams` her zaman nihai gramdır. Ölçülü kayıttaki `portion`: `portionId`, `quantity`, `measureName`, `sourceAmount`, `sourceGramWeight`, `source`, `sourceFoodId`, `sourceId`, `sourceDescription`, `sourceUrl`. Bu JSONB kopyasının canlı ölçüye FK'sı yoktur; kaynak güncellenmesi/seed veya ölçünün silinmesi geçmiş miktarı değiştirmez. Dönüşüm oranı kaynak toplamı/miktarıyla, sonuç gramı kaydın grams alanıyla korunur. Gıda/besin kopyaları miktar düzenlemesinde de güncel katalogdan tekrar alınmaz.
+
+Yalnız tarih/öğün düzenleme örneği:
+
+```json
+{ "date": "2026-10-17", "mealSlot": "lunch" }
+```
+
+Bu istekte miktar alanlarının tümü atlanır; canlı ölçü sorgulanmaz ve gram/ölçü kopyası değişmez. Miktar açıkça yeniden seçilirse güncel ölçü oranı kullanılır ve ölçü kopyası yenilenir. `date` bu durumda da zorunludur. İki CSRF katmanı, sahiplik ve önbellek kuralları değişmez.
+
+`AddDiaryPortionSnapshot` yalnız nullable `portion` JSONB sütununu ekler. Eski kayıtlar null ile gram olarak kalır; kullanıcı, katalog/ölçü kimlikleri, günlük tarih/gram/besin verisi değişmez. Uygulamadan önce yerel PostgreSQL 17 `bite_routine` geliştirme hedefini doğrulayın; test DB'sini kullanmayın. [Kaynaklı ölçüler](food-portions-contract.md) ve [web miktar akışı](../../web/docs/portion-input.md).
+
 ### GET `/me/diary-entries?date=2026-10-15`
 
 Tarih zorunlu ve tam `yyyy-MM-dd` biçimindedir. `200` yanıtı `{ "date": "2026-10-15", "timeZone": "Europe/Istanbul", "items": [...], "summary": { "entryCount": 2, "caloriesKcal": 196.779209, "proteinG": 3.093024, "carbsG": 4.409559, "fatG": 0.83325 } }` biçimindedir. Yalnız oturum kullanıcısının o gündeki kayıtları, oluşturulma zamanı/kimlik sırasıyla döner; boş gün `items: []` verir.
 
-Kayıt alanları: `id`, `mealId`, `mealName`, `grams`, `date`, `mealSlot`, `createdAtUtc`, `nutrition` (`caloriesKcal`, `proteinG`, `carbsG`, `fatG`, `approximate: true`), `source`, `sourceId`, `sourceUrl`. Besin alanları tek tek nullable'dır; tümü eksikse de kayıt oluşturulabilir.
+Kayıt alanları: `id`, `mealId`, `mealName`, `grams`, `date`, `mealSlot`, `createdAtUtc`, `nutrition` (`caloriesKcal`, `proteinG`, `carbsG`, `fatG`, `approximate: true`), `source`, `sourceId`, `sourceUrl`, nullable `portion`. Besin alanları tek tek nullable'dır; tümü eksikse de kayıt oluşturulabilir.
 
 Hatalar: geçersiz/eksik alan veya tarih `400` (ProblemDetails), katalogda bulunmayan gıda `404`, oturumsuz istek `401`, çerezli POST/PATCH/DELETE'te eksik/geçersiz antiforgery `403`. Kullanıcı kimliği yanıta eklenmez. Web istemcisi aynı kökenli `/api/diary` geçidini kullanır; tarih, önbellek ve tekrar gönderim davranışı [web README](../../web/README.md) içindedir. Deployment kapsam dışıdır.
 
@@ -34,7 +60,7 @@ Hatalar: geçersiz/eksik alan veya tarih `400` (ProblemDetails), katalogda bulun
 { "grams": 175.25, "date": "2026-10-16", "mealSlot": "dinner" }
 ```
 
-Bu küçük sözleşmede gramaj ve tarih birlikte zorunludur; JSON Merge Patch değildir. Oluşturmadaki sayı/aralık/iki ondalık ve tarih kuralları geçerlidir. `mealId`, `userId` veya başka alanlar kabul edilmez. Yalnız oturum kullanıcısına ait UUID kaydı düzenlenir; başkasının veya olmayan kaydın yanıtı aynı `404` olur. Başarı `200` ve güncel kayıttır. Gıda kimliği, kayıt anındaki ad, nullable 100 g besin değerleri, kaynak kopyaları ve `createdAtUtc` değişmez; yalnız gramaj, tarih ve isteğe bağlı `mealSlot` değişir. Yanıttaki porsiyon değerleri korunmuş kopyadan yeni gramajla hesaplanır.
+Tarih zorunludur; miktar ya gramla ya da ölçü/miktar çiftiyle gönderilir. Üç miktar alanı da atlanırsa mevcut gramaj ve ölçü kopyası aynen korunur. JSON Merge Patch değildir. Gram girişinde oluşturmadaki sayı/aralık/iki ondalık kuralları, her modda tarih kuralları geçerlidir. `mealId`, `userId` veya başka alanlar kabul edilmez. Yalnız oturum kullanıcısına ait UUID kaydı düzenlenir; başkasının veya olmayan kaydın yanıtı aynı `404` olur. Başarı `200` ve güncel kayıttır. Gıda kimliği, kayıt anındaki ad, nullable 100 g besin değerleri, kaynak kopyaları ve `createdAtUtc` değişmez; yalnız açıkça gönderilen miktar, tarih ve isteğe bağlı `mealSlot` değişir. Gramla düzenleme ölçü kopyasını null yapar; ölçülü düzenleme yeni kaynak oranını kopyalar. Yanıttaki porsiyon değerleri korunmuş kopyadan yeni gramajla hesaplanır.
 
 ### DELETE `/me/diary-entries/{id}`
 

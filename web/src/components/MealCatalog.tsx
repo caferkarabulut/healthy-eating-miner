@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { foodLabel } from "@/lib/catalog-presentation";
+import FoodAmountInput, { useFoodAmount } from "./FoodAmountInput";
 import DiaryAddForm from "./DiaryAddForm";
 import {
   calculatePortion,
   formatMetric,
-  parseGrams,
   type CatalogMeal,
 } from "@/lib/portion";
 
@@ -17,14 +17,11 @@ export default function MealCatalog({ meals, renderFavorite, disabled = false, o
   disabled?: boolean; onBusyChange?: (busy: boolean) => void;
 }) {
   const [selectedMealId, setSelectedMealId] = useState<number | null>(null);
-  const [gramsInput, setGramsInput] = useState("100");
   const [saving, setSaving] = useState(false);
-  const grams = parseGrams(gramsInput);
+
 
   const dialog = useRef<HTMLDialogElement>(null);
   const meal = meals.find((item) => item.mealId === selectedMealId);
-  const preview = meal && grams !== null
-    ? calculatePortion(meal.nutrition ?? { caloriesKcal: null, proteinG: null, carbsG: null, fatG: null }, grams) : null;
   useEffect(() => {
     if (meal && !dialog.current?.open) dialog.current?.showModal();
     if (!meal && dialog.current?.open) dialog.current.close();
@@ -39,7 +36,7 @@ export default function MealCatalog({ meals, renderFavorite, disabled = false, o
           <p className="mt-1 text-xs leading-5 text-[#5b7166] break-words">{label.preparation || item.mealType || "Gıda"}</p>
           <p className="mt-3 text-sm"><strong>{formatMetric(item.nutrition?.caloriesKcal, "kcal")}</strong><span className="ml-1 text-xs text-[#698074]">/ 100 g</span></p>
           <button type="button" disabled={saving || disabled} aria-haspopup="dialog" onClick={() => {
-            setSelectedMealId(item.mealId); setGramsInput("100");
+            setSelectedMealId(item.mealId);
           }} className="mt-3 w-full rounded-lg bg-[#e5f3e9] px-2 py-2.5 text-xs font-semibold text-[#205942] hover:bg-[#d3ebda] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#277f64]">Seç ve miktar gir</button>
           {renderFavorite?.(item, saving)}
         </article>;
@@ -60,23 +57,17 @@ export default function MealCatalog({ meals, renderFavorite, disabled = false, o
                   </dl>
                   <a href={meal.nutrition.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm font-medium text-[#246b53] underline">Gıdanın kaynağı: {meal.nutrition.source}</a>
                 </>}
-                <label htmlFor={`grams-${meal.mealId}`} className="mt-4 block text-sm font-medium">Gramaj (g)</label>
-                <input
-                  id={`grams-${meal.mealId}`}
-                  type="text"
-                  inputMode="decimal"
-                  autoComplete="off"
-                  maxLength={10}
-                  value={gramsInput}
-                  disabled={saving || disabled}
-                  onChange={(event) => setGramsInput(event.target.value)}
-                  aria-invalid={grams === null}
-                  aria-describedby={`grams-help-${meal.mealId}`}
-                  className="mt-2 w-full rounded-lg border border-[#b8d6c2] bg-white px-3 py-2 text-[#18312c] outline-none focus:ring-2 focus:ring-[#277f64]"
-                />
-                <p id={`grams-help-${meal.mealId}`} className="mt-2 text-xs text-[#5b7166]">
-                  0&apos;dan büyük, en fazla 10.000 g. Virgül kullanabilirsiniz.
-                </p>
+                <CatalogAmount key={meal.mealId} meal={meal} saving={saving} disabled={disabled} onBusyChange={(value) => { setSaving(value); onBusyChange?.(value); }} />
+      </div>}
+    </dialog>
+  </>;
+}
+
+function CatalogAmount({ meal, saving, disabled, onBusyChange }: { meal: CatalogMeal; saving: boolean; disabled: boolean; onBusyChange: (busy: boolean) => void }) {
+  const amount = useFoodAmount(meal.mealId);
+  const grams = amount.value?.grams ?? null;
+  const preview = grams === null ? null : calculatePortion(meal.nutrition ?? { caloriesKcal: null, proteinG: null, carbsG: null, fatG: null }, grams);
+  return <><FoodAmountInput id={`food-${meal.mealId}`} amount={amount} disabled={saving || disabled} />
                 {preview ? (
                   <div className="mt-5 border-t border-[#cce3d2] pt-4" aria-live="polite">
                     <p className="text-sm text-[#5b7166]">{gramFormatter.format(grams!)} g için yaklaşık değerler</p>
@@ -90,11 +81,9 @@ export default function MealCatalog({ meals, renderFavorite, disabled = false, o
                   </div>
                 ) : (
                   <p className="mt-3 text-sm font-medium text-[#a33c35]" role="alert">
-                    Geçerli bir gramaj girin (en fazla iki ondalık basamak).
+                    Geçerli bir miktar girin; gram karşılığı 0,01–10.000 g olmalı.
                   </p>
                 )}
-                <DiaryAddForm mealId={meal.mealId} grams={grams} disabled={disabled} onBusyChange={(value) => { setSaving(value); onBusyChange?.(value); }} />
-      </div>}
-    </dialog>
-  </>;
+                <DiaryAddForm mealId={meal.mealId} amount={amount.value?.payload ?? null} disabled={disabled} onBusyChange={onBusyChange} />
+</>;
 }

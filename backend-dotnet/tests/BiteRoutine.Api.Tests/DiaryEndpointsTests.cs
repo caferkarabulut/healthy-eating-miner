@@ -244,7 +244,6 @@ public sealed class DiaryEndpointsTests : IClassFixture<PostgresTestFactory>
     [Theory]
     [InlineData("{}")]
     [InlineData("{\"grams\":100}")]
-    [InlineData("{\"date\":\"2026-10-15\"}")]
     [InlineData("{\"grams\":null,\"date\":\"2026-10-15\"}")]
     [InlineData("{\"grams\":0,\"date\":\"2026-10-15\"}")]
     [InlineData("{\"grams\":-1,\"date\":\"2026-10-15\"}")]

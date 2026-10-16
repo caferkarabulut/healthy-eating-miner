@@ -48,6 +48,7 @@ public sealed class BiteRoutineDbContext(DbContextOptions<BiteRoutineDbContext> 
 
         modelBuilder.Entity<DiaryEntry>(entity =>
         {
+            entity.OwnsOne(x => x.Portion, owned => owned.ToJson("portion"));
             entity.ToTable("diary_entries", table =>
             {
                 table.HasCheckConstraint("ck_diary_entries_grams", "grams >= 0.01 AND grams <= 10000");
