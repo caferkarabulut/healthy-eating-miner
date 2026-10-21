@@ -124,4 +124,8 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 
 ## Sıradaki iş
 
-Mobil oturum PR’ını incelemek; ardından gerçek iPhone ve Android bağlantı/test kurulumu. Fiziksel cihaz/ağ kurulumu bu dilimde yapılmadı. Yeni PR merge edilmez; deployment yapılmaz.
+PR #25 açık; incelenen `40a34b3` HEAD ve aynı HEAD’in CI’ı başarılı. Token/yenileme/çıkış incelemesinde yeni engel bulunmadı. 29 test, TypeScript/lint ve Android Metro paketlemesi bu hazırlıkta geçti; gerçek Android/iPhone testi henüz yapılmadı.
+
+Android için Platform Tools 37.0.1 kuruldu; ilk ADB listesi boş. En dar düzen USB üzerinden yalnız 5080/8081 reverse; mevcut localhost API/Metro ve DB ayarları korunur, LAN açılmaz. Cihaz modeli/sürümü ve USB yetkilendirmesi kullanıcıdan bekleniyor. [Kabul listesi ve runtime/dev risk ayrımı](../mobile/docs/device-validation.md).
+
+Sıradaki iş önce Android bağlantısı ve kullanıcı kabulünü kaydetmek; Android çalışınca iPhone bilgilerini alıp kurulumu hazırlamak. Simulator kullanıcı doğrulaması fiziksel cihaz sonucu sayılmaz. PR merge edilmez; deployment yapılmaz.

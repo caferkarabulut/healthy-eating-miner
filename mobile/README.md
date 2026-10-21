@@ -35,7 +35,7 @@ EXPO_PUBLIC_API_URL=http://127.0.0.1:5080 npm run smoke:api
 
 29 test, oturum yenileme/yarış durumları, kayıt formunu düzeltip yeniden gönderme ve RN bileşenleri/API istemcisinde arama/sayfa koruma, detay seçimi, hata/yeniden deneme, boş sonuç, eski yanıt iptali, 100 g/null/sıfır ve zaman aşımını kapsar. CI typecheck/test/lint, SDK paket kontrolü ve iOS Metro JS/assets paketlemesini çalıştırır; native derleme veya simülatör testi değildir. Gerçek yerel API HTTP kontrolü 30 gıdaya erişim, Türkçe YOĞURT araması, detay, boş sonuç ve bağlantı hatasıyla geçti. Backend/web değişmediğinden eski testler yerelde tekrarlanmadı.
 
-`npm audit` kurulu SDK/test araçlarının dolaylı bağımlılıklarında 48 bulgu (18 orta, 30 yüksek; 3 temel advisory; 22 Ekim 2026) bildiriyor. İzinli güncellemeler uygulandı; kalanlar braces/node-forge/sprintf-js zincirlerinde. Bunlar araçların kalıp/metin işleme ve sertifika doğrulama bağımlılıklarıdır; native oturum kodu bunları token üretme veya doğrulamada kullanmaz. Yerel geliştirme kapsamı için engel sayılmadı; dağıtım öncesi yeniden değerlendirilmeli. `--force` ile eski SDK/RN sürümüne düşürülmedi veya doğrulama kapatılmadı. SDK uyumlu düzeltme sürümleri çıktığında lockfile güncellenmeli.
+`npm audit` kurulu SDK/test araçlarının dolaylı bağımlılıklarında 48 bulgu (18 orta, 30 yüksek; 3 temel advisory; 22 Ekim 2026) bildiriyor. İzinli güncellemeler uygulandı; kalanlar braces/node-forge/sprintf-js zincirlerinde. Bunlar araçların kalıp/metin işleme ve sertifika doğrulama bağımlılıklarıdır; native oturum kodu bunları token üretme veya doğrulamada kullanmaz. Yerel geliştirme kapsamı için engel sayılmadı; dağıtım öncesi yeniden değerlendirilmeli. `--force` ile eski SDK/RN sürümüne düşürülmedi veya doğrulama kapatılmadı. SDK uyumlu düzeltme sürümleri çıktığında lockfile güncellenmeli. [Runtime/dev ayrımı ve kalan risk](docs/device-validation.md#bağımlılık-incelemesi): `--omit=dev` audit de 40 bulgu verir; bu sayı native paket kapsamıyla eş tutulmaz.
 
 ## iOS Simulator
 
@@ -49,4 +49,4 @@ NODE_OPTIONS=--dns-result-order=ipv4first npm run ios -- --localhost
 
 Kullanıcı, Simulator’da katalog listeleme, Türkçe arama, detay, geri dönüş, sayfalama ve boş sonucu doğruladı. Mobil oturum diliminde gerçek API ile kayıt/hata düzeltme/giriş, hesap, tam kapatıp açma sonrası SecureStore’dan geri yükleme, çıkış ve geçersiz oturum temizliği ayrıca native ekranda denendi. Yazılım klavyesi açıkken giriş ve gezinme kontrol edildi; web önizlemesi native doğrulama sayılmadı.
 
-Gerçek iPhone ve Android bağlantı/test kurulumu sonraki görevdir. Fiziksel cihaz/ağ veya dağıtım ayarı bu dilimde yapılmadı.
+Gerçek cihaz hazırlığı: [Android USB kurulumu ve cihaz kabul listesi](docs/device-validation.md). Önce Android, ardından iPhone. API localhost’ta kalır; Android’de yalnız API/Metro portları ADB reverse ile taşınır. Fiziksel cihaz doğrulaması henüz yapılmadı; paketleme/Simulator sonuçları ayrı kaydedilir.

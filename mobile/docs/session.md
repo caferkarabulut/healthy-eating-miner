@@ -38,4 +38,4 @@ iOS 27.1 Simulator / Expo Go’da gerçek API ile aynı form akışı, yazılım
 2. Yanlış parolayı deneyin, düzeltince hatanın temizlendiğini ve hesabın açıldığını görün.
 3. Uygulamayı tamamen kapatıp açın; Hesabım’da oturum gelmeli. Çıkış yapıp tekrar açınca giriş istenmeli; katalog açık kalmalı.
 
-Sıradaki iş gerçek iPhone ve Android için bağlantı/test kurulumudur; cihaz/ağ erişimi bu görevin kapsamında genişletilmedi.
+Gerçek cihaz kabulü önce Android USB, ardından iPhone olarak [ayrı kontrol kaydında](device-validation.md) yürütülür. Henüz fiziksel cihaz sonucu yoktur; Simulator ve paketleme sonuçları gerçek cihaz yerine sayılmaz.
