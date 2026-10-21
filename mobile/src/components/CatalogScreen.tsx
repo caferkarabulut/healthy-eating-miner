@@ -1,3 +1,4 @@
+import { Link } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -27,6 +28,7 @@ export default function CatalogScreen({ apiUrl, onSelect }: { apiUrl: string | u
       <View style={{ paddingVertical: 20, gap: 12 }}>
         <Text style={[styles.muted, { fontWeight: "600", color: colors.green }]}>Bite Routine</Text>
         <Text accessibilityRole="header" style={styles.title}>Gıda kataloğu</Text>
+        <Link href="/account" style={styles.text}>Hesabım / Giriş yap</Link>
         <Text style={styles.muted}>Gıdanızı bulun, 100 g için yaklaşık besin değerlerini inceleyin.</Text>
         <Text nativeID="search-label" style={styles.text}>Gıda ara</Text>
         <TextInput accessibilityLabel="Gıda ara" accessibilityLabelledBy="search-label" value={draft} onChangeText={setDraft} onSubmitEditing={search}
