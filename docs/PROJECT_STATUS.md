@@ -102,13 +102,20 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Yeni tablo/migration ve kaynak kimliğiyle tekrar uygulanabilir seed; herkese açık GET /meals/{mealId}/portions. Günlük sözleşmesi ve web değişmedi.
 - Doğrulama: 115 gerçek PostgreSQL testi, uyarısız Release build, pending-model kontrolü, geçici kopyada boş sonraki migration scaffold/derleme. Hedefi doğrulanan geliştirme DB'sine migration ve seed iki kez uygulandı; katalog/kullanıcı/günlük/favori içerikleri aynı kaldı. Gerçek HTTP ile tüm 30 gıda/64 ölçü, normalizasyon, boş liste ve 400/404 doğrulandı. Web değişmediği için yerel web testleri tekrarlanmadı.
 
-## Bu dal: günlükte ölçülü miktar girişi
+## Günlükte ölçülü miktar girişi (main)
 
 - PR #22'nin `3bb855f` HEAD'i ve iki başarılı CI işi doğrulandı; aynı HEAD koşuluyla main'e birleşti. Yerel main fast-forward güncellendi; `feat/diary-portion-input` buradan açıldı.
 - Katalog, favoriler ve günlük düzenleme gram veya aynı gıdanın kaynak ölçüsünü kullanır. Türkçe virgül/kesirli adet, boyut ayrımları, yaklaşık gram/besin önizlemesi; ölçü yok/hata durumunda gram desteği vardır. [Web akışı](../web/docs/portion-input.md).
 - API grams ile geriye uyumludur; ölçülü portionId/quantity sunucuda doğrulanır ve decimal dönüşüm nihai gramda iki ondalığa AwayFromZero ile normalize edilir. Günlükte nullable JSONB ölçü kopyası korunur. Tarih/öğün-only PATCH miktarı tekrar hesaplamaz. [Sözleşme](../backend-dotnet/docs/diary-contract.md).
 - Doğrulama: 122 gerçek PostgreSQL testi, 60 web testi, uyarısız Release build, web build/lint, pending-model kontrolü ve geçici kopyada boş sonraki migration scaffold/derleme. Gerçek HTTP ve 375 px tarayıcı akışları başarılı. Migration yalnız doğrulanan geliştirme DB'sine uygulandı; eski katalog/kullanıcı/günlük/favoriler korundu. Geçici test hesabı temizlendi.
 
+## Bu dal: ilk mobil katalog
+
+- PR #23'ün `4b70e35` HEAD'i değişmemişti; başarılı CI ve aynı HEAD koşuluyla main'e birleşti. Yerel main fast-forward güncellendi; `feat/mobile-catalog` açıldı. Başlangıçta çalışma ağacı temizdi.
+- `mobile/`: resmî kararlı Expo SDK 58 / React Native 0.88 / React 19.3 ve Node 24. Mevcut .NET API'ye ortam adresiyle salt okunur erişim; Türkçe arama, sayfalama ve 100 g detay. Krem/yeşil, güvenli alan, kaydırılabilir arama/klavye düzeni, yüklenme/boş/hata/tekrar deneme. Giriş/günlük/favori/onboarding yok.
+- 9 React Native bileşen/istemci testi, TypeScript, lint, SDK paket uyumluluğu ve iOS Metro paketlemesi geçti. Gerçek yerel API ile 30 gıda, Türkçe arama, sayfalama, detay ve hata HTTP kontrolü geçti; veri değiştirilmedi. Mobil CI ayrı eklendi, backend/web ve kök README/About değişmedi; eski yerel testler tekrarlanmadı.
+- Tam Xcode/Simulator bulunmadığı için native ekran/klavye testi yapılamadı; web önizlemesi native kanıt sayılmadı. Kurulum, kalan native kontrol ve dolaylı paket uyarıları [mobil README](../mobile/README.md) içinde.
+
 ## Sıradaki iş
 
-Günlük ölçü girişi PR'ını incelemek. Yeni özellik PR'ı merge edilmedi; deployment yapılmadı.
+Xcode/Simulator kurulduktan sonra mobil kataloğu gerçek iOS Simulator'da doğrulamak ve mobil PR'ı incelemek. Yeni PR merge edilmedi; deployment yapılmadı.
