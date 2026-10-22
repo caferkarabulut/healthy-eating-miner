@@ -1,4 +1,4 @@
-# Bite Routine durum — 16 Ekim 2026
+# Bite Routine durum — 22 Ekim 2026
 
 ## Karar
 
@@ -10,7 +10,7 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Geliştirme DB'si migration sonrası boş başlar; 25 demo yemek yalnız test fixture'ındadır.
 - İlk migration hedef metadatası snapshot'tan bağımsızdır. Testler yalnız `bite_routine_test` içinde koşu başına ayrı şema kullanır.
 - İkinci migration kaynaklı, yaklaşık 100 g besin alanlarını ekler. Sekiz temel gıdalık USDA FoodData Central başlangıç verisi açık ve tekrar çalıştırılabilir seed komutuyla geliştirme veritabanına eklenir; eski CSV kullanılmaz. Kaynak bağlantıları, FDC kimliğiyle doğru kaydı gösteren resmî arama sayfasına gider.
-- Next.js ana sayfası .NET API'sinden Türkçe aranabilen, kaynak bağlantılı kataloğu gösterir. Yerel HTTP kontrolü yapıldı. Eski takip ve koçluk ekranları hâlâ Python API'sini bekler; mobil istemci yoktur.
+- Next.js ana sayfası .NET API'sinden Türkçe aranabilen, kaynak bağlantılı kataloğu gösterir. Yerel HTTP kontrolü yapıldı. Eski takip ve koçluk ekranları hâlâ Python API'sini bekler; mobil istemci aşağıdaki kapsamda geliştirilmiştir.
 - Katalogdaki gramaj önizlemesinden açık “Günlüğe ekle” işlemiyle kayıt oluşturulur. Türkçe virgüllü gramaj desteklenir; eksik besinler “Veri yok” kalır.
 - .NET API'de PostgreSQL üzerinde ASP.NET Core Identity kayıt/giriş, çerezli çıkış ve korumalı `/me` vardır. Web kayıt/giriş aynı kökenli geçitle HttpOnly çereze bağlandı; `/account` oturumu `/me` ile doğrular. Hem Next geçidi hem doğrudan API, çerezli durum değiştiren isteklerde CSRF koruması uygular. Mobil için Identity bearer tokenı kararı geçerlidir. Ağ sınırı ve oturum kararı: [`backend-dotnet/docs/auth-session.md`](../backend-dotnet/docs/auth-session.md).
 - Kurulum ve komutlar: [`backend-dotnet/README.md`](../backend-dotnet/README.md). SQL kararları: [`backend-dotnet/docs/sql-development-plan.md`](../backend-dotnet/docs/sql-development-plan.md).
@@ -109,13 +109,23 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - API grams ile geriye uyumludur; ölçülü portionId/quantity sunucuda doğrulanır ve decimal dönüşüm nihai gramda iki ondalığa AwayFromZero ile normalize edilir. Günlükte nullable JSONB ölçü kopyası korunur. Tarih/öğün-only PATCH miktarı tekrar hesaplamaz. [Sözleşme](../backend-dotnet/docs/diary-contract.md).
 - Doğrulama: 122 gerçek PostgreSQL testi, 60 web testi, uyarısız Release build, web build/lint, pending-model kontrolü ve geçici kopyada boş sonraki migration scaffold/derleme. Gerçek HTTP ve 375 px tarayıcı akışları başarılı. Migration yalnız doğrulanan geliştirme DB'sine uygulandı; eski katalog/kullanıcı/günlük/favoriler korundu. Geçici test hesabı temizlendi.
 
-## Bu dal: ilk mobil katalog
+## İlk mobil katalog (main)
 
 - PR #23'ün `4b70e35` HEAD'i değişmemişti; başarılı CI ve aynı HEAD koşuluyla main'e birleşti. Yerel main fast-forward güncellendi; `feat/mobile-catalog` açıldı. Başlangıçta çalışma ağacı temizdi.
 - `mobile/`: resmî kararlı Expo SDK 58 / React Native 0.88 / React 19.3 ve Node 24. Mevcut .NET API'ye ortam adresiyle salt okunur erişim; Türkçe arama, sayfalama ve 100 g detay. Krem/yeşil, güvenli alan, kaydırılabilir arama/klavye düzeni, yüklenme/boş/hata/tekrar deneme. Giriş/günlük/favori/onboarding yok.
 - 9 React Native bileşen/istemci testi, TypeScript, lint, SDK paket uyumluluğu ve iOS Metro paketlemesi geçti. Gerçek yerel API ile 30 gıda, Türkçe arama, sayfalama, detay ve hata HTTP kontrolü geçti; veri değiştirilmedi. Mobil CI ayrı eklendi, backend/web ve kök README/About değişmedi; eski yerel testler tekrarlanmadı.
-- Tam Xcode/Simulator bulunmadığı için native ekran/klavye testi yapılamadı; web önizlemesi native kanıt sayılmadı. Kurulum, kalan native kontrol ve dolaylı paket uyarıları [mobil README](../mobile/README.md) içinde.
+- İlk teslimde eksik olan Xcode/Simulator kullanıcı tarafından kuruldu. **Kullanıcı doğrulaması:** Simulator’da liste, Türkçe arama, detay, geri dönüş, sayfalama ve boş sonuç çalışıyor. Bu sonuç kullanıcı doğrulamasıdır. PR #24’ün değişmeyen `6f0b9ec` HEAD’i ve aynı HEAD’in başarılı mobil CI’ı kontrol edilip aynı HEAD koşuluyla merge edildi; yerel main fast-forward güncellendi. Dolaylı bağımlılık uyarıları değerlendirildi; [mobil README](../mobile/README.md) içinde korunuyor.
+
+## Bu dal: mobil oturum
+
+- `feat/mobile-session`, güncel main’den açıldı. Kayıt/giriş/hesap/yerel çıkış, SDK uyumlu SecureStore, açılışta geri yükleme, tek eşzamanlı yenileme ve çıkış sonrası geç yanıt/yazma koruması eklendi. Ağ/5xx hatası oturumu silmez; geçersiz yenileme temizler. Katalog oturumsuz kalır; mobil günlük/favori/onboarding yoktur.
+- Mevcut Identity bearer opaktır, JWT varsayılmaz. Çıkış yalnız cihaz tokenlarını temizler; sunucuda token iptali/diğer cihazlardan çıkış sağlamaz. [Sözleşme ve doğrulama](../mobile/docs/session.md).
+- 29 mobil test, TypeScript/lint/SDK uyumu ve iOS paketlemesi; gerçek API ile kayıt/hatalı giriş/giriş/hesap/refresh/yerel çıkış ve geçersiz yenileme doğrulandı. Native Simulator’da klavye, hata düzeltme, tam kapatıp açma sonrası SecureStore geri yükleme, çıkış ve geçersiz oturum ekranı kontrol edildi. Geçici hesaplar güvenli biçimde temizlendi. Backend/web değişmedi; eski testleri yerelde tekrarlanmadı.
 
 ## Sıradaki iş
 
-Xcode/Simulator kurulduktan sonra mobil kataloğu gerçek iOS Simulator'da doğrulamak ve mobil PR'ı incelemek. Yeni PR merge edilmedi; deployment yapılmadı.
+PR #25 açık; token/yenileme/çıkış incelemesinde yeni engel bulunmadı. Galaxy A72 / Android 14 / One UI 6.1 ve iPhone 13 / iOS 26.6.1 cihaz kabul listeleri 22 Ekim 2026’da **kullanıcı doğrulamasıyla** tamamlandı. iPhone, App Store Expo Go uyumsuzluğu nedeniyle yerel imzalı development build kullanır; native derleme/kurulum ve gerçek cihaz katalog görüntüsü ayrıca doğrulandı.
+
+29 test, TypeScript/lint/SDK uyumu, Metro paketleme ve gerçek HTTPS Identity smoke geçti. Sentetik hesap temizlendi. Test sonu yalnız iPhone’a ait geçici proxy/Metro kapatıldı ve anahtarlar silindi; kullanıcı geçici CA profilini iPhone’dan kaldırmalı. [Kabul, kanıt ayrımı ve kalan araç zinciri/native uyarıları](../mobile/docs/device-validation.md).
+
+Sıradaki iş PR #25 son incelemesidir; merge/deployment bu görevin dışında. Backend/web değişmedi; eski testleri tekrarlanmadı.
