@@ -13,7 +13,7 @@ cp .env.example .env
 npm run ios -- --localhost
 ```
 
-`.env` içindeki **EXPO_PUBLIC_API_URL** yalnız API origin adresidir. iOS Simulator için `http://127.0.0.1:5080`; Android Emulator için `http://10.0.2.2:5080`. Fiziksel cihazda localhost telefonun kendisidir: Mac'in erişilebilir LAN adresi ve API'nin o arayüzde dinlemesi gerekir; bu dilimde LAN erişimi açılmadı. EXPO_PUBLIC değişkenleri uygulamaya gömülür, gizli değildir. Parola/DB bağlantısı/token koymayın. Adres değişiminden sonra Expo'yu yeniden başlatın. HTTPS dışı adresler yalnız yerel geliştirme içindir; bu dilimde dağıtım yapılandırılmaz.
+`.env` içindeki **EXPO_PUBLIC_API_URL** yalnız API origin adresidir. iOS Simulator için `http://127.0.0.1:5080`; Android Emulator için `http://10.0.2.2:5080`. Fiziksel cihazda localhost telefonun kendisidir: Android’de USB reverse veya iPhone’da localhost API’ye dar bir geliştirme geçidi gerekir; cihaz kurulumu aşağıda belgelenir. EXPO_PUBLIC değişkenleri uygulamaya gömülür, gizli değildir. Parola/DB bağlantısı/token koymayın. Adres değişiminden sonra Expo'yu yeniden başlatın. HTTPS dışı adresler yalnız yerel geliştirme içindir; bu dilimde dağıtım yapılandırılmaz.
 
 Expo Router katalog, detay ve oturum ekranlarını bağlar; katalog araması ve sayfası geri dönüşte korunur. Yeni arama ilk sayfaya döner; önceki istek iptal edilir, geç yanıt son aramayı ezmez. 12 saniyelik bağlantı zaman aşımı ve manuel “Tekrar dene” vardır; otomatik tekrar yoktur. Detay mevcut API'den kimlikle alınır; kaynak bağlantısı HTTPS olarak açılır.
 
@@ -49,7 +49,7 @@ NODE_OPTIONS=--dns-result-order=ipv4first npm run ios -- --localhost
 
 Kullanıcı, Simulator’da katalog listeleme, Türkçe arama, detay, geri dönüş, sayfalama ve boş sonucu doğruladı. Mobil oturum diliminde gerçek API ile kayıt/hata düzeltme/giriş, hesap, tam kapatıp açma sonrası SecureStore’dan geri yükleme, çıkış ve geçersiz oturum temizliği ayrıca native ekranda denendi. Yazılım klavyesi açıkken giriş ve gezinme kontrol edildi; web önizlemesi native doğrulama sayılmadı.
 
-Gerçek cihaz hazırlığı: [Android USB kurulumu ve cihaz kabul listesi](docs/device-validation.md). Önce Android, ardından iPhone. API localhost’ta kalır; Android’de yalnız API/Metro portları ADB reverse ile taşınır. Fiziksel cihaz doğrulaması henüz yapılmadı; paketleme/Simulator sonuçları ayrı kaydedilir.
+Gerçek cihaz hazırlığı: [Android USB kurulumu ve cihaz kabul listesi](docs/device-validation.md). Önce Android, ardından iPhone. API localhost’ta kalır; Android’de yalnız API/Metro portları ADB reverse ile taşınır. Galaxy A72 / Android 14 ve iPhone 13 / iOS 26.6.1 kabul listeleri kullanıcı doğrulamasıyla tamamlandı; iPhone yerel development build kullandı. Paketleme/Simulator ve gerçek cihaz sonuçları ayrı kaydedilir.
 
 ## Gerçek iPhone: yerel development build
 
