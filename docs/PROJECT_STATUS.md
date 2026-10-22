@@ -130,4 +130,4 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 
 ## Sıradaki iş
 
-Yeni mobil günlük PR’ının incelemesi ve kullanıcıyla iPhone/Samsung günlük kabulü. Önceki fiziksel oturum kabulü yeni günlük ekranının fiziksel kabulü sayılmaz. Fiziksel erişim gerekirse mevcut belgeli dar yöntem yeniden hazırlanır; deployment/merge bu özellik tesliminin dışında.
+PR #26 son incelemesi. Kullanıcı iPhone 13 / iOS 26.6.1 günlük kontrollerini/testlerini tamamladığını bildirdi; Samsung USB bağlantısı için de çalışma onayı alındı. Bunlar kullanıcı bildirimidir; Simulator/HTTP kanıtından ayrı tutulur. iPhone için mevcut belgeli geçici HTTPS/Metro bağlantısı yeniden hazırlandı ve kullanıcı testi için açık bırakıldı; temizlik yöntemi mobil günlük belgesinde. Merge/deployment yapılmadı.
