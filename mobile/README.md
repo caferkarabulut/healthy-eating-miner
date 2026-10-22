@@ -50,3 +50,18 @@ NODE_OPTIONS=--dns-result-order=ipv4first npm run ios -- --localhost
 Kullanıcı, Simulator’da katalog listeleme, Türkçe arama, detay, geri dönüş, sayfalama ve boş sonucu doğruladı. Mobil oturum diliminde gerçek API ile kayıt/hata düzeltme/giriş, hesap, tam kapatıp açma sonrası SecureStore’dan geri yükleme, çıkış ve geçersiz oturum temizliği ayrıca native ekranda denendi. Yazılım klavyesi açıkken giriş ve gezinme kontrol edildi; web önizlemesi native doğrulama sayılmadı.
 
 Gerçek cihaz hazırlığı: [Android USB kurulumu ve cihaz kabul listesi](docs/device-validation.md). Önce Android, ardından iPhone. API localhost’ta kalır; Android’de yalnız API/Metro portları ADB reverse ile taşınır. Fiziksel cihaz doğrulaması henüz yapılmadı; paketleme/Simulator sonuçları ayrı kaydedilir.
+
+## Gerçek iPhone: yerel development build
+
+App Store Türkiye’de kontrol edilen Expo Go 57.0.9, projenin SDK 58 sürümünü açmadı. Android’de resmî Expo Go 58.0.5 ile kabul tamamlandı; iPhone’da SDK düşürmek yerine SDK uyumlu `expo-dev-client` 58.0.14 ve yerel Xcode development build kullanılır. Cloud build veya mağazaya gönderim yoktur.
+
+```sh
+# mobile/ içinde; tam Xcode, CocoaPods, bağlı/yetkilendirilmiş iPhone
+npm run build:ios:device
+# Derleme kurulduktan sonra, aynı cihaz API ortamıyla:
+npm run start:dev -- --localhost
+```
+
+`build:ios:device` gerektiğinde Expo CNG ile git dışında kalan `ios/` klasörünü üretir. Apple hesabı, geliştirme sertifikası ve telefonun Developer Mode/imzalama adımları Xcode’da kullanıcı tarafından tamamlanır; kişisel Team ID, sertifika, provisioning profile veya özel anahtar commit edilmez. Native dosyalar elle oluşturulmaz. `npm start`, `npm run android` ve `npm run ios`, mevcut Expo Go akışını korumak için açıkça `--go` kullanır. Ayrı geliştirme istemcisi için `start:dev` kullanın. [Gerçek cihaz durumu ve HTTPS geçidi](docs/device-validation.md).
+
+Yerel iPhone build komutu `EX_DEV_CLIENT_NETWORK_INSPECTOR=false` kullanır; Expo development client ağ yakalayıcısı login parolası/bearer trafiğini toplamasın diye kapatılır. Pod kurulumu da aynı ortamla yapılır. Bu ayar ağ/TLS doğrulamasını kapatmaz; yalnız geliştirme aracının istek yakalamasını engeller.

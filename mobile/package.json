@@ -5,6 +5,7 @@
   "dependencies": {
     "expo": "~58.0.17",
     "expo-constants": "~58.0.12",
+    "expo-dev-client": "~58.0.14",
     "expo-linking": "~58.0.14",
     "expo-router": "~58.0.25",
     "expo-secure-store": "~58.0.2",
@@ -28,9 +29,9 @@
     "typescript": "~6.0.3"
   },
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "expo start --go",
+    "android": "expo start --android --go",
+    "ios": "expo start --ios --go",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test": "jest --runInBand",
@@ -38,7 +39,9 @@
     "check:deps": "expo install --check",
     "export:ios": "expo export --platform ios",
     "smoke:api": "node scripts/api-smoke.mts",
-    "smoke:session": "node scripts/session-smoke.mts"
+    "smoke:session": "node scripts/session-smoke.mts",
+    "start:dev": "expo start --dev-client",
+    "build:ios:device": "EX_DEV_CLIENT_NETWORK_INSPECTOR=false expo run:ios --device"
   },
   "private": true,
   "engines": {
