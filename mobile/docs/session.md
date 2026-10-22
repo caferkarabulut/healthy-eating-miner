@@ -30,7 +30,7 @@ Komut tek geçici hesap oluşturur; çıktıdaki korumalı receipt dosyası yaln
 
 HTTP kontrolü zayıf parola → düzeltip kayıt, yanlış parola, giriş, `/me`, yeni istemcide geri yükleme, gerçek refresh çağrısı, tek yenileme, yerel çıkışın sınırı ve geçersiz refresh temizliğini doğruladı. Saat yalnız test istemcisinde ileri alınarak gerçek refresh çağrıldı; sunucu token süresi değiştirilmedi, doğal sürenin dolması beklenmedi.
 
-iOS 27.1 Simulator / Expo Go’da gerçek API ile aynı form akışı, yazılım klavyesi, hesap, uygulamayı tamamen kapatıp açınca geri yükleme ve çıkıştan sonra kapalı kalma görüldü. Geçici hesabın silinmesiyle `/me` + refresh reddi ve “Oturumunuz sona erdi” ekranı doğrulandı. Bu, doğal süre dolmasını bekleme testi değildir. Ağ kesintisi/yarış durumları otomatik testlerde doğrulandı; fiziksel iPhone/Android henüz denenmedi.
+iOS 27.1 Simulator / Expo Go’da gerçek API ile aynı form akışı, yazılım klavyesi, hesap, uygulamayı tamamen kapatıp açınca geri yükleme ve çıkıştan sonra kapalı kalma görüldü. Geçici hesabın silinmesiyle `/me` + refresh reddi ve “Oturumunuz sona erdi” ekranı doğrulandı. Bu, doğal süre dolmasını bekleme testi değildir. Ağ kesintisi/yarış durumları otomatik testlerde doğrulandı; fiziksel iPhone/Android kabulü daha sonra kullanıcı doğrulamasıyla tamamlandı; ayrı cihaz kaydına bakın.
 
 ## Kullanıcının kısa kontrolü
 
@@ -38,4 +38,6 @@ iOS 27.1 Simulator / Expo Go’da gerçek API ile aynı form akışı, yazılım
 2. Yanlış parolayı deneyin, düzeltince hatanın temizlendiğini ve hesabın açıldığını görün.
 3. Uygulamayı tamamen kapatıp açın; Hesabım’da oturum gelmeli. Çıkış yapıp tekrar açınca giriş istenmeli; katalog açık kalmalı.
 
-Gerçek cihaz kabulü önce Android USB, ardından iPhone olarak [ayrı kontrol kaydında](device-validation.md) yürütülür. Henüz fiziksel cihaz sonucu yoktur; Simulator ve paketleme sonuçları gerçek cihaz yerine sayılmaz.
+Gerçek cihaz kabulü önce Android USB, ardından iPhone olarak [ayrı kontrol kaydında](device-validation.md) yürütülür. İki cihazın oturum kabulü kullanıcı doğrulamasıyla tamamlandı; Simulator ve paketleme sonuçları ayrı tutulur.
+
+Günlük istekleri de aynı bearer/tek refresh ve oturum nesli korumasını kullanır; [mobil günlük sözleşmesi](diary.md).

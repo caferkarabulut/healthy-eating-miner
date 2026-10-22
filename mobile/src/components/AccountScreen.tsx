@@ -26,6 +26,7 @@ export default function AccountScreen() {
       <Text style={styles.muted}>Çıkış bu cihazdaki tokenları siler. Sunucudaki tokenları veya diğer cihazların oturumlarını iptal etmez.</Text>
     </>}
     {message && message !== state.message && <Text accessibilityLiveRegion="polite" style={styles.text}>{message}</Text>}
+    <Link href="/diary" style={styles.heading}>Günlüğüm</Link>
     <Link href="/" style={styles.text}>Kataloğa dön</Link>
   </ScrollView></SafeAreaView>;
 }

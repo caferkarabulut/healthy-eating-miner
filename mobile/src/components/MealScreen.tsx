@@ -1,9 +1,11 @@
 import { useCallback, useState } from "react";
-import { Linking, ScrollView, Text, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Linking, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { loadMeal, metric, sourceUrl } from "../api/catalog";
 import { useRequest } from "../hooks/useRequest";
 import { Button, Failure, Loading, styles } from "./ui";
+
+import AddDiaryForm from "./AddDiaryForm";
 
 export default function MealScreen({ apiUrl, mealId }: { apiUrl: string | undefined; mealId: string }) {
   const load = useCallback((signal: AbortSignal) => loadMeal(apiUrl, mealId, signal), [apiUrl, mealId]);
@@ -14,7 +16,7 @@ export default function MealScreen({ apiUrl, mealId }: { apiUrl: string | undefi
   return <SafeAreaView style={styles.screen} edges={["bottom", "left", "right"]}>
     {state.status === "loading" && <Loading />}
     {state.status === "error" && <Failure message={state.message} retry={retry} />}
-    {meal && <ScrollView contentContainerStyle={styles.container}>
+    {meal && <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={100}><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
       <Text accessibilityRole="header" style={styles.title}>{meal.mealName}</Text>
       <Text style={styles.muted}>100 g yenilebilir kısım için yaklaşık değerler.</Text>
       <View style={styles.card}>
@@ -25,6 +27,7 @@ export default function MealScreen({ apiUrl, mealId }: { apiUrl: string | undefi
       {meal.nutrition && <Text style={styles.muted}>Kaynak: {meal.nutrition.source}</Text>}
       {link && <Button onPress={() => { setSourceError(false); void Linking.openURL(link).catch(() => setSourceError(true)); }}>Gıdanın kaynağını aç</Button>}
       {sourceError && <Text accessibilityRole="alert" style={styles.text}>Kaynak bağlantısı açılamadı.</Text>}
-    </ScrollView>}
+      <AddDiaryForm meal={meal} apiUrl={apiUrl} />
+    </ScrollView></KeyboardAvoidingView>}
   </SafeAreaView>;
 }

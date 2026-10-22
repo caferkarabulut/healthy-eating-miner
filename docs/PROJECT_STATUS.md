@@ -116,16 +116,18 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - 9 React Native bileşen/istemci testi, TypeScript, lint, SDK paket uyumluluğu ve iOS Metro paketlemesi geçti. Gerçek yerel API ile 30 gıda, Türkçe arama, sayfalama, detay ve hata HTTP kontrolü geçti; veri değiştirilmedi. Mobil CI ayrı eklendi, backend/web ve kök README/About değişmedi; eski yerel testler tekrarlanmadı.
 - İlk teslimde eksik olan Xcode/Simulator kullanıcı tarafından kuruldu. **Kullanıcı doğrulaması:** Simulator’da liste, Türkçe arama, detay, geri dönüş, sayfalama ve boş sonuç çalışıyor. Bu sonuç kullanıcı doğrulamasıdır. PR #24’ün değişmeyen `6f0b9ec` HEAD’i ve aynı HEAD’in başarılı mobil CI’ı kontrol edilip aynı HEAD koşuluyla merge edildi; yerel main fast-forward güncellendi. Dolaylı bağımlılık uyarıları değerlendirildi; [mobil README](../mobile/README.md) içinde korunuyor.
 
-## Bu dal: mobil oturum
+## Mobil oturum (main)
 
 - `feat/mobile-session`, güncel main’den açıldı. Kayıt/giriş/hesap/yerel çıkış, SDK uyumlu SecureStore, açılışta geri yükleme, tek eşzamanlı yenileme ve çıkış sonrası geç yanıt/yazma koruması eklendi. Ağ/5xx hatası oturumu silmez; geçersiz yenileme temizler. Katalog oturumsuz kalır; mobil günlük/favori/onboarding yoktur.
 - Mevcut Identity bearer opaktır, JWT varsayılmaz. Çıkış yalnız cihaz tokenlarını temizler; sunucuda token iptali/diğer cihazlardan çıkış sağlamaz. [Sözleşme ve doğrulama](../mobile/docs/session.md).
 - 29 mobil test, TypeScript/lint/SDK uyumu ve iOS paketlemesi; gerçek API ile kayıt/hatalı giriş/giriş/hesap/refresh/yerel çıkış ve geçersiz yenileme doğrulandı. Native Simulator’da klavye, hata düzeltme, tam kapatıp açma sonrası SecureStore geri yükleme, çıkış ve geçersiz oturum ekranı kontrol edildi. Geçici hesaplar güvenli biçimde temizlendi. Backend/web değişmedi; eski testleri yerelde tekrarlanmadı.
 
+## Bu dal: mobil günlük
+
+- PR #25’in `4c7ff5d` HEAD’i ve başarılı CI son kez incelenip aynı HEAD koşuluyla main’e birleşti. Yerel main `5a12eea` fast-forward güncellendi; `feat/mobile-diary` buradan açıldı. Çalışma ağacı başlangıçta temizdi. Samsung/iPhone oturum kabulü ve geçici CA temizliği kullanıcı doğrulaması olarak kaydedildi.
+- Mevcut API ile seçilen günün listesi, katalog detayından gram/kaynaklı kesirli adetle ekleme, gün/öğün seçimi, sabit öğün grupları ve sunucunun günlük/öğün toplamları. İstanbul günü, null/sıfır, tek refresh, hesap/tarih yarış koruması, çift gönderim ve belirsiz POST kilidi korunur. Backend/model/migration/web değişmedi.
+- Mobil testler, TypeScript/lint/SDK uyumu, Android/iOS Metro paketleme; gerçek API ve iOS 27.1 Simulator’da gram/adet, gün/öğün/toplamlar, yeniden açılış, boş gün, bağlantı hatası/toparlanma ve iki hesap ayrımı doğrulandı. Sentetik hesaplar/kayıtlar temizlendi, yalnız geçici Simulator süreçleri kapatıldı. [Kapsam ve kanıt ayrımı](../mobile/docs/diary.md).
+
 ## Sıradaki iş
 
-PR #25 açık; token/yenileme/çıkış incelemesinde yeni engel bulunmadı. Galaxy A72 / Android 14 / One UI 6.1 ve iPhone 13 / iOS 26.6.1 cihaz kabul listeleri 22 Ekim 2026’da **kullanıcı doğrulamasıyla** tamamlandı. iPhone, App Store Expo Go uyumsuzluğu nedeniyle yerel imzalı development build kullanır; native derleme/kurulum ve gerçek cihaz katalog görüntüsü ayrıca doğrulandı.
-
-29 test, TypeScript/lint/SDK uyumu, Metro paketleme ve gerçek HTTPS Identity smoke geçti. Sentetik hesap temizlendi. Test sonu yalnız iPhone’a ait geçici proxy/Metro kapatıldı ve anahtarlar silindi; kullanıcı geçici CA profilini iPhone’dan kaldırmalı. [Kabul, kanıt ayrımı ve kalan araç zinciri/native uyarıları](../mobile/docs/device-validation.md).
-
-Sıradaki iş PR #25 son incelemesidir; merge/deployment bu görevin dışında. Backend/web değişmedi; eski testleri tekrarlanmadı.
+Yeni mobil günlük PR’ının incelemesi ve kullanıcıyla iPhone/Samsung günlük kabulü. Önceki fiziksel oturum kabulü yeni günlük ekranının fiziksel kabulü sayılmaz. Fiziksel erişim gerekirse mevcut belgeli dar yöntem yeniden hazırlanır; deployment/merge bu özellik tesliminin dışında.

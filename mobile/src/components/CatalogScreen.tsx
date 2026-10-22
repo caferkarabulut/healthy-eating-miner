@@ -28,6 +28,7 @@ export default function CatalogScreen({ apiUrl, onSelect }: { apiUrl: string | u
       <View style={{ paddingVertical: 20, gap: 12 }}>
         <Text style={[styles.muted, { fontWeight: "600", color: colors.green }]}>Bite Routine</Text>
         <Text accessibilityRole="header" style={styles.title}>Gıda kataloğu</Text>
+        <Link href="/diary" style={styles.heading}>Günlüğüm</Link>
         <Link href="/account" style={styles.text}>Hesabım / Giriş yap</Link>
         <Text style={styles.muted}>Gıdanızı bulun, 100 g için yaklaşık besin değerlerini inceleyin.</Text>
         <Text nativeID="search-label" style={styles.text}>Gıda ara</Text>
