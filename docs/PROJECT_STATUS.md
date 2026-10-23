@@ -122,12 +122,19 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - Mevcut Identity bearer opaktır, JWT varsayılmaz. Çıkış yalnız cihaz tokenlarını temizler; sunucuda token iptali/diğer cihazlardan çıkış sağlamaz. [Sözleşme ve doğrulama](../mobile/docs/session.md).
 - 29 mobil test, TypeScript/lint/SDK uyumu ve iOS paketlemesi; gerçek API ile kayıt/hatalı giriş/giriş/hesap/refresh/yerel çıkış ve geçersiz yenileme doğrulandı. Native Simulator’da klavye, hata düzeltme, tam kapatıp açma sonrası SecureStore geri yükleme, çıkış ve geçersiz oturum ekranı kontrol edildi. Geçici hesaplar güvenli biçimde temizlendi. Backend/web değişmedi; eski testleri yerelde tekrarlanmadı.
 
-## Bu dal: mobil günlük
+## Mobil günlük (main)
 
 - PR #25’in `4c7ff5d` HEAD’i ve başarılı CI son kez incelenip aynı HEAD koşuluyla main’e birleşti. Yerel main `5a12eea` fast-forward güncellendi; `feat/mobile-diary` buradan açıldı. Çalışma ağacı başlangıçta temizdi. Samsung/iPhone oturum kabulü ve geçici CA temizliği kullanıcı doğrulaması olarak kaydedildi.
 - Mevcut API ile seçilen günün listesi, katalog detayından gram/kaynaklı kesirli adetle ekleme, gün/öğün seçimi, sabit öğün grupları ve sunucunun günlük/öğün toplamları. İstanbul günü, null/sıfır, tek refresh, hesap/tarih yarış koruması, çift gönderim ve belirsiz POST kilidi korunur. Backend/model/migration/web değişmedi.
 - Mobil testler, TypeScript/lint/SDK uyumu, Android/iOS Metro paketleme; gerçek API ve iOS 27.1 Simulator’da gram/adet, gün/öğün/toplamlar, yeniden açılış, boş gün, bağlantı hatası/toparlanma ve iki hesap ayrımı doğrulandı. Sentetik hesaplar/kayıtlar temizlendi, yalnız geçici Simulator süreçleri kapatıldı. [Kapsam ve kanıt ayrımı](../mobile/docs/diary.md).
 
+## Bu dal: mobil günlük düzenleme/silme
+
+- PR #26’nın değişmeyen `4acf4a0` HEAD’i başarılı CI ve aynı HEAD koşuluyla birleşti. Yerel main `bdc97f2` fast-forward; aktif dal `feat/mobile-diary-edit`. Başlangıçta çalışma ağacı temizdi.
+- Mevcut PATCH/DELETE ile gram/kesirli adet, gün/öğün, native silme onayı ve toplam yenileme. Tam kayıtlı ölçü kopyası kullanılır; tarih/öğün-only PATCH miktarı atlar. Değişmiş/kaldırılmış ölçüye sessiz geçilmez; miktar için gram/güncel ölçü açıkça seçilir. Çift/belirsiz işlem ve geç hesap/tarih yanıtları korunur.
+- 61 test, TypeScript/lint/SDK uyumu, Android/iOS Metro paketleme; gerçek API ve iOS 27.1 Simulator’da düzenleme/taşıma/iptal/onaylı silme/toplamlar doğrulandı. Sentetik hesaplar/kayıtlar temizlendi. Backend/web/model/migration ve kök README/About değişmedi.
+- Geçici Simulator Metro kapatıldı; eski iPhone testinin özel anahtarları temizlendi. Kullanıcı iPhone’dan yalnız **Bite Routine Temporary Device Test CA** profilini kaldırmalı. [Kanıt ve kabul listesi](../mobile/docs/diary-edit.md).
+
 ## Sıradaki iş
 
-PR #26 son incelemesi. Kullanıcı iPhone 13 / iOS 26.6.1 günlük kontrollerini/testlerini tamamladığını bildirdi; Samsung USB bağlantısı için de çalışma onayı alındı. Bunlar kullanıcı bildirimidir; Simulator/HTTP kanıtından ayrı tutulur. iPhone için mevcut belgeli geçici HTTPS/Metro bağlantısı yeniden hazırlandı ve kullanıcı testi için açık bırakıldı; temizlik yöntemi mobil günlük belgesinde. Merge/deployment yapılmadı.
+Yeni özellik PR’ının incelemesi ve iPhone/Samsung düzenleme-silme kullanıcı kabulü. Önceki günlük ekleme kabulü bu yeni akışların fiziksel testi sayılmaz. Yeni PR merge edilmez; deployment yapılmaz.

@@ -177,6 +177,7 @@ export class SessionClient {
       const error = new AuthError(response.status === 400 ? "Miktar, gün ve öğün bilgilerini kontrol edin." : response.status === 404 ? "Gıda bulunamadı. Katalogdan yeniden seçin." : "İşlem sonucu alınamadı. Günlüğünüzü kontrol edin.", response.status >= 500 ? "network" : "response");
       error.status = response.status; throw error;
     }
+    if (response.status === 204) { this.current(epoch); return null; }
     const body = await this.json(response); this.current(epoch); return body;
   }
   async logout() { const epoch = ++this.epoch; this.refreshing = null; await this.clear(epoch); }

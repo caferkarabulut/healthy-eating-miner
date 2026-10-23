@@ -4,7 +4,7 @@
 
 `feat/mobile-diary`, PR #25’in doğrulanan `4c7ff5d` HEAD’i başarılı CI ve son inceleme sonrası aynı HEAD koşuluyla birleştirildikten sonra güncel main’den açıldı. Önceki Samsung/iPhone kabulü **kullanıcı doğrulamasıdır**; kullanıcı iPhone’daki geçici CA profilini de kaldırdığını bildirdi.
 
-Mevcut [günlük API sözleşmesi](../../backend-dotnet/docs/diary-contract.md) ve [kaynaklı ölçüler](../../backend-dotnet/docs/food-portions-contract.md) kullanılır. Backend/model/migration ve web değişmedi. Düzenleme/silme, favoriler, geçmiş ve onboarding bu mobil dilimde yoktur.
+Mevcut [günlük API sözleşmesi](../../backend-dotnet/docs/diary-contract.md) ve [kaynaklı ölçüler](../../backend-dotnet/docs/food-portions-contract.md) kullanılır. Backend/model/migration ve web değişmedi. Bu ilk dilimde düzenleme/silme yoktu; sonraki [düzenleme/silme dilimi](diary-edit.md) aynı sözleşmeyi kullanır. Favoriler, geçmiş ve onboarding mobil kapsamda yoktur.
 
 - Herkese açık katalog detayında gram veya aynı gıdanın `/meals/{id}/portions` ölçüsü seçilir; doğrulanmış ölçü yoksa/yüklenemezse gram çalışır. Küçük/orta/büyük korunur; USDA cup Türk su bardağı değildir.
 - Gramda Türkçe virgül/nokta, 0,01–10000 sınırı ve iki ondalık; ölçüde pozitif kesirli miktar kabul edilir. Gövde yalnız `grams` veya `portionId` + `quantity` içerir. Nihai gram/dönüşüm/besin hesabını sunucu yapar; istemci dönüşmüş gram göndermez.
@@ -44,3 +44,5 @@ Her cihazda ayrı ayrı uygulayın; sonuçları model/OS ile kullanıcı doğrul
 6. Uygulama yüklüyken bağlantıyı kesin; anlaşılır hata/manuel tekrar deneme olmalı, oturum korunmalı. Ekleme sonucu belirsizse tekrar göndermeden seçilen günü kontrol edin.
 
 Bağlantı için önce [mevcut belgeli cihaz yöntemi](device-validation.md) kullanılır. Samsung USB’de yalnız 5080/8081 reverse; bitince yalnız bu iki reverse kaldırılır. iPhone’un önceki geçidi ve CA’sı temizlendi: tekrar fiziksel test için aynı özel Wi-Fi üzerinde geçici HTTPS API ve Metro geçidi yeniden hazırlanmalı, kullanıcı yalnız geçici CA’ya güven vermelidir. Test sonunda yalnız o geçitler kapatılır, anahtarlar silinir ve geçici CA profili kullanıcı tarafından kaldırılır. DB ağa açılmaz; kalıcı IP veya gizli değer repoya yazılmaz. İlk teslimde fiziksel erişim açılmadı; sonraki kullanıcı testi için yukarıdaki geçici iPhone bağlantısı yeniden hazırlandı.
+
+23 Ekim 2026: Önceki geçici iPhone bağlantısının süreçleri kapalı bulundu; repo dışındaki CA/sunucu anahtarları temizlendi. Kullanıcı telefondan geçici CA profilini kaldırmalı. Güncel durum ve kabul: [düzenleme/silme](diary-edit.md).
