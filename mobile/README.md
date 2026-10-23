@@ -65,3 +65,7 @@ npm run start:dev -- --localhost
 `build:ios:device` gerektiğinde Expo CNG ile git dışında kalan `ios/` klasörünü üretir. Apple hesabı, geliştirme sertifikası ve telefonun Developer Mode/imzalama adımları Xcode’da kullanıcı tarafından tamamlanır; kişisel Team ID, sertifika, provisioning profile veya özel anahtar commit edilmez. Native dosyalar elle oluşturulmaz. `npm start`, `npm run android` ve `npm run ios`, mevcut Expo Go akışını korumak için açıkça `--go` kullanır. Ayrı geliştirme istemcisi için `start:dev` kullanın. [Gerçek cihaz durumu ve HTTPS geçidi](docs/device-validation.md).
 
 Yerel iPhone build komutu `EX_DEV_CLIENT_NETWORK_INSPECTOR=false` kullanır; Expo development client ağ yakalayıcısı login parolası/bearer trafiğini toplamasın diye kapatılır. Pod kurulumu da aynı ortamla yapılır. Bu ayar ağ/TLS doğrulamasını kapatmaz; yalnız geliştirme aracının istek yakalamasını engeller.
+
+## Mobil günlük
+
+Günlüğüm seçilen günün kayıtlarını, öğünlerini ve API toplamlarını gösterir. Gıda detayından gram veya kaynaklı ölçü/adetle ekleme, gün/öğün seçimi vardır; oturum gerekir. [Davranış, doğrulama ve iPhone/Samsung kabul listesi](docs/diary.md). Düzenleme/silme/favoriler/geçmiş bu mobil dilimde yoktur.

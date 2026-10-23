@@ -3,6 +3,7 @@ import CatalogScreen from "../src/components/CatalogScreen";
 import MealScreen from "../src/components/MealScreen";
 import { egg, page, response } from "./fixtures";
 jest.mock("react-native-safe-area-context", () => require("react-native-safe-area-context/jest/mock").default);
+jest.mock("../src/auth/context", () => ({ useSession: () => ({ state: { status: "anonymous" } }) }));
 const fetchMock = jest.fn() as jest.MockedFunction<typeof fetch>;
 beforeEach(() => { fetchMock.mockReset(); global.fetch = fetchMock; });
 test("loading, selecting detail, pagination, Turkish search reset and query retention", async () => {

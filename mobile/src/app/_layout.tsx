@@ -9,6 +9,7 @@ export default function RootLayout() {
     <Stack.Screen name="meals/[id]" options={{ title: "Gıda detayı", headerBackTitle: "Katalog" }} />
     <Stack.Screen name="login" options={{ title: "Giriş yap", headerBackTitle: "Katalog" }} />
     <Stack.Screen name="register" options={{ title: "Kayıt ol", headerBackTitle: "Geri" }} />
+    <Stack.Screen name="diary" options={{ title: "Günlüğüm", headerBackTitle: "Geri" }} />
     <Stack.Screen name="account" options={{ title: "Hesabım", headerBackTitle: "Katalog" }} />
   </Stack></SessionProvider></SafeAreaProvider>;
 }

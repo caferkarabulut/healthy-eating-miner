@@ -7,6 +7,7 @@ export interface TokenStore { read(): Promise<string | null>; write(value: strin
 export class AuthError extends Error {
   kind: "network" | "invalid" | "storage" | "cancelled" | "response";
   fields: FieldErrors;
+  status?: number;
   constructor(message: string, kind: AuthError["kind"], fields: FieldErrors = {}) { super(message); this.kind = kind; this.fields = fields; }
 }
 export class SessionClient {
@@ -64,7 +65,15 @@ export class SessionClient {
     finally { clearTimeout(timer); }
   }
   private async json(response: Response): Promise<unknown> {
-    try { return await response.json(); } catch { throw new AuthError("Sunucu yanıtı okunamadı. Yeniden deneyin.", "response"); }
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      return await Promise.race([response.json(), new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new AuthError("Sunucu yanıtı zamanında alınamadı. Yeniden deneyin.", "network")), 12000);
+      })]);
+    } catch (error) {
+      if (error instanceof AuthError) throw error;
+      throw new AuthError("Sunucu yanıtı okunamadı. Yeniden deneyin.", "response");
+    } finally { clearTimeout(timer); }
   }
   async register(email: string, password: string) {
     const response = await this.request("/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email.trim(), password }) });
@@ -142,6 +151,33 @@ export class SessionClient {
       if (this.tokens && error instanceof AuthError && error.kind !== "invalid") this.emit({ status: error.kind === "storage" ? "storage-error" : "offline", profile: this.state.profile, message: error.message });
       throw error;
     }
+  }
+  // Changes on login/logout; personal screens key their in-memory data to this version.
+  getSessionVersion = () => this.epoch;
+  async authorizedJson(path: string, init: RequestInit = {}): Promise<unknown> {
+    if (!path.startsWith("/me/")) throw new AuthError("Geçersiz kişisel istek.", "response");
+    const epoch = this.epoch;
+    if (this.current(epoch).expiresAt <= this.now() + 30000) await this.refresh(epoch);
+    const send = () => {
+      const headers = new Headers(init.headers); headers.set("Authorization", `Bearer ${this.current(epoch).accessToken}`);
+      return this.request(path, { ...init, headers });
+    };
+    const used = this.current(epoch).accessToken;
+    let response = await send(); this.current(epoch);
+    // A received 401 means authorization rejected the operation; never replay network/5xx failures.
+    if (response.status === 401) {
+      if (this.current(epoch).accessToken === used) await this.refresh(epoch);
+      response = await send(); this.current(epoch);
+      if (response.status === 401) {
+        await this.clear(epoch, "Oturumunuz sona erdi. Yeniden giriş yapın.");
+        throw new AuthError("Oturumunuz sona erdi. Yeniden giriş yapın.", "invalid");
+      }
+    }
+    if (!response.ok) {
+      const error = new AuthError(response.status === 400 ? "Miktar, gün ve öğün bilgilerini kontrol edin." : response.status === 404 ? "Gıda bulunamadı. Katalogdan yeniden seçin." : "İşlem sonucu alınamadı. Günlüğünüzü kontrol edin.", response.status >= 500 ? "network" : "response");
+      error.status = response.status; throw error;
+    }
+    const body = await this.json(response); this.current(epoch); return body;
   }
   async logout() { const epoch = ++this.epoch; this.refreshing = null; await this.clear(epoch); }
 }

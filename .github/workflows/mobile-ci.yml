@@ -39,3 +39,4 @@ jobs:
       - run: npm test -- --ci
       # Metro JS/assets only, not an Xcode build or Simulator test.
       - run: npm run export:ios
+      - run: npm run export:android

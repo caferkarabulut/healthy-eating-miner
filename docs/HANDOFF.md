@@ -1,8 +1,6 @@
 # Kısa devir — 22 Ekim 2026
 
-- PR #25 açık; merge/deployment yok. Kök README/About ve backend/DB değişmedi.
-- **Kullanıcı doğrulaması tamamlandı:** Galaxy A72 / Android 14 / One UI 6.1 / Expo Go 58.0.5 ve iPhone 13 / iOS 26.6.1 / yerel Bite Routine development build. Katalog, kayıt hata düzeltme, yanlış/doğru giriş, oturumlu yeniden açılış/arka plan, ağ kesintisi/toparlanma ve çıkış geçti.
-- **Otomatik/agent kontrolleri:** 29 test, TypeScript/lint/SDK uyumu, Metro paketleme ve gerçek HTTPS Identity smoke başarılı; tek sentetik hesap temizlendi. İmzalı arm64 iPhone Debug build/kurulum ve gerçek cihaz katalog görüntüsü ayrıca doğrulandı. HTTP bellek deposu testi native SecureStore testi değildir.
-- Opak bearer ve SecureStore kullanılır; çıkış cihaz tokenlarını temizler, sunucuda bearer iptali sağlamaz. [Sözleşme](../mobile/docs/session.md).
-- Yalnız bu işin iPhone proxy/Metro süreçleri durduruldu, repo dışındaki geçici anahtarlar temizlendi. Kullanıcı iPhone’dan yalnız **Bite Routine Temporary Device Test CA** profilini kaldırmalı. Yerel API korunur.
-- Sıradaki iş PR #25 son incelemesi; merge için ayrı açık talimat gerekir. [Cihaz kabulü, kanıt ayrımı ve kalan bağımlılık riskleri](../mobile/docs/device-validation.md). Kişisel imzalama bilgileri repoda yoktur.
+- PR #25 doğrulanan `4c7ff5d` HEAD’i ve başarılı CI ile aynı HEAD koşuluyla main’e birleşti. Yerel main fast-forward; aktif dal `feat/mobile-diary`. Samsung/iPhone oturum kabulü ve geçici sertifika temizliği **kullanıcı doğrulamasıyla** tamamlandı.
+- Mobil günlük: gün listesi, gram/kaynaklı ölçü ile ekleme, gün/öğün seçimi, öğün grupları ve API toplamları. Aynı oturum/tek refresh, null/sıfır, İstanbul günü; eski kullanıcı/tarih yanıtları ve çift/belirsiz POST korunur. Backend/web/DB modeli ve kök README/About değişmedi.
+- Mobil test/typecheck/lint/SDK uyumu/paketleme ve gerçek API + iOS 27.1 Simulator akışları doğrulandı; sentetik hesaplar ve bağlı kayıtlar temizlendi. Geçici loopback hata geçidi/Metro kapatıldı; mevcut yerel API korunur. [Kanıt ayrımı ve manuel liste](../mobile/docs/diary.md).
+- PR #26 açık. iPhone 13 / iOS 26.6.1 günlük testleri kullanıcı tarafından tamamlandı; Samsung için USB bağlantısı çalışıyor bildirimi alındı. Geçici iPhone HTTPS/Metro bağlantısı kullanıcının testi için yeniden açıldı ve şu an açık; bitince yalnız bu süreçler/anahtarlar ve geçici CA profili temizlenir. Sırada PR son incelemesi var; merge/deployment yapılmadı.

@@ -55,7 +55,7 @@ Geçici CA 7 gün, sunucu sertifikası 2 gün geçerliydi. Kullanıcı yalnız *
 
 Kabul tamamlandıktan sonra yalnız bu işin iPhone proxy ve Metro süreçleri durduruldu; geçici CA/sunucu anahtarları ve sertifika aktarım klasörü silindi. Mevcut localhost API ve diğer geliştirme süreçleri korundu. Bu nedenle iPhone’daki geçici geliştirme bağlantısı artık çalışmaz.
 
-**Kullanıcıdan kalan tek kurulum temizliği:** iPhone → Ayarlar → Genel → VPN ve Aygıt Yönetimi → **Bite Routine Temporary Device Test CA** → Profili Sil. Başka profil veya Apple Development sertifikası kaldırılmaz. Yeni bir cihaz testi gerektiğinde HTTPS geliştirme bağlantısı yeniden hazırlanmalıdır.
+**Kullanıcı temizliği tamamladı (22 Ekim 2026):** iPhone → Ayarlar → Genel → VPN ve Aygıt Yönetimi → **Bite Routine Temporary Device Test CA** → Profili Sil. Başka profil veya Apple Development sertifikası kaldırılmaz. Yeni bir cihaz testi gerektiğinde HTTPS geliştirme bağlantısı yeniden hazırlanmalıdır.
 
 ## Bağımlılık incelemesi
 
