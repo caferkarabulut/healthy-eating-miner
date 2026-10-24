@@ -32,7 +32,7 @@ export async function assertPortFree(port) {
   await new Promise((resolve) => server.close(resolve));
 }
 
-function newestSource(directory) {
+export function newestSource(directory) {
   let newest = 0;
   for (const item of readdirSync(directory, { withFileTypes: true })) {
     if (["bin", "obj"].includes(item.name)) continue;
