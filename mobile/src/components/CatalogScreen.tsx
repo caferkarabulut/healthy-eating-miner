@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { loadCatalog, metric, PAGE_SIZE, type Meal } from "../api/catalog";
 import { useRequest } from "../hooks/useRequest";
 import { Button, colors, Failure, Loading, styles } from "./ui";
+import FavoriteButton, { FavoritesNotice } from './FavoriteButton';
 
 export default function CatalogScreen({ apiUrl, onSelect }: { apiUrl: string | undefined; onSelect: (mealId: number) => void }) {
   const list = useRef<FlatList<Meal>>(null);
@@ -16,10 +17,10 @@ export default function CatalogScreen({ apiUrl, onSelect }: { apiUrl: string | u
   const data = state.status === "ready" ? state.data : null;
   const pages = Math.max(1, Math.ceil((data?.totalCount ?? 0) / PAGE_SIZE));
   function card({ item }: { item: Meal }) {
-    return <Pressable accessibilityRole="button" accessibilityLabel={`${item.mealName}, detayları aç`} onPress={() => { Keyboard.dismiss(); onSelect(item.mealId); }} style={({ pressed }) => [styles.card, pressed && { backgroundColor: colors.pale }]}>
+    return <View style={styles.card}><Pressable accessibilityRole="button" accessibilityLabel={`${item.mealName}, detayları aç`} onPress={() => { Keyboard.dismiss(); onSelect(item.mealId); }} style={({ pressed }) => [pressed && { backgroundColor: colors.pale }]}>
       <Text style={styles.heading}>{item.mealName}</Text><Text style={styles.muted}>{metric(item.nutrition?.caloriesKcal, "kcal")} / 100 g</Text>
       <Text style={[styles.muted, { color: colors.green, fontWeight: "600" }]}>Besin değerlerini gör →</Text>
-    </Pressable>;
+    </Pressable><FavoriteButton mealId={item.mealId} /></View>;
   }
   return <SafeAreaView style={styles.screen} edges={["top", "bottom", "left", "right"]}>
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -29,7 +30,9 @@ export default function CatalogScreen({ apiUrl, onSelect }: { apiUrl: string | u
         <Text style={[styles.muted, { fontWeight: "600", color: colors.green }]}>Bite Routine</Text>
         <Text accessibilityRole="header" style={styles.title}>Gıda kataloğu</Text>
         <Link href="/diary" style={styles.heading}>Günlüğüm</Link>
+        <Link href="/favorites" style={styles.heading}>Favorilerim</Link>
         <Link href="/account" style={styles.text}>Hesabım / Giriş yap</Link>
+        <FavoritesNotice />
         <Text style={styles.muted}>Gıdanızı bulun, 100 g için yaklaşık besin değerlerini inceleyin.</Text>
         <Text nativeID="search-label" style={styles.text}>Gıda ara</Text>
         <TextInput accessibilityLabel="Gıda ara" accessibilityLabelledBy="search-label" value={draft} onChangeText={setDraft} onSubmitEditing={search}

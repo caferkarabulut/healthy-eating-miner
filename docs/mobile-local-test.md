@@ -1,10 +1,8 @@
 # Tek komutla ücretsiz telefon testi
 
 Bulut staging/EAS Update **ertelendi**; ücretli kaynak/deployment kurulmaz. Bu yöntem Mac açıkken çalışır.
-PR #27 merge edilmez. Staging hazırlığı ayrı `mobile-staging` çalışma alanında korunur.
-Bu araç PR #27'nin `195fc79` HEAD'ine dayanır; teslim PR'ının base'i `feat/mobile-diary-edit` olur.
-Bu karşılaştırmada yalnız ücretsiz test aracı ve teknik belgeleri sunulur; mobil günlük düzenleme
-değişiklikleri tekrar sunulmaz. Ücretli staging dosyaları bu dalda/PR'da yoktur.
+PR #27 ve araç PR #28 sırasıyla main'e birleşti. Ücretli staging hazırlığı ayrı
+`mobile-staging` çalışma alanında korunur; bu araç ücretli deployment dosyaları içermez.
 
 ## Kullanım
 
@@ -56,6 +54,9 @@ PostgreSQL ve önceden açık servisler kapanmaz. Profil/sertifika yükleme veya
   belirtilen sentetik e-posta aralığına aitse özel istek iletilir. Refresh yanıtı da aynı kontrolden geçmeden
   dışarı verilmez. Çerezli auth kullanılmaz; login bearer'a zorlanır. Backend Identity/sahiplik/CSRF kodu değişmez.
   Bu aralık **yalnız geliştirme geçidi kısıtıdır**, ürünün e-posta politikası değildir.
+- Favoriler için yalnız `GET /me/favorite-meals` ve pozitif Int32 gıda kimliğiyle
+  `PUT`/`DELETE /me/favorite-meals/{mealId}` açıktır; diğer yöntem/yollar kapalıdır.
+  Bu yollar da aynı sentetik bearer denetiminden geçer; çerezler taşınmaz.
 - Kullanılmayan API uçları, uzaktan Expo açma POST'u ve debugger websocket'i kapalıdır. HMR `/hot` ve
   `/message` websocket'leri açıktır. İstek/yanıt gövdeleri, tokenlar, parolalar ve cihaz logları yazdırılmaz.
 

@@ -6,6 +6,7 @@ import { useRequest } from "../hooks/useRequest";
 import { Button, Failure, Loading, styles } from "./ui";
 
 import AddDiaryForm from "./AddDiaryForm";
+import FavoriteButton, { FavoritesNotice } from './FavoriteButton';
 
 export default function MealScreen({ apiUrl, mealId }: { apiUrl: string | undefined; mealId: string }) {
   const load = useCallback((signal: AbortSignal) => loadMeal(apiUrl, mealId, signal), [apiUrl, mealId]);
@@ -18,6 +19,7 @@ export default function MealScreen({ apiUrl, mealId }: { apiUrl: string | undefi
     {state.status === "error" && <Failure message={state.message} retry={retry} />}
     {meal && <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={100}><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
       <Text accessibilityRole="header" style={styles.title}>{meal.mealName}</Text>
+      <FavoriteButton mealId={meal.mealId} /><FavoritesNotice />
       <Text style={styles.muted}>100 g yenilebilir kısım için yaklaşık değerler.</Text>
       <View style={styles.card}>
         {([["Enerji", "caloriesKcal", "kcal"], ["Protein", "proteinG", "g"], ["Karbonhidrat", "carbsG", "g"], ["Yağ", "fatG", "g"]] as const).map(([label, key, unit]) =>

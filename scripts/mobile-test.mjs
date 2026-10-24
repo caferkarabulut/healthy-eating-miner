@@ -21,6 +21,9 @@ export function route(method, target) {
   if (read && (/^\/meals(?:\/[1-9]\d*(?:\/portions)?)?$/.test(path) ||
       ['/health/live', '/me', '/me/diary-entries'].includes(path))) return 'api';
   if (method === 'POST' && ['/auth/register', '/auth/login', '/auth/refresh', '/me/diary-entries'].includes(path)) return 'api';
+  if (method === 'GET' && path === '/me/favorite-meals') return 'api';
+  const favorite = path.match(/^\/me\/favorite-meals\/([1-9]\d{0,9})$/);
+  if (['PUT', 'DELETE'].includes(method) && favorite && Number(favorite[1]) <= 2147483647) return 'api';
   if (['PATCH', 'DELETE'].includes(method) && /^\/me\/diary-entries\/[a-f0-9-]{36}$/i.test(path)) return 'api';
   if (read && (['/', '/status', '/_expo/open', '/_expo/loading', '/_expo/link'].includes(path) ||
       path.startsWith('/assets/') || /\.(bundle|map)$/.test(path))) return 'metro';
