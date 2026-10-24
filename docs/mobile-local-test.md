@@ -2,6 +2,9 @@
 
 Bulut staging/EAS Update **ertelendi**; ücretli kaynak/deployment kurulmaz. Bu yöntem Mac açıkken çalışır.
 PR #27 merge edilmez. Staging hazırlığı ayrı `mobile-staging` çalışma alanında korunur.
+Bu araç PR #27'nin `195fc79` HEAD'ine dayanır; teslim PR'ının base'i `feat/mobile-diary-edit` olur.
+Bu karşılaştırmada yalnız ücretsiz test aracı ve teknik belgeleri sunulur; mobil günlük düzenleme
+değişiklikleri tekrar sunulmaz. Ücretli staging dosyaları bu dalda/PR'da yoktur.
 
 ## Kullanım
 
@@ -12,6 +15,7 @@ node scripts/mobile-test.mjs
 ```
 
 Komut hazır olmayı bekler; terminalde açma bağlantılarını ve yerel QR sayfasını gösterir.
+QR terminalin içine çizilmez; yazdırılan yerel QR sayfasını tarayıcıda açın.
 Mac Terminal'den çalıştırıldığında QR sayfası otomatik açılır. iPhone kamerasıyla **iPhone** QR'ını okutun;
 kurulu **Bite Routine development build** açılır. Expo Go gerekmez. Android için mevcut Expo Go veya
 development build bağlantısı ayrı gösterilir. Samsung fiziksel kabulü **cihaz mevcut değil — bekliyor**.

@@ -1,11 +1,11 @@
 name: Mobile local test tools
 on:
   pull_request:
-    branches: [main]
-    paths: ['scripts/mobile-test*.mjs', 'scripts/local-demo.mjs', '.github/workflows/mobile-test-tools.yml']
+    # Also runs while this tool PR targets the unmerged PR #27 branch.
+    paths: ['scripts/mobile-test*.mjs', 'scripts/local-demo*.mjs', 'mobile/package.json', 'mobile/package-lock.json', '.github/workflows/mobile-test-tools.yml']
   push:
     branches: [main]
-    paths: ['scripts/mobile-test*.mjs', 'scripts/local-demo.mjs', '.github/workflows/mobile-test-tools.yml']
+    paths: ['scripts/mobile-test*.mjs', 'scripts/local-demo*.mjs', 'mobile/package.json', 'mobile/package-lock.json', '.github/workflows/mobile-test-tools.yml']
 permissions:
   contents: read
 jobs:
