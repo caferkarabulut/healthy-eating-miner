@@ -13,8 +13,11 @@ test('only mobile API and necessary Metro routes are forwarded', () => {
   assert.equal(route('PATCH', '/me/diary-entries/11111111-1111-4111-8111-111111111111'), 'api');
   assert.equal(route('GET', '/node_modules/expo-router/entry.bundle?platform=ios'), 'metro');
   for (const [method, url] of [['POST', '/_expo/open'], ['GET', '/json/list'], ['GET', '/auth/manage/info'],
-    ['GET', '/swagger'], ['GET', '/me/favorite-meals'], ['GET', 'http://other.test/meals'], ['GET', '//other.test/meals']])
+    ['GET', '/swagger'], ['POST', '/me/favorite-meals'], ['PATCH', '/me/favorite-meals/1'], ['PUT', '/me/favorite-meals/0'],
+    ['PUT', '/me/favorite-meals/2147483648'], ['PUT', '/me/favorite-meals/1/extra'], ['GET', 'http://other.test/meals'], ['GET', '//other.test/meals']])
     assert.equal(route(method, url), null);
+  for (const [method, url] of [['GET', '/me/favorite-meals?page=1&pageSize=100'], ['PUT', '/me/favorite-meals/1'], ['DELETE', '/me/favorite-meals/2147483647']])
+    assert.equal(route(method, url), 'api');
 });
 
 test('synthetic test identities are explicit, never ordinary local accounts', () => {
@@ -53,6 +56,12 @@ test('real-account login, refresh, bearer and cookies cannot expose local user d
     assert.equal(deniedRefresh.status, 403);
     assert.ok(!(await deniedRefresh.text()).includes('private-real-refresh'));
     assert.equal((await fetch(origin + '/me', { headers: { Authorization: 'Bearer real' } })).status, 403);
+    for (const method of ['PUT', 'DELETE']) {
+      assert.equal((await fetch(origin + '/me/favorite-meals/1', { method, headers: { Authorization: 'Bearer real' } })).status, 403);
+      const favorite = await fetch(origin + '/me/favorite-meals/1', { method, headers: { Authorization: 'Bearer synthetic', Cookie: 'identity=real' } });
+      assert.equal(favorite.status, 200); assert.equal((await favorite.json()).cookie, null);
+    }
+    assert.equal((await fetch(origin + '/me/favorite-meals', { headers: { Cookie: 'identity=real' } })).status, 403);
     assert.equal((await fetch(origin + '/me', { headers: { Cookie: 'identity=real' } })).status, 403);
     assert.equal((await fetch(origin + '/me', { headers: { Authorization: 'Bearer unavailable' } })).status, 503, 'backend failure must not masquerade as session expiry');
     assert.equal((await post('/auth/register', null)).status, 400);

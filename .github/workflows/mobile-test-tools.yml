@@ -1,7 +1,7 @@
 name: Mobile local test tools
 on:
   pull_request:
-    # Also runs while this tool PR targets the unmerged PR #27 branch.
+    # Route/security tool tests run for relevant changes regardless of PR base.
     paths: ['scripts/mobile-test*.mjs', 'scripts/local-demo*.mjs', 'mobile/package.json', 'mobile/package-lock.json', '.github/workflows/mobile-test-tools.yml']
   push:
     branches: [main]

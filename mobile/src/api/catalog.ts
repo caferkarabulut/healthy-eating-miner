@@ -11,7 +11,7 @@ export function apiOrigin(value: string | undefined): string {
   } catch { throw new CatalogError("Bağlantı ayarı eksik veya geçersiz. Uygulamanın API adresini kontrol edin."); }
 }
 function object(value: unknown): value is Record<string, unknown> { return value !== null && typeof value === "object" && !Array.isArray(value); }
-function isMeal(value: unknown): value is Meal {
+export function isMeal(value: unknown): value is Meal {
   if (!object(value) || !Number.isInteger(value.mealId) || Number(value.mealId) < 1 || typeof value.mealName !== "string") return false;
   if (value.nutrition === null) return true;
   const n = value.nutrition;
