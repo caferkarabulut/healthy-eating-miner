@@ -1,6 +1,6 @@
 # Bite Routine mobil
 
-Expo + React Native + TypeScript ile salt okunur katalog: Türkçe arama, 10 kayıtlık önceki/sonraki sayfalar ve gıdanın 100 g besin detayı. Krem/yeşil görünüm, güvenli alan, kaydırılabilir arama/listeler ve klavye desteği vardır. Yüklenme, boş sonuç ve tekrar denenebilir bağlantı hataları ayrı gösterilir; eksik besin sıfır sayılmaz. Kayıt, giriş, hesap ve bu cihazdan çıkış ekranları da vardır. Günlük, favori ve onboarding mobil kapsamda değildir.
+Expo + React Native + TypeScript ile salt okunur katalog: Türkçe arama, 10 kayıtlık önceki/sonraki sayfalar ve gıdanın 100 g besin detayı. Krem/yeşil görünüm, güvenli alan, kaydırılabilir arama/listeler ve klavye desteği vardır. Yüklenme, boş sonuç ve tekrar denenebilir bağlantı hataları ayrı gösterilir; eksik besin sıfır sayılmaz. Kayıt, giriş, hesap ve bu cihazdan çıkış ekranları da vardır. Günlük listeleme/ekleme, düzenleme ve silme de vardır; favoriler, geçmiş ve onboarding mobil kapsamda değildir.
 
 ## Çalıştırma
 
@@ -33,7 +33,7 @@ npm run export:ios
 EXPO_PUBLIC_API_URL=http://127.0.0.1:5080 npm run smoke:api
 ```
 
-29 test, oturum yenileme/yarış durumları, kayıt formunu düzeltip yeniden gönderme ve RN bileşenleri/API istemcisinde arama/sayfa koruma, detay seçimi, hata/yeniden deneme, boş sonuç, eski yanıt iptali, 100 g/null/sıfır ve zaman aşımını kapsar. CI typecheck/test/lint, SDK paket kontrolü ve iOS Metro JS/assets paketlemesini çalıştırır; native derleme veya simülatör testi değildir. Gerçek yerel API HTTP kontrolü 30 gıdaya erişim, Türkçe YOĞURT araması, detay, boş sonuç ve bağlantı hatasıyla geçti. Backend/web değişmediğinden eski testler yerelde tekrarlanmadı.
+61 test, günlük düzenleme/silme ve oturum yenileme/yarış durumları, kayıt formunu düzeltip yeniden gönderme ve RN bileşenleri/API istemcisinde arama/sayfa koruma, detay seçimi, hata/yeniden deneme, boş sonuç, eski yanıt iptali, 100 g/null/sıfır ve zaman aşımını kapsar. CI typecheck/test/lint, SDK paket kontrolü ve iOS/Android Metro JS/assets paketlemesini çalıştırır; native derleme veya simülatör testi değildir. Gerçek yerel API HTTP kontrolü 30 gıdaya erişim, Türkçe YOĞURT araması, detay, boş sonuç ve bağlantı hatasıyla geçti. Backend/web değişmediğinden eski testler yerelde tekrarlanmadı.
 
 `npm audit` kurulu SDK/test araçlarının dolaylı bağımlılıklarında 48 bulgu (18 orta, 30 yüksek; 3 temel advisory; 22 Ekim 2026) bildiriyor. İzinli güncellemeler uygulandı; kalanlar braces/node-forge/sprintf-js zincirlerinde. Bunlar araçların kalıp/metin işleme ve sertifika doğrulama bağımlılıklarıdır; native oturum kodu bunları token üretme veya doğrulamada kullanmaz. Yerel geliştirme kapsamı için engel sayılmadı; dağıtım öncesi yeniden değerlendirilmeli. `--force` ile eski SDK/RN sürümüne düşürülmedi veya doğrulama kapatılmadı. SDK uyumlu düzeltme sürümleri çıktığında lockfile güncellenmeli. [Runtime/dev ayrımı ve kalan risk](docs/device-validation.md#bağımlılık-incelemesi): `--omit=dev` audit de 40 bulgu verir; bu sayı native paket kapsamıyla eş tutulmaz.
 
@@ -68,4 +68,4 @@ Yerel iPhone build komutu `EX_DEV_CLIENT_NETWORK_INSPECTOR=false` kullanır; Exp
 
 ## Mobil günlük
 
-Günlüğüm seçilen günün kayıtlarını, öğünlerini ve API toplamlarını gösterir. Gıda detayından gram veya kaynaklı ölçü/adetle ekleme, gün/öğün seçimi vardır; oturum gerekir. [Davranış, doğrulama ve iPhone/Samsung kabul listesi](docs/diary.md). Düzenleme/silme/favoriler/geçmiş bu mobil dilimde yoktur.
+Günlüğüm seçilen günün kayıtlarını, öğünlerini ve API toplamlarını gösterir. Gıda detayından gram veya kaynaklı ölçü/adetle ekleme, gün/öğün seçimi vardır; oturum gerekir. [Davranış, doğrulama ve iPhone/Samsung kabul listesi](docs/diary.md). Düzenleme/silme için [ölçü kopyası kuralları, testler ve kabul listesi](docs/diary-edit.md). Favoriler/geçmiş mobil kapsamda yoktur.

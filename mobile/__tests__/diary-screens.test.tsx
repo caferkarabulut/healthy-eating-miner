@@ -14,7 +14,7 @@ let send: jest.Mock;
 function signedIn(userId = "a") { session.mockReturnValue({ state: { status: "authenticated", profile: { userId, email: null } }, client: { authorizedJson: send, getSessionVersion: () => 1 } as unknown as SessionClient }); }
 beforeEach(() => {
   send = jest.fn().mockResolvedValue(day); signedIn(); jest.clearAllMocks();
-  global.fetch = jest.fn().mockResolvedValue(response({ mealId: 1, items: [{ id: 7, mealId: 1, measureName: "Orta adet", gramsPerUnit: 44, approximate: true, source: "USDA", sourceUrl: "https://fdc.nal.usda.gov" }] }));
+  global.fetch = jest.fn().mockResolvedValue(response({ mealId: 1, items: [{ id: 7, mealId: 1, measureName: "Orta adet", amount: 1, gramWeight: 44, sourceFoodId: "171287", sourceId: "88378", sourceDescription: "medium", gramsPerUnit: 44, approximate: true, source: "USDA", sourceUrl: "https://fdc.nal.usda.gov" }] }));
 });
 test("anonymous diary/addition require login while detail can remain public", async () => {
   session.mockReturnValue({ state: { status: "anonymous" }, client: {} as SessionClient });
