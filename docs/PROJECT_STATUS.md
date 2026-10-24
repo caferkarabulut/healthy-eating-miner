@@ -1,4 +1,4 @@
-# Bite Routine durum — 22 Ekim 2026
+# Bite Routine durum — 24 Ekim 2026
 
 ## Karar
 
@@ -133,8 +133,15 @@ Aktif backend .NET 10 + EF Core + Npgsql + PostgreSQL 17. Ürün Türkiye pazar�
 - PR #26’nın değişmeyen `4acf4a0` HEAD’i başarılı CI ve aynı HEAD koşuluyla birleşti. Yerel main `bdc97f2` fast-forward; aktif dal `feat/mobile-diary-edit`. Başlangıçta çalışma ağacı temizdi.
 - Mevcut PATCH/DELETE ile gram/kesirli adet, gün/öğün, native silme onayı ve toplam yenileme. Tam kayıtlı ölçü kopyası kullanılır; tarih/öğün-only PATCH miktarı atlar. Değişmiş/kaldırılmış ölçüye sessiz geçilmez; miktar için gram/güncel ölçü açıkça seçilir. Çift/belirsiz işlem ve geç hesap/tarih yanıtları korunur.
 - 61 test, TypeScript/lint/SDK uyumu, Android/iOS Metro paketleme; gerçek API ve iOS 27.1 Simulator’da düzenleme/taşıma/iptal/onaylı silme/toplamlar doğrulandı. Sentetik hesaplar/kayıtlar temizlendi. Backend/web/model/migration ve kök README/About değişmedi.
-- Geçici Simulator Metro kapatıldı; eski iPhone testinin özel anahtarları temizlendi. Kullanıcı iPhone’dan yalnız **Bite Routine Temporary Device Test CA** profilini kaldırmalı. [Kanıt ve kabul listesi](../mobile/docs/diary-edit.md).
+- Geçici Simulator Metro kapatıldı; eski iPhone testinin özel anahtarları temizlendi. Kullanıcı iPhone’daki **Bite Routine Temporary Device Test CA** profilini kaldırdığını doğruladı. [Kanıt ve kabul listesi](../mobile/docs/diary-edit.md).
 
-## Sıradaki iş
+## Aktif iş: ücretsiz yerel telefon testi
 
-Yeni özellik PR’ının incelemesi ve iPhone/Samsung düzenleme-silme kullanıcı kabulü. Önceki günlük ekleme kabulü bu yeni akışların fiziksel testi sayılmaz. Yeni PR merge edilmez; deployment yapılmaz.
+- Ürün yalnız iOS/Android; web geliştirilmez/silinmez. Ücretli Render/bulut staging/EAS Update **ertelendi**; hazırlık ayrı `mobile-staging` worktree'de korunuyor. Bu iş `codex/mobile-local-tunnel` dalında, PR #27 commit'inden ayrı worktree'dedir. Ana checkout ve staging yerel değişiklikleri korundu.
+- PR #27 merge edilmedi. Önceki iPhone düzenleme/silme kabulü kullanıcı doğrulamasıyla tamam; geçici CA profili kullanıcı tarafından silindi. Samsung fiziksel kabulü **cihaz mevcut değil — bekliyor**.
+- `node scripts/mobile-test.mjs`: mevcut yerel PostgreSQL/API için salt okunur preflight; gerekli API build'i; localhost API/Expo + tek ücretsiz Cloudflare HTTPS geçidi; QR/açma bağlantıları ve yalnız sahip olunan süreçlerin temiz durması. Yerel IP/CA/USB veya ücretli hesap yok. [Kullanım ve sınırlar](mobile-local-test.md).
+- Geçit yalnız kaynaklı açık katalog ve sentetik `mobile-tunnel-test-…@example.test` hesaplarını kabul eder. Gerçek kullanıcı login/bearer/çerez/refresh erişimi engellenir; token-origin kuralı ve backend yetkileri değişmez. DB dışarı açılmaz, yerel veri buluta kopyalanmaz; sentetik HTTP trafiği Cloudflare'dan geçer.
+- 61 mobil test/TS/lint, değişmemiş API Release; 9 yerel demo/geçit/süreç testi geçti. Gerçek ücretsiz HTTPS ile kayıt-hata düzeltme, yanlış/doğru giriş, `/me`, tek refresh, katalog, gram/kesirli ölçü, günlük CRUD/taşıma/snapshot/toplam/hesap ayrımı ve yerel çıkış geçti; iki sentetik smoke hesabı ve kayıtları temizlendi. Manifest/bundle URL'si HTTPS ve genel WSS handshake doğrulandı. Yeni backend özellik/model/migration veya native paket değişikliği yok.
+- **Yeni iPhone tünel kabulü — kullanıcı doğrulaması:** Wi-Fi kapalı/mobil internette QR ile mevcut development build ve katalog açıldı; sentetik kayıt/giriş, 100 g/1,5 adet, düzenleme/gün-öğün taşıma/toplam, tam kapat/aç sonrası oturum-kayıt kalıcılığı, silme iptal/onay ve çıkış listesinin tamamını kullanıcı doğruladı. Samsung **cihaz mevcut değil — bekliyor**. Yeni CA yüklenmedi; manuel test hesabı yerelde korunur.
+- Son başlatıcı yeniden açılıp HTTPS/güvenli QR kontrolünden sonra SIGINT ile kapatıldı. Üç test portu boş/tekrar kullanılabilir, cloudflared kalmadı; önceki API ve localhost PostgreSQL korundu. QR sekmesi kapatıldı. Günlük kullanım tek komut + iPhone QR; aynı çalışma sırasında JS güncellemeleri Expo'dan gelir.
+- Teslim PR'ının base'i PR #27'nin `feat/mobile-diary-edit` dalıdır (`195fc79`); yalnız araç farkı sunulur. Araç CI'ı PR base'inden bağımsız ilgili script/workflow/bağımlılık değişikliklerinde çalışır; ücretli staging/deployment dosyaları dahil değildir.
