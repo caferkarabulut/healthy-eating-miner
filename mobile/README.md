@@ -68,12 +68,4 @@ Yerel iPhone build komutu `EX_DEV_CLIENT_NETWORK_INSPECTOR=false` kullanır; Exp
 
 ## Mobil günlük
 
-### Günlük telefon testi: tek komut
-
-Depo kökünde `node scripts/mobile-test.mjs`. Mac açıkken ücretsiz HTTPS tüneli, yerel API/Expo,
-hazır olma kontrolü ve iPhone/Android QR bağlantılarını birlikte açar; CA profili veya sabit IP gerekmez.
-Yalnız sentetik `mobile-tunnel-test-…@example.test` hesabı kullanın; yeni adreste yeniden giriş gerekir.
-Ctrl+C yalnız kendi test süreçlerini kapatır. [Ayrıntılar ve kabul durumu](../docs/mobile-local-test.md).
-Ücretli bulut staging/EAS Update kurulumu ertelendi; bu komut bir deployment yapmaz.
-
 Günlüğüm seçilen günün kayıtlarını, öğünlerini ve API toplamlarını gösterir. Gıda detayından gram veya kaynaklı ölçü/adetle ekleme, gün/öğün seçimi vardır; oturum gerekir. [Davranış, doğrulama ve iPhone/Samsung kabul listesi](docs/diary.md). Düzenleme/silme için [ölçü kopyası kuralları, testler ve kabul listesi](docs/diary-edit.md). Favoriler/geçmiş mobil kapsamda yoktur.
